@@ -10,3 +10,10 @@
 - [x] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
 - [x] Complete alternating gallery layouts and independently rotating images for each subject, with mobile and reduced-motion support.
 - [x] Extend automatic cinematic photo transitions to the background and main production/equipment imagery, with on-screen pausing and reduced-motion support.
+## Cinematic experience — phases 01–02 (development branch)
+- [x] Add a passive, requestAnimationFrame-batched director; keep native scrolling.
+- [x] Upgrade the opening with a high-contrast quarry atmosphere and clear chapter marker.
+- [x] Add a pinned quarry-to-production transition using the project's marked illustrative imagery.
+- [x] Add a visible skip link, mobile layouts and a reduced-motion static version.
+- [x] Add pure progress unit tests and PR checks for types/build.
+- [ ] Approve visual output with real-site photos; benchmark on deployed desktop and mobile devices before merge.
