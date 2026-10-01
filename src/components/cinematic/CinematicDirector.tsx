@@ -36,8 +36,8 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-intro-caption", firstCaption.toFixed(4));
       root.style.setProperty("--cinema-outro-caption", secondCaption.toFixed(4));
       root.style.setProperty("--cinema-scroll-progress", clampUnit(window.scrollY / totalScroll).toFixed(4));
-      root.dataset.cinemaReady = "true";
-      root.dataset.cinemaMotion = reduced ? "reduced" : "full";
+      root.dataset["cinemaReady"] = "true";
+      root.dataset["cinemaMotion"] = reduced ? "reduced" : "full";
     }
 
     function schedule() {
@@ -62,8 +62,8 @@ export function CinematicDirector() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       motion.removeEventListener("change", schedule);
       if (frame) window.cancelAnimationFrame(frame);
-      delete root.dataset.cinemaReady;
-      delete root.dataset.cinemaMotion;
+      delete root.dataset["cinemaReady"];
+      delete root.dataset["cinemaMotion"];
     };
   }, []);
 
