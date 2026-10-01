@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ArrowDownLeft, Pickaxe, Gauge, Zap, Truck } from "lucide-react";
 import { fleetFacts } from "@/data/experience-data";
+import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
 import weighbridges from "@/assets/generators-weighbridge.jpg";
@@ -40,6 +41,7 @@ export function FleetExperience() {
             />
           ))}
           <div className="fleet-experience__shade" aria-hidden="true" />
+          <AtmosphereLayers variant="fleet" />
           <span className="fleet-experience__photo-note">صور توضيحية — تُستبدل بتصوير المعدات الفعلية</span>
           <div className="fleet-experience__headline">
             <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
