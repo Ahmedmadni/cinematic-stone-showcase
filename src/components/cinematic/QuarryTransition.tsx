@@ -1,5 +1,6 @@
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
+import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 
 /**
  * Two real image layers using the project's clearly marked illustrative assets.
@@ -20,6 +21,7 @@ export function QuarryTransition() {
           <img src={crushingPlant} alt="" loading="lazy" decoding="async" />
         </div>
         <div className="cinematic-bridge__shadow" aria-hidden="true" />
+        <AtmosphereLayers variant="bridge" />
         <div className="cinematic-bridge__edge" aria-hidden="true" />
         <div className="cinematic-bridge__body">
           <div className="cinematic-bridge__meta">

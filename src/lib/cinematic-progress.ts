@@ -30,3 +30,14 @@ export function smoothStep(progress: number): number {
   const value = clampUnit(progress);
   return value * value * (3 - 2 * value);
 }
+
+/** A bounded 0–1 cursor position inside a measured rectangle. */
+export function normalizedPointer(position: number, start: number, extent: number): number {
+  if (![position, start, extent].every(Number.isFinite) || extent <= 0) return 0.5;
+  return clampUnit((position - start) / extent);
+}
+
+/** Signed -1 to 1 for parallax, centered when there is no valid pointer. */
+export function signedPointer(position: number, start: number, extent: number): number {
+  return normalizedPointer(position, start, extent) * 2 - 1;
+}

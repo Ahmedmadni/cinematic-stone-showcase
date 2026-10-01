@@ -28,3 +28,13 @@
 - [x] Wire ESLint, TypeScript, tests and build into pull-request checks.
 - [ ] Review on real mobile/desktop browsers and replace clearly labelled illustrative images with site photographs once supplied.
 - [ ] Verify licence renewals and applicable rights with the ministry before treating source-document status as current.
+
+## Cinematic motion polish — mouse, scroll, mask and fog
+- [x] Replace unthrottled route pointer DOM writes with one passive and requestAnimationFrame-batched director.
+- [x] Introduce subtle desktop camera movement, local pointer highlights and a bounded magnetic discover CTA.
+- [x] Soften the scroll-based quarry-to-production circular reveal with a feathered CSS mask and fallback clipping.
+- [x] Add independent animated atmospheric gradient fog and light layers to hero, bridge and equipment scenes.
+- [x] Improve dark-image text contrast, Arabic heading weights and responsive type sizes.
+- [x] Disable fog and pointer effects under reduced motion and simplify effects on touch/small displays.
+- [x] Unit-test pointer normalization including invalid input and out-of-bounds coordinates.
+- [ ] Verify mobile and desktop real-browser rendering, visual contrast and scroll frame stability before merging.
