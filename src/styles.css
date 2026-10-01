@@ -302,14 +302,13 @@ figcaption small { color: var(--primary); margin-right: 8px; font-size: 11px; }
   .eyebrow { margin-bottom: 33px; }
   .section-heading { font-size: clamp(39px, 9vw, 55px); }
   .overview-copy, .chapter-top p, .equipment-text > p, .assurance-details > p { font-size: 15px; }
-  .facts-grid { grid-template-columns: 1fr 1fr; margin-top: 65px; }
-  .fact { padding: 28px 12px 15px; border-bottom: 1px solid var(--line-soft); }
-  .fact:first-child { padding-right: 0; }
-  .fact:nth-child(2) { border-left: 0; }
-  .fact:last-child { padding-right: 0; border-bottom: 0; }
+  .facts-grid { grid-template-columns: minmax(0, 1fr); margin-top: 65px; }
+  .fact, .fact:first-child, .fact:last-child { min-width: 0; padding: 22px 0; border-left: 0; border-bottom: 1px solid var(--line-soft); }
+  .fact:last-child { border-bottom: 0; }
+  .fact-number { min-width: 0; flex-wrap: wrap; gap: 3px 12px; }
   .fact-number b { font-size: 55px; }
-  .fact-number span { font-size: 11px; }
-  .fact p { font-size: 11px; margin-top: 10px; }
+  .fact-number span { font-size: 12px; }
+  .fact p { font-size: 12px; margin-top: 8px; }
   .chapter-top, .location-heading { display: block; }
   .chapter-top p { margin: 24px 0 0; }
   .image-feature .image-window { height: 360px; }
