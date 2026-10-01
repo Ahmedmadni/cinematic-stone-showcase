@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowLeft, ArrowRight, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle, X } from "lucide-react";
+import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle } from "lucide-react";
 import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
+import { GalleryLightbox } from "@/components/GalleryLightbox";
 import { AutoVisual } from "@/components/AutoVisual";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
@@ -114,19 +115,6 @@ function Index() {
   const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<SelectedGalleryImage | null>(null);
-
-  useEffect(() => {
-    if (selectedImage === null) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setSelectedImage(null);
-      if (event.key === "ArrowLeft") setSelectedImage((current) => moveGallerySelection(current, 1));
-      if (event.key === "ArrowRight") setSelectedImage((current) => moveGallerySelection(current, -1));
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); };
-  }, [selectedImage]);
 
   const updateField = (key: keyof InquiryInput, value: string) => {
     setFields((current) => ({ ...current, [key]: value }));
@@ -302,25 +290,17 @@ function Index() {
         </section>
       </main>
       {selectedImage !== null && selectedGallery && selectedSlide && (
-        <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={"صور " + selectedGallery.title} onClick={() => setSelectedImage(null)}>
-          <div className="lightbox-toolbar">
-            <span className="latin" dir="ltr">{String(selectedImage.slide + 1).padStart(2, "0")} / {String(selectedGallery.slides.length).padStart(2, "0")}</span>
-            <Button type="button" variant="ghost" aria-label="إغلاق الصورة" onClick={() => setSelectedImage(null)}><X size={24} /></Button>
-          </div>
-          <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
-            <img src={selectedSlide.image} alt={"صورة تجريبية توضيحية: " + selectedSlide.label} />
-            <div className="lightbox-caption">
-              <div>
-                <span>صورة تجريبية · {selectedGallery.replacement}</span>
-                <h3>{selectedGallery.title} — {selectedSlide.label}</h3>
-              </div>
-              <div className="lightbox-controls">
-                <Button type="button" variant="outline" aria-label="الصورة السابقة" onClick={() => setSelectedImage((current) => moveGallerySelection(current, -1))}><ArrowRight size={20} /></Button>
-                <Button type="button" variant="outline" aria-label="الصورة التالية" onClick={() => setSelectedImage((current) => moveGallerySelection(current, 1))}><ArrowLeft size={20} /></Button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <GalleryLightbox
+          title={selectedGallery.title}
+          replacement={selectedGallery.replacement}
+          image={selectedSlide.image}
+          label={selectedSlide.label}
+          position={selectedImage.slide + 1}
+          total={selectedGallery.slides.length}
+          onNext={() => setSelectedImage((current) => moveGallerySelection(current, 1))}
+          onPrevious={() => setSelectedImage((current) => moveGallerySelection(current, -1))}
+          onRequestClose={() => setSelectedImage(null)}
+        />
       )}
       <footer className="site-footer"><span>© شركة الأسطول الآلي</span><span>الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.</span><a href="#البداية">العودة للأعلى ↑</a></footer>
     </div>
