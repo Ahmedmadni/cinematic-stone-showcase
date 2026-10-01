@@ -9,3 +9,4 @@
 - [x] Add clearly marked illustrative imagery for other equipment, facilities, offices, maintenance, site roads, and recreation.
 - [x] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
 - [x] Complete alternating gallery layouts and independently rotating images for each subject, with mobile and reduced-motion support.
+- [x] Extend automatic cinematic photo transitions to the background and main production/equipment imagery, with on-screen pausing and reduced-motion support.

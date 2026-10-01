@@ -6,10 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
+import { AutoVisual } from "@/components/AutoVisual";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
+import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
+import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
 import equipment from "@/assets/equipment.jpg";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
@@ -169,7 +172,7 @@ function Index() {
   return (
     <div className="presentation" dir="rtl" onPointerMove={onPointerMove}>
       <div className="scene-backdrop" ref={sceneRef} aria-hidden="true">
-        <img src={quarryAerial} width={1920} height={1080} alt="" />
+        <AutoVisual className="scene-visual" eager interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
         <div className="scene-shade" />
       </div>
 
@@ -214,7 +217,7 @@ function Index() {
             <Eyebrow number="02 / 06">القدرة التشغيلية</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">من الحجر الخام<br /><span>إلى قيمة تُبنى.</span></h2><p>خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.</p></div>
             <figure className="image-feature reveal">
-              <div className="image-window"><span className="photo-placeholder">صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان</span><img src={crushingPlant} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" /></div>
+              <div className="image-window"><span className="photo-placeholder">صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" }, { image: crushingPlantAlt, alt: "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر" }]} /></div>
               <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>خطا الكسارات والفرز — مجمع كسارات الصمان <small>صورة بديلة للتحديث</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>خطان للإنتاج</h3></div><p>كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
@@ -224,7 +227,7 @@ function Index() {
         <section className="equipment-chapter section-pad" aria-labelledby="equipment-title">
           <div className="section-inner equipment-layout">
             <div className="equipment-text reveal"><Eyebrow number="03 / 06">الأصول والمعدات</Eyebrow><h2 className="section-heading" id="equipment-title">القوة خلف<br /><span>كل حركة.</span></h2><p>أسطول من الحفارات والشيولات يعمل مع منظومة الإنتاج، إلى جانب الموازين والمولدات والمرافق الداعمة للتشغيل.</p><div className="equipment-counts"><div><strong>١٤</strong><span>حفاراً</span></div><div><strong>٦</strong><span>شيولات</span></div><div><strong>٢</strong><span>ميزان شاحنات</span></div><div><strong>٣</strong><span>مولدات كهرباء</span></div></div></div>
-            <figure className="equipment-image reveal"><div className="image-window"><span className="photo-placeholder">صورة تجريبية · حفارات وشيولات — محاجر الصمان</span><img src={equipment} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لحفار وشيول في محجر حجري" /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>حفارات وشيولات الاستخراج والتحميل — محاجر الصمان <small>صورة بديلة للتحديث</small></span></figcaption></figure>
+            <figure className="equipment-image reveal"><div className="image-window"><span className="photo-placeholder">صورة تجريبية · حفارات وشيولات — محاجر الصمان</span><AutoVisual interval={7600} images={[{ image: equipment, alt: "صورة تجريبية توضيحية لحفار وشيول في محجر حجري" }, { image: excavators, alt: "صورة تجريبية توضيحية لحفارات الاستخراج في المحجر" }, { image: loaders, alt: "صورة تجريبية توضيحية لشيولات التحميل بالموقع" }]} /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>حفارات وشيولات الاستخراج والتحميل — محاجر الصمان <small>صورة بديلة للتحديث</small></span></figcaption></figure>
           </div>
         </section>
 
