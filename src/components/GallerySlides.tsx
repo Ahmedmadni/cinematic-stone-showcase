@@ -22,7 +22,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
   const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.15 });
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { threshold: 0.15 });
     if (frame.current) observer.observe(frame.current);
     return () => observer.disconnect();
   }, []);
@@ -54,7 +54,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
 
   return (
     <div className="gallery-slider" ref={frame} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
-      <Button type="button" variant="ghost" className="gallery-image-button" aria-label={`عرض ${title}، ${slides[active].label} بحجم أكبر`} onClick={() => onOpen(active)}>
+      <Button type="button" variant="ghost" className="gallery-image-button" aria-label={`عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
         <span className="image-window">
           {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" width={1536} height={1024} alt={index === active ? `صورة تجريبية توضيحية: ${slide.label} — ${replacement}` : ""} aria-hidden={index !== active} className={`gallery-slide ${index === active ? "active" : ""}`} />)}
           <span className="gallery-image-shade" /><span className="gallery-image-title">{title}</span>
