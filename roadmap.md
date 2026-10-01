@@ -38,3 +38,13 @@
 - [x] Disable fog and pointer effects under reduced motion and simplify effects on touch/small displays.
 - [x] Unit-test pointer normalization including invalid input and out-of-bounds coordinates.
 - [ ] Verify mobile and desktop real-browser rendering, visual contrast and scroll frame stability before merging.
+
+## Cinematic investor experience — phase 04
+- [x] Replace the static ISO list with interactive certificate metadata from the supplied exhibit.
+- [x] Show historical permit states and licensed parties, never implying live verification.
+- [x] Offer a due-diligence document request checklist without publishing confidential files or financial values.
+- [x] Introduce a three-step investor journey to the existing inquiry form.
+- [x] Extend the shared cinematic pointer spotlight with reduced-motion safety.
+- [x] Add content disclosure tests and expand scoped CI coverage.
+- [ ] Obtain authorized original certificates, current permit statuses, and publication approval.
+- [ ] Conduct actual mobile and desktop browser visual/performance review before merging.
