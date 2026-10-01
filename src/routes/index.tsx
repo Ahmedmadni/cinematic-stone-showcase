@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight } from "lucide-react";
+import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -63,6 +63,24 @@ const siteGallery = [
   { image: housingAndRecreation, title: "السكن والمرافق الترفيهية", description: "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.", replacement: "سكن العمال والملعب الترفيهي", number: "06" },
 ];
 
+const investmentEmail = "a.elmadin@alostool.com.sa";
+const investmentWhatsApp = "966560409811";
+
+function contactLinks(inquiry: InquiryInput) {
+  const body = [
+    "استفسار استثماري بشأن محجر وكسارة الصمان",
+    `الاسم: ${inquiry.name}`,
+    `البريد الإلكتروني: ${inquiry.email}`,
+    inquiry.phone && `رقم الهاتف: ${inquiry.phone}`,
+    inquiry.company && `الجهة / الشركة: ${inquiry.company}`,
+    inquiry.message && `الرسالة: ${inquiry.message}`,
+  ].filter(Boolean).join("\n");
+  return {
+    email: `mailto:${investmentEmail}?subject=${encodeURIComponent("استفسار استثماري — محجر الصمان")}&body=${encodeURIComponent(body)}`,
+    whatsApp: `https://wa.me/${investmentWhatsApp}?text=${encodeURIComponent(body)}`,
+  };
+}
+
 function Eyebrow({ number, children }: { number: string; children: React.ReactNode }) {
   return <div className="eyebrow"><span className="eyebrow-line" /><span className="latin" dir="ltr">{number}</span><span>{children}</span></div>;
 }
@@ -71,6 +89,7 @@ function Index() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [readyInquiry, setReadyInquiry] = useState<InquiryInput | null>(null);
   const [formError, setFormError] = useState("");
   const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -94,6 +113,7 @@ function Index() {
     setSubmitting(true);
     try {
       await submitInquiry({ data: parsed.data });
+      setReadyInquiry(parsed.data);
       setSubmitted(true);
     } catch {
       setFormError("تعذر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.");
@@ -122,6 +142,8 @@ function Index() {
     sceneRef.current?.style.setProperty("--pointer-x", `${x}px`);
     sceneRef.current?.style.setProperty("--pointer-y", `${y}px`);
   };
+
+  const links = readyInquiry ? contactLinks(readyInquiry) : null;
 
   return (
     <div className="presentation" dir="rtl" onPointerMove={onPointerMove}>
@@ -218,11 +240,11 @@ function Index() {
             <div className="contact-content">
               <div className="contact-kicker"><span className="kicker-dot" /> الخطوة التالية</div>
               <h2 id="contact-title">لنبدأ <em>الحديث.</em></h2>
-              <p>مهتم بفرصة محجر الصمان؟ اترك بياناتك للتواصل بشأن التفاصيل الاستثمارية.</p>
+              <p>مهتم بفرصة محجر الصمان؟ اترك بياناتك، ثم اختر التواصل مع مسؤول الاستثمار عبر البريد الإلكتروني أو واتساب.</p>
               <div className="contact-direct"><a href="mailto:info@alostool.com.sa?subject=استفسار%20عن%20فرصة%20محجر%20الصمان"><Mail size={17} /> info@alostool.com.sa</a><a href="tel:920026556" dir="ltr"><Phone size={17} /> 920026556</a></div>
             </div>
             <div className="inquiry-panel">
-              {submitted ? <div className="inquiry-success" role="status"><span>تم استلام اهتمامك</span><h3>شكراً لتواصلك.</h3><p>وصلتنا بياناتك، وسنتواصل معك بشأن الفرصة الاستثمارية.</p></div> : <form onSubmit={handleSubmit} noValidate>
+              {submitted && links ? <div className="inquiry-success" role="status"><span>تم حفظ بيانات اهتمامك</span><h3>اختر طريقة التواصل.</h3><p>رسالتك جاهزة ببياناتك. اختر البريد الإلكتروني أو واتساب، ثم اضغط إرسال في التطبيق الذي يُفتح.</p><div className="inquiry-channels"><Button asChild className="contact-button"><a href={links.email}><Mail size={19} aria-hidden="true" /> التواصل عبر البريد الإلكتروني <ArrowUpLeft size={17} aria-hidden="true" /></a></Button><Button asChild variant="outline" className="contact-button"><a href={links.whatsApp} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true" /> التواصل عبر واتساب <ArrowUpLeft size={17} aria-hidden="true" /></a></Button></div><p className="channel-note">لن تُرسل الرسالة تلقائياً؛ يمكنك مراجعتها قبل الإرسال.</p></div> : <form onSubmit={handleSubmit} noValidate>
                 <div className="form-title"><span className="latin" dir="ltr">INVESTMENT INQUIRY</span><h3>سجّل اهتمامك</h3></div>
                 <div className="form-fields">
                   <div className="form-field"><Label htmlFor="inquiry-name">الاسم الكامل <span>*</span></Label><Input id="inquiry-name" name="name" autoComplete="name" value={fields.name} onChange={(e) => updateField("name", e.target.value)} maxLength={100} aria-invalid={!!fieldErrors["name"]} aria-describedby={fieldErrors["name"] ? "name-error" : undefined} placeholder="الاسم الكامل" /><small id="name-error">{fieldErrors["name"]}</small></div>
@@ -233,8 +255,8 @@ function Index() {
                   <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">الموقع الإلكتروني</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 </div>
                 {formError && <p className="form-error" role="alert">{formError}</p>}
-                <Button type="submit" disabled={submitting} className="contact-button">{submitting ? "جارٍ الإرسال..." : "أرسل اهتمامك"} <ArrowLeft size={18} /></Button>
-                <p className="form-privacy">تُستخدم بياناتك فقط للتواصل بشأن هذه الفرصة الاستثمارية.</p>
+                <Button type="submit" disabled={submitting} className="contact-button">{submitting ? "جارٍ حفظ البيانات..." : "احفظ بياناتك واختر طريقة التواصل"} <ArrowLeft size={18} /></Button>
+                <p className="form-privacy">تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.</p>
               </form>}
             </div>
           </div>
