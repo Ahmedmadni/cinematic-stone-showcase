@@ -5,3 +5,6 @@
 - [x] Label each illustrative image with the intended real-world site/equipment replacement.
 - [x] Add and verify a short investment inquiry form that securely stores submissions.
 - [x] Replace the temporary brand mark with the supplied official company logo.
+- [ ] Connect each saved investment inquiry to a one-recipient email notice for a.elmadin@alostool.com.sa (blocked until the company sets up an email-sending domain).
+- [ ] Add clearly marked illustrative imagery for other equipment, facilities, offices, maintenance, site roads, and recreation.
+- [ ] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
