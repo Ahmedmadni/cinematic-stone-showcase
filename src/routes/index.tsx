@@ -94,6 +94,16 @@ function contactLinks(inquiry: InquiryInput) {
   };
 }
 
+type SelectedGalleryImage = { item: number; slide: number };
+
+function moveGallerySelection(current: SelectedGalleryImage | null, delta: number): SelectedGalleryImage | null {
+  if (!current) return null;
+  const gallery = siteGallery[current.item];
+  if (!gallery || gallery.slides.length === 0) return null;
+  const count = gallery.slides.length;
+  return { item: current.item, slide: (current.slide + delta + count) % count };
+}
+
 function Eyebrow({ number, children }: { number: string; children: React.ReactNode }) {
   return <div className="eyebrow"><span className="eyebrow-line" /><span className="latin" dir="ltr">{number}</span><span>{children}</span></div>;
 }
@@ -106,7 +116,7 @@ function Index() {
   const [formError, setFormError] = useState("");
   const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [selectedImage, setSelectedImage] = useState<{ item: number; slide: number } | null>(null);
+  const [selectedImage, setSelectedImage] = useState<SelectedGalleryImage | null>(null);
 
   useEffect(() => {
     if (selectedImage === null) return;
@@ -114,8 +124,8 @@ function Index() {
     document.body.style.overflow = "hidden";
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") setSelectedImage(null);
-      if (event.key === "ArrowLeft") setSelectedImage((current) => current === null ? null : { ...current, slide: (current.slide + 1) % siteGallery[current.item].slides.length });
-      if (event.key === "ArrowRight") setSelectedImage((current) => current === null ? null : { ...current, slide: (current.slide - 1 + siteGallery[current.item].slides.length) % siteGallery[current.item].slides.length });
+      if (event.key === "ArrowLeft") setSelectedImage((current) => moveGallerySelection(current, 1));
+      if (event.key === "ArrowRight") setSelectedImage((current) => moveGallerySelection(current, -1));
     };
     window.addEventListener("keydown", onKeyDown);
     return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); };
@@ -171,6 +181,8 @@ function Index() {
   };
 
   const links = readyInquiry ? contactLinks(readyInquiry) : null;
+  const selectedGallery = selectedImage ? siteGallery[selectedImage.item] : undefined;
+  const selectedSlide = selectedImage ? selectedGallery?.slides[selectedImage.slide] : undefined;
 
   return (
     <div className="presentation" dir="rtl" onPointerMove={onPointerMove}>
@@ -301,10 +313,27 @@ function Index() {
           </div>
         </section>
       </main>
-      {selectedImage !== null && <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`صور ${siteGallery[selectedImage.item].title}`} onClick={() => setSelectedImage(null)}>
-        <div className="lightbox-toolbar"><span className="latin" dir="ltr">{String(selectedImage.slide + 1).padStart(2, "0")} / {String(siteGallery[selectedImage.item].slides.length).padStart(2, "0")}</span><Button type="button" variant="ghost" aria-label="إغلاق الصورة" onClick={() => setSelectedImage(null)}><X size={24} /></Button></div>
-        <div className="lightbox-content" onClick={(event) => event.stopPropagation()}><img src={siteGallery[selectedImage.item].slides[selectedImage.slide].image} alt={`صورة تجريبية توضيحية: ${siteGallery[selectedImage.item].slides[selectedImage.slide].label}`} /><div className="lightbox-caption"><div><span>صورة تجريبية · {siteGallery[selectedImage.item].replacement}</span><h3>{siteGallery[selectedImage.item].title} — {siteGallery[selectedImage.item].slides[selectedImage.slide].label}</h3></div><div className="lightbox-controls"><Button type="button" variant="outline" aria-label="الصورة السابقة" onClick={() => setSelectedImage((current) => current === null ? null : { ...current, slide: (current.slide - 1 + siteGallery[current.item].slides.length) % siteGallery[current.item].slides.length })}><ArrowRight size={20} /></Button><Button type="button" variant="outline" aria-label="الصورة التالية" onClick={() => setSelectedImage((current) => current === null ? null : { ...current, slide: (current.slide + 1) % siteGallery[current.item].slides.length })}><ArrowLeft size={20} /></Button></div></div></div>
-      </div>}
+      {selectedImage !== null && selectedGallery && selectedSlide && (
+        <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={"صور " + selectedGallery.title} onClick={() => setSelectedImage(null)}>
+          <div className="lightbox-toolbar">
+            <span className="latin" dir="ltr">{String(selectedImage.slide + 1).padStart(2, "0")} / {String(selectedGallery.slides.length).padStart(2, "0")}</span>
+            <Button type="button" variant="ghost" aria-label="إغلاق الصورة" onClick={() => setSelectedImage(null)}><X size={24} /></Button>
+          </div>
+          <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
+            <img src={selectedSlide.image} alt={"صورة تجريبية توضيحية: " + selectedSlide.label} />
+            <div className="lightbox-caption">
+              <div>
+                <span>صورة تجريبية · {selectedGallery.replacement}</span>
+                <h3>{selectedGallery.title} — {selectedSlide.label}</h3>
+              </div>
+              <div className="lightbox-controls">
+                <Button type="button" variant="outline" aria-label="الصورة السابقة" onClick={() => setSelectedImage((current) => moveGallerySelection(current, -1))}><ArrowRight size={20} /></Button>
+                <Button type="button" variant="outline" aria-label="الصورة التالية" onClick={() => setSelectedImage((current) => moveGallerySelection(current, 1))}><ArrowLeft size={20} /></Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <footer className="site-footer"><span>© شركة الأسطول الآلي</span><span>الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.</span><a href="#البداية">العودة للأعلى ↑</a></footer>
     </div>
   );
