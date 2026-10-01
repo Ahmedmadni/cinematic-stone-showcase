@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep the investment presentation as a single Arabic RTL page at `/`, with all sections in one route; the user requested a cinematic one-page experience rather than multiple pages.
+- Keep presentation imagery in `src/assets` and label generated images as illustrative; actual site and equipment photos have not been supplied.
