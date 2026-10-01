@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
 import { AutoVisual } from "@/components/AutoVisual";
+import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
@@ -258,6 +259,14 @@ function Index() {
         <section className="assurance-chapter section-pad" aria-labelledby="assurance-title">
            <div className="section-inner assurance-layout reveal"><div><Eyebrow number="06 / 06">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
         </section>
+
+        <section className="assistant-chapter section-pad" id="اسأل" aria-labelledby="assistant-title">
+          <div className="section-inner assistant-layout reveal">
+            <div><Eyebrow number="Q / A">اسأل عن المشروع</Eyebrow><h2 className="section-heading" id="assistant-title">لديك سؤال؟<br /><span>اسأل مباشرة.</span></h2><p className="assistant-intro">اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.</p></div>
+            <ProjectAssistant />
+          </div>
+        </section>
+
 
         <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title">
           <div className="section-inner contact-layout reveal">
