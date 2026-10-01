@@ -55,7 +55,7 @@ jobs:
       - name: Install isolated browser QA runtime
         run: |
           npm install --prefix /tmp/somman-browser-qa --no-save --no-package-lock --ignore-scripts playwright@1.56.1
-          /tmp/somman-browser-qa/node_modules/.bin/playwright install --with-deps chromium
+          /tmp/somman-browser-qa/node_modules/.bin/playwright install chromium
       - name: Start development site on localhost
         run: |
           bun run dev -- --host 127.0.0.1 --port 4173 > /tmp/somman-qa-server.log 2>&1 &
