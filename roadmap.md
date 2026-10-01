@@ -8,4 +8,4 @@
 - [x] Replace automatic email notices with visitor-selected prefilled email to a.elmadin@alostool.com.sa or WhatsApp to +966560409811 after saving validated details.
 - [x] Add clearly marked illustrative imagery for other equipment, facilities, offices, maintenance, site roads, and recreation.
 - [x] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
-- [ ] Complete alternating gallery layouts and independently rotating images for each subject, with mobile and reduced-motion support.
+- [x] Complete alternating gallery layouts and independently rotating images for each subject, with mobile and reduced-motion support.

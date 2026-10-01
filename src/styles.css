@@ -311,7 +311,7 @@ figcaption small { color: var(--primary); margin-right: 8px; font-size: 11px; }
   .gallery-slider, .gallery-item:nth-child(1) .gallery-slider, .gallery-item:nth-child(6) .gallery-slider { height: auto; aspect-ratio: 4 / 3; }
   .gallery-item:first-child .gallery-slider { aspect-ratio: 3 / 4; }
   .gallery-item .image-window { height: 100%; }
-  .gallery-image-title { font-size: 20px; right: 16px; bottom: 16px; }
+  .gallery-image-title { font-size: 20px; right: 16px; left: 16px; bottom: 62px; }
   .gallery-item .image-window .photo-placeholder { top: 12px; bottom: auto; right: 12px; }
   .gallery-slide-controls { bottom: 10px; left: 10px; gap: 3px; }
   .gallery-slide-arrows button { width: 40px; height: 40px; }
