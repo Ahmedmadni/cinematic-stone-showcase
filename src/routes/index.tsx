@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle } from "lucide-react";
+import { ArrowDownLeft, ArrowLeft, ArrowRight, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -93,6 +93,20 @@ function Index() {
   const [formError, setFormError] = useState("");
   const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [selectedImage, setSelectedImage] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (selectedImage === null) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedImage(null);
+      if (event.key === "ArrowLeft") setSelectedImage((current) => current === null ? null : (current + 1) % siteGallery.length);
+      if (event.key === "ArrowRight") setSelectedImage((current) => current === null ? null : (current - 1 + siteGallery.length) % siteGallery.length);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener("keydown", onKeyDown); };
+  }, [selectedImage]);
 
   const updateField = (key: keyof InquiryInput, value: string) => {
     setFields((current) => ({ ...current, [key]: value }));
@@ -212,8 +226,10 @@ function Index() {
             <Eyebrow number="04 / 06">مشاهد من المنظومة</Eyebrow>
             <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">ما وراء خطوط الإنتاج.<br /><span>موقعٌ متكامل.</span></h2><p>معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.</p></div>
             <div className="site-gallery">
-              {siteGallery.map((item) => <figure className="gallery-item reveal" key={item.number}>
-                <div className="image-window"><img src={item.image} loading="lazy" width={1536} height={1024} alt={`تصور توضيحي غير حقيقي: ${item.replacement} في موقع محجر الصمان`} /><span className="photo-placeholder">صورة تجريبية · {item.replacement}</span></div>
+              {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
+                <Button type="button" variant="ghost" className="gallery-image-button" aria-label={`عرض صورة ${item.title} بحجم أكبر`} onClick={() => setSelectedImage(index)}>
+                  <span className="image-window"><img src={item.image} loading="lazy" width={1536} height={1024} alt={`تصور توضيحي غير حقيقي: ${item.replacement} في موقع محجر الصمان`} /><span className="gallery-image-shade" /><span className="gallery-image-title">{item.title}</span><span className="photo-placeholder">صورة تجريبية · {item.replacement}</span></span>
+                </Button>
                 <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{item.title}</h3><p>{item.description}</p></div><small>تُستبدل بصورة: {item.replacement}</small></figcaption>
               </figure>)}
             </div>
@@ -262,6 +278,10 @@ function Index() {
           </div>
         </section>
       </main>
+      {selectedImage !== null && <div className="gallery-lightbox" role="dialog" aria-modal="true" aria-label={`صورة ${siteGallery[selectedImage].title}`} onClick={() => setSelectedImage(null)}>
+        <div className="lightbox-toolbar"><span className="latin" dir="ltr">{String(selectedImage + 1).padStart(2, "0")} / {String(siteGallery.length).padStart(2, "0")}</span><Button type="button" variant="ghost" aria-label="إغلاق الصورة" onClick={() => setSelectedImage(null)}><X size={24} /></Button></div>
+        <div className="lightbox-content" onClick={(event) => event.stopPropagation()}><img src={siteGallery[selectedImage].image} alt={`صورة تجريبية توضيحية: ${siteGallery[selectedImage].replacement}`} /><div className="lightbox-caption"><div><span>صورة تجريبية · {siteGallery[selectedImage].replacement}</span><h3>{siteGallery[selectedImage].title}</h3></div><div className="lightbox-controls"><Button type="button" variant="outline" aria-label="الصورة السابقة" onClick={() => setSelectedImage((selectedImage - 1 + siteGallery.length) % siteGallery.length)}><ArrowRight size={20} /></Button><Button type="button" variant="outline" aria-label="الصورة التالية" onClick={() => setSelectedImage((selectedImage + 1) % siteGallery.length)}><ArrowLeft size={20} /></Button></div></div></div>
+      </div>}
       <footer className="site-footer"><span>© شركة الأسطول الآلي</span><span>الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.</span><a href="#البداية">العودة للأعلى ↑</a></footer>
     </div>
   );
