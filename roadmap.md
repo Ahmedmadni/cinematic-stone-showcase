@@ -4,3 +4,4 @@
 - [ ] Refine mobile motion and image framing for touch screens.
 - [ ] Label each illustrative image with the intended real-world site/equipment replacement.
 - [ ] Add and verify a short investment inquiry form that securely stores submissions.
+- [ ] Replace the temporary brand mark with the supplied official company logo.
