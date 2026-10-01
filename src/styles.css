@@ -291,7 +291,7 @@ figcaption small { color: var(--primary); margin-right: 8px; font-size: 11px; }
   .header-contact svg { width: 17px; }
   .hero { min-height: min(760px, 93svh); padding: 110px 24px 100px; align-items: center; }
   .hero-photo-label { margin-bottom: 22px; }
-  .scene-visual { inset: 0; transform: none; transition: none; }
+  .auto-visual.scene-visual { inset: 0; transform: none; transition: none; }
   .scene-visual .auto-visual-frame { object-position: 57% center; }
   .hero h1 { font-size: clamp(60px, 13vw, 83px); }
   .hero-title-second { font-size: clamp(38px, 8.4vw, 56px); margin-top: 13px; }
