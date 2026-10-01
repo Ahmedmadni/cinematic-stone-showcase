@@ -10,13 +10,15 @@ import { AutoVisual } from "@/components/AutoVisual";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
 import { QuarryTransition } from "@/components/cinematic/QuarryTransition";
+import { ProductionFlow } from "@/components/cinematic/ProductionFlow";
+import { FleetExperience } from "@/components/cinematic/FleetExperience";
+import { QuarryAtlas } from "@/components/cinematic/QuarryAtlas";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
-import equipment from "@/assets/equipment.jpg";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
 import powerAndWeighbridge from "@/assets/generators-weighbridge.jpg";
@@ -59,12 +61,6 @@ const facts = [
   { number: "٧٤٣٬٢٨٢", unit: "م²", label: "إجمالي مساحات المحاجر" },
   { number: "٤٬٥٠٠", unit: "م³ / يوم", label: "طاقة إنتاجية تصل إلى" },
   { number: "٣", unit: "محاجر", label: "ضمن مجمع كسارات الصمان" },
-];
-
-const quarries = [
-  { name: "محجر الأسطول ١", area: "٢٤٧٬٩٠٠", index: "01" },
-  { name: "محجر الأسطول ٢", area: "٢٤٦٬٣٠٠", index: "02" },
-  { name: "محجر بير زيت", area: "٢٤٩٬٠٨٢", index: "03" },
 ];
 
 const siteGallery = [
@@ -240,14 +236,12 @@ function Index() {
               <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>خطا الكسارات والفرز — مجمع كسارات الصمان <small>صورة بديلة للتحديث</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>خطان للإنتاج</h3></div><p>كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
+            <ProductionFlow />
           </div>
         </section>
 
         <section className="equipment-chapter section-pad" aria-labelledby="equipment-title">
-          <div className="section-inner equipment-layout">
-            <div className="equipment-text reveal"><Eyebrow number="03 / 06">الأصول والمعدات</Eyebrow><h2 className="section-heading" id="equipment-title">القوة خلف<br /><span>كل حركة.</span></h2><p>أسطول من الحفارات والشيولات يعمل مع منظومة الإنتاج، إلى جانب الموازين والمولدات والمرافق الداعمة للتشغيل.</p><div className="equipment-counts"><div><strong>١٤</strong><span>حفاراً</span></div><div><strong>٦</strong><span>شيولات</span></div><div><strong>٢</strong><span>ميزان شاحنات</span></div><div><strong>٣</strong><span>مولدات كهرباء</span></div></div></div>
-            <figure className="equipment-image reveal"><div className="image-window"><span className="photo-placeholder">صورة تجريبية · حفارات وشيولات — محاجر الصمان</span><AutoVisual interval={7600} images={[{ image: equipment, alt: "صورة تجريبية توضيحية لحفار وشيول في محجر حجري" }, { image: excavators, alt: "صورة تجريبية توضيحية لحفارات الاستخراج في المحجر" }, { image: loaders, alt: "صورة تجريبية توضيحية لشيولات التحميل بالموقع" }]} /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>حفارات وشيولات الاستخراج والتحميل — محاجر الصمان <small>صورة بديلة للتحديث</small></span></figcaption></figure>
-          </div>
+          <div className="section-inner"><FleetExperience /></div>
         </section>
 
         <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
@@ -267,9 +261,7 @@ function Index() {
           <div className="section-inner">
             <Eyebrow number="05 / 06">الموقع والمحاجر</Eyebrow>
             <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">الصمان،<br /><span>حيث تبدأ الحكاية.</span></h2><p>مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
-            <div className="quarry-list">
-              {quarries.map((quarry) => <div className="quarry-row reveal" key={quarry.index}><span className="latin quarry-index">{quarry.index}</span><h3>{quarry.name}</h3><span className="quarry-area">{quarry.area} <small>م²</small></span><ArrowUpLeft size={20} strokeWidth={1.2} aria-hidden="true" /></div>)}
-            </div>
+            <QuarryAtlas />
             <p className="license-note reveal">المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.</p>
           </div>
         </section>

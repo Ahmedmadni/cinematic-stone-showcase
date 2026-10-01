@@ -10,6 +10,8 @@ export function CinematicDirector() {
     const root = document.querySelector<HTMLElement>(".presentation");
     const hero = document.getElementById("البداية");
     const bridge = document.getElementById("cinematic-bridge");
+    const fleet = document.getElementById("equipment-experience");
+    const atlas = document.querySelector<HTMLElement>(".quarry-atlas");
     if (!root || !hero || !bridge) return;
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -29,6 +31,13 @@ export function CinematicDirector() {
       const firstCaption = reduced ? 0 : 1 - smoothStep(segmentProgress(bridgeProgress, 0.08, 0.40));
       const secondCaption = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.57, 0.88));
       const totalScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      const fleetRect = fleet?.getBoundingClientRect();
+      const atlasRect = atlas?.getBoundingClientRect();
+      const sceneEntry = (rect: DOMRect | undefined) => rect
+        ? clampUnit((window.innerHeight - rect.top) / Math.max(1, rect.height + window.innerHeight))
+        : 0;
+      const fleetScale = reduced ? 1 : 1.085 - sceneEntry(fleetRect) * 0.075;
+      const atlasScale = reduced ? 1 : 1.075 - sceneEntry(atlasRect) * 0.065;
 
       root.style.setProperty("--cinema-hero-progress", heroProgress.toFixed(4));
       root.style.setProperty("--cinema-bridge-progress", bridgeProgress.toFixed(4));
@@ -36,6 +45,8 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-intro-caption", firstCaption.toFixed(4));
       root.style.setProperty("--cinema-outro-caption", secondCaption.toFixed(4));
       root.style.setProperty("--cinema-scroll-progress", clampUnit(window.scrollY / totalScroll).toFixed(4));
+      root.style.setProperty("--cinema-fleet-scale", fleetScale.toFixed(4));
+      root.style.setProperty("--cinema-territory-scale", atlasScale.toFixed(4));
       root.dataset["cinemaReady"] = "true";
       root.dataset["cinemaMotion"] = reduced ? "reduced" : "full";
     }

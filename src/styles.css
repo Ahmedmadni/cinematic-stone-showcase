@@ -2,6 +2,7 @@
 @source "../src";
 @import "tw-animate-css";
 @import "./styles/cinematic.css";
+@import "./styles/immersive.css";
 
 @custom-variant dark (&:is(.dark *));
 
