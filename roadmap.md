@@ -17,3 +17,14 @@
 - [x] Add a visible skip link, mobile layouts and a reduced-motion static version.
 - [x] Add pure progress unit tests and PR checks for types/build.
 - [ ] Approve visual output with real-site photos; benchmark on deployed desktop and mobile devices before merge.
+
+## Cinematic experience — phase 03 (review branch)
+- [x] Add source-grounded interactive production narrative with three selectable material steps.
+- [x] Build equipment focus room with four manually selectable asset categories and illustrative image transitions.
+- [x] Build an expressly **non-geographic** interactive atlas for the three quarry entries.
+- [x] Show licence holders and statuses **as reported in the source document**, with prominent need for fresh official verification.
+- [x] Extend the original passive rAF scroll director for subtle depth on fleet and atlas; retain native scroll and reduced-motion support.
+- [x] Add content integrity tests (quarry area sum, source-status caveats, equipment counts, no added valuation).
+- [x] Wire ESLint, TypeScript, tests and build into pull-request checks.
+- [ ] Review on real mobile/desktop browsers and replace clearly labelled illustrative images with site photographs once supplied.
+- [ ] Verify licence renewals and applicable rights with the ministry before treating source-document status as current.
