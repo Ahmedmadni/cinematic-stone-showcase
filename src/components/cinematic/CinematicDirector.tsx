@@ -24,6 +24,7 @@ export function CinematicDirector() {
     const fleet = document.getElementById("equipment-experience");
     const atlas = document.querySelector<HTMLElement>(".quarry-atlas");
     const magneticLink = document.querySelector<HTMLElement>(".hero-discover");
+    const evidence = document.querySelector<HTMLElement>(".evidence-studio__stage");
     if (!root || !hero || !bridge) return;
 
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -49,6 +50,7 @@ export function CinematicDirector() {
       const bridgeRect = bridge.getBoundingClientRect();
       const fleetRect = fleet?.getBoundingClientRect();
       const atlasRect = atlas?.getBoundingClientRect();
+      const evidenceRect = evidence?.getBoundingClientRect();
 
       const heroProgress = reduced ? 0 : clampUnit(-heroRect.top / Math.max(heroRect.height * 0.85, 1));
       const bridgeProgress = reduced ? 0 : pinnedProgress(bridgeRect.top, bridgeRect.height, window.innerHeight);
@@ -63,6 +65,8 @@ export function CinematicDirector() {
       const heroY = pointerActive ? normalizedPointer(pointerY, heroRect.top, heroRect.height) * 100 : 47;
       const fleetX = pointerActive && fleetRect ? normalizedPointer(pointerX, fleetRect.left, fleetRect.width) * 100 : 50;
       const fleetY = pointerActive && fleetRect ? normalizedPointer(pointerY, fleetRect.top, fleetRect.height) * 100 : 50;
+      const evidenceX = pointerActive && evidenceRect ? normalizedPointer(pointerX, evidenceRect.left, evidenceRect.width) * 100 : 58;
+      const evidenceY = pointerActive && evidenceRect ? normalizedPointer(pointerY, evidenceRect.top, evidenceRect.height) * 100 : 36;
       const bridgeMaskX = pointerActive && bridgeRect && Math.abs(bridgeRect.top) < window.innerHeight * 2
         ? 54 + px * 3 : 54;
 
@@ -97,6 +101,8 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-hero-pointer-y", heroY.toFixed(2) + "%");
       root.style.setProperty("--cinema-fleet-pointer-x", fleetX.toFixed(2) + "%");
       root.style.setProperty("--cinema-fleet-pointer-y", fleetY.toFixed(2) + "%");
+      root.style.setProperty("--cinema-evidence-x", evidenceX.toFixed(2) + "%");
+      root.style.setProperty("--cinema-evidence-y", evidenceY.toFixed(2) + "%");
       root.style.setProperty("--cinema-fleet-mouse-x", (px * 7).toFixed(2) + "px");
       root.style.setProperty("--cinema-fleet-mouse-y", (py * 5).toFixed(2) + "px");
       root.style.setProperty("--cinema-cta-x", magneticX.toFixed(2) + "px");
