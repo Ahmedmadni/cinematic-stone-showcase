@@ -63,16 +63,24 @@ try {
   });
 
   await caseRun("scrubbed quarry reveal advances with natural scroll", async () => {
-    const sample = await desktopPage.evaluate(async () => {
+    await desktopPage.evaluate(() => {
       const bridge = document.getElementById("cinematic-bridge");
-      const root = document.querySelector(".presentation");
-      if (!bridge || !root) throw new Error("Missing cinematic bridge");
+      if (!bridge) throw new Error("Missing cinematic bridge");
       const start = bridge.getBoundingClientRect().top + window.scrollY;
       const travel = bridge.getBoundingClientRect().height - window.innerHeight;
       window.scrollTo({ top: start + travel * 0.5, behavior: "instant" });
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      return Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"));
     });
+    // Scroll events and IntersectionObserver notifications have separate
+    // frame scheduling; wait for both instead of reading a race-prone frame.
+    await desktopPage.waitForFunction(() => {
+      const root = document.querySelector(".presentation");
+      if (!root) return false;
+      const p = Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"));
+      return p > 0.15 && p < 0.85;
+    }, null, { timeout: 10000, polling: "raf" });
+    const sample = await desktopPage.locator(".presentation").evaluate((root) =>
+      Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"))
+    );
     assert.ok(sample > 0.15 && sample < 0.85, "bridge progress should be mid-transition: " + sample);
   });
 
