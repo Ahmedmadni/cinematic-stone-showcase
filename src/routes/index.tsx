@@ -10,17 +10,34 @@ import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import equipment from "@/assets/equipment.jpg";
+import excavators from "@/assets/excavators.jpg";
+import loaders from "@/assets/loaders-maintenance.jpg";
+import powerAndWeighbridge from "@/assets/generators-weighbridge.jpg";
+import officesAndWorkshop from "@/assets/offices-workshop.jpg";
+import siteRoads from "@/assets/site-roads.jpg";
+import housingAndRecreation from "@/assets/worker-housing-recreation.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "محجر الصمان | فرصة استثمارية من شركة الأسطول الآلي" },
-      { name: "description", content: "عرض استثماري لمحجر وكسارة الصمان: محاجر مواد البناء، منظومة الإنتاج، المعدات، والموقع في المنطقة الشرقية." },
-      { property: "og:title", content: "محجر الصمان | شركة الأسطول الآلي" },
-      { property: "og:description", content: "نظرة على الأصل التشغيلي ومحاجره وخطوط إنتاجه ومعداته في الصمان." },
+      { title: "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي" },
+      { name: "description", content: "تعرّف على فرصة الاستثمار في محجر وكسارة الصمان بالمنطقة الشرقية: ثلاثة محاجر، خطا إنتاج للبحص، حفارات وشيولات ومرافق تشغيلية. سجّل اهتمامك للتواصل." },
+      { property: "og:title", content: "محجر وكسارة الصمان | شركة الأسطول الآلي" },
+      { property: "og:description", content: "عرض استثماري عربي لمحاجر الصمان، خطوط التكسير والفرز، المعدات والمرافق التشغيلية. الصور توضيحية وليست صور الموقع الفعلية." },
+      { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
+    links: [{ rel: "canonical", href: "/" }],
+    scripts: [{ type: "application/ld+json", children: JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: "محجر وكسارة الصمان | شركة الأسطول الآلي",
+      inLanguage: "ar-SA",
+      description: "فرصة استثمارية في محاجر الصمان وخطوط إنتاج البحص بالمنطقة الشرقية في المملكة العربية السعودية.",
+      about: { "@type": "Place", name: "محجر الصمان", address: { "@type": "PostalAddress", addressRegion: "المنطقة الشرقية", addressCountry: "SA" } },
+      publisher: { "@type": "Organization", name: "شركة الأسطول الآلي", email: "info@alostool.com.sa" },
+    }) }],
   }),
   component: Index,
 });
@@ -35,6 +52,15 @@ const quarries = [
   { name: "محجر الأسطول ١", area: "٢٤٧٬٩٠٠", index: "01" },
   { name: "محجر الأسطول ٢", area: "٢٤٦٬٣٠٠", index: "02" },
   { name: "محجر بير زيت", area: "٢٤٩٬٠٨٢", index: "03" },
+];
+
+const siteGallery = [
+  { image: excavators, title: "حفارات الاستخراج", description: "معدات الحفر واستخراج الحجر الخام وتغذية الكسارات في المحاجر الثلاثة.", replacement: "حفارات محاجر الصمان", number: "01" },
+  { image: loaders, title: "الشيولات والتحميل", description: "شيولات لتحريك المواد وتحميل المنتج وتغذية الهوبر ضمن دورة التشغيل.", replacement: "شيولات التحميل بالموقع", number: "02" },
+  { image: powerAndWeighbridge, title: "المولدات والموازين", description: "مولدات لدعم التشغيل وموازين شاحنات ضمن المرافق المساندة للإنتاج.", replacement: "مولدات الكهرباء وموازين الشاحنات", number: "03" },
+  { image: officesAndWorkshop, title: "المكاتب ومنطقة الصيانة", description: "مكاتب الإدارة وغرف المتابعة، مع مشهد توضيحي لمنطقة صيانة المعدات.", replacement: "مكاتب الإدارة والورشة إن توفرت صورتها", number: "04" },
+  { image: siteRoads, title: "الطرق والساحات", description: "تمهيدات الطرق والساحات التي تربط مناطق الاستخراج والخدمات داخل الموقع.", replacement: "الطرق والساحات الداخلية", number: "05" },
+  { image: housingAndRecreation, title: "السكن والمرافق الترفيهية", description: "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.", replacement: "سكن العمال والملعب الترفيهي", number: "06" },
 ];
 
 function Eyebrow({ number, children }: { number: string; children: React.ReactNode }) {
@@ -126,7 +152,7 @@ function Index() {
 
         <section className="overview section-pad" id="الفرصة">
           <div className="section-inner">
-            <Eyebrow number="01 / 05">الفرصة</Eyebrow>
+            <Eyebrow number="01 / 06">الفرصة</Eyebrow>
             <div className="overview-grid">
               <h2 className="section-heading reveal">ليست مجرد كسارة.<br /><span>إنها منظومة إنتاج.</span></h2>
               <div className="overview-copy reveal">
@@ -142,7 +168,7 @@ function Index() {
 
         <section className="visual-chapter section-pad" aria-labelledby="production-title">
           <div className="section-inner">
-            <Eyebrow number="02 / 05">القدرة التشغيلية</Eyebrow>
+            <Eyebrow number="02 / 06">القدرة التشغيلية</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">من الحجر الخام<br /><span>إلى قيمة تُبنى.</span></h2><p>خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.</p></div>
             <figure className="image-feature reveal">
               <div className="image-window"><span className="photo-placeholder">صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان</span><img src={crushingPlant} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" /></div>
@@ -154,14 +180,27 @@ function Index() {
 
         <section className="equipment-chapter section-pad" aria-labelledby="equipment-title">
           <div className="section-inner equipment-layout">
-            <div className="equipment-text reveal"><Eyebrow number="03 / 05">الأصول والمعدات</Eyebrow><h2 className="section-heading" id="equipment-title">القوة خلف<br /><span>كل حركة.</span></h2><p>أسطول من الحفارات والشيولات يعمل مع منظومة الإنتاج، إلى جانب الموازين والمولدات والمرافق الداعمة للتشغيل.</p><div className="equipment-counts"><div><strong>١٤</strong><span>حفاراً</span></div><div><strong>٦</strong><span>شيولات</span></div><div><strong>٢</strong><span>ميزان شاحنات</span></div><div><strong>٣</strong><span>مولدات كهرباء</span></div></div></div>
+            <div className="equipment-text reveal"><Eyebrow number="03 / 06">الأصول والمعدات</Eyebrow><h2 className="section-heading" id="equipment-title">القوة خلف<br /><span>كل حركة.</span></h2><p>أسطول من الحفارات والشيولات يعمل مع منظومة الإنتاج، إلى جانب الموازين والمولدات والمرافق الداعمة للتشغيل.</p><div className="equipment-counts"><div><strong>١٤</strong><span>حفاراً</span></div><div><strong>٦</strong><span>شيولات</span></div><div><strong>٢</strong><span>ميزان شاحنات</span></div><div><strong>٣</strong><span>مولدات كهرباء</span></div></div></div>
             <figure className="equipment-image reveal"><div className="image-window"><span className="photo-placeholder">صورة تجريبية · حفارات وشيولات — محاجر الصمان</span><img src={equipment} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لحفار وشيول في محجر حجري" /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>حفارات وشيولات الاستخراج والتحميل — محاجر الصمان <small>صورة بديلة للتحديث</small></span></figcaption></figure>
+          </div>
+        </section>
+
+        <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
+          <div className="section-inner">
+            <Eyebrow number="04 / 06">مشاهد من المنظومة</Eyebrow>
+            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">ما وراء خطوط الإنتاج.<br /><span>موقعٌ متكامل.</span></h2><p>معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.</p></div>
+            <div className="site-gallery">
+              {siteGallery.map((item) => <figure className="gallery-item reveal" key={item.number}>
+                <div className="image-window"><img src={item.image} loading="lazy" width={1536} height={1024} alt={`تصور توضيحي غير حقيقي: ${item.replacement} في موقع محجر الصمان`} /><span className="photo-placeholder">صورة تجريبية · {item.replacement}</span></div>
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{item.title}</h3><p>{item.description}</p></div><small>تُستبدل بصورة: {item.replacement}</small></figcaption>
+              </figure>)}
+            </div>
           </div>
         </section>
 
         <section className="location-chapter section-pad" aria-labelledby="location-title">
           <div className="section-inner">
-            <Eyebrow number="04 / 05">الموقع والمحاجر</Eyebrow>
+            <Eyebrow number="05 / 06">الموقع والمحاجر</Eyebrow>
             <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">الصمان،<br /><span>حيث تبدأ الحكاية.</span></h2><p>مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
             <div className="quarry-list">
               {quarries.map((quarry) => <div className="quarry-row reveal" key={quarry.index}><span className="latin quarry-index">{quarry.index}</span><h3>{quarry.name}</h3><span className="quarry-area">{quarry.area} <small>م²</small></span><ArrowUpLeft size={20} strokeWidth={1.2} aria-hidden="true" /></div>)}
@@ -171,7 +210,7 @@ function Index() {
         </section>
 
         <section className="assurance-chapter section-pad" aria-labelledby="assurance-title">
-          <div className="section-inner assurance-layout reveal"><div><Eyebrow number="05 / 05">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
+           <div className="section-inner assurance-layout reveal"><div><Eyebrow number="06 / 06">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
         </section>
 
         <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title">
