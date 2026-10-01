@@ -1,0 +1,339 @@
+/*
+ * AL SOMMAN — cinematic polish: typography, atmospheric haze, soft masks,
+ * scroll/pointer depth. Visual effects stay decorative and opt out on devices
+ * requesting less motion. Loaded AFTER the existing styles.
+ */
+
+.presentation {
+  --cinema-hero-pointer-x: 55%;
+  --cinema-hero-pointer-y: 47%;
+  --cinema-fleet-pointer-x: 50%;
+  --cinema-fleet-pointer-y: 50%;
+  --cinema-fog-x: 0px;
+  --cinema-fog-y: 0px;
+  --cinema-mask-x: 54%;
+  --cinema-cta-x: 0px;
+  --cinema-cta-y: 0px;
+  --cinema-fleet-mouse-x: 0px;
+  --cinema-fleet-mouse-y: 0px;
+  --cinema-fog-strength: 0.12;
+  --cinema-ink: #20292c;
+  --cinema-cream: #fff8e8;
+  --cinema-gold: #f2c878;
+}
+
+/* A lighter page does not need a thick spotlight over every paragraph.
+   Concentrate contrast in the three immersive, image-backed scenes. */
+.presentation .hero-cinematic {
+  background: linear-gradient(110deg, rgba(12, 19, 23, .06), rgba(15, 22, 24, .1));
+}
+.presentation .hero-cinematic::before {
+  background:
+    linear-gradient(270deg, rgba(12, 19, 24, .91) 0%, rgba(13, 21, 25, .76) 48%, rgba(13, 20, 23, .45) 100%),
+    linear-gradient(0deg, rgba(9, 15, 19, .62), transparent 48%);
+}
+.presentation .hero-cinematic::after {
+  background:
+    radial-gradient(ellipse 48% 44% at var(--cinema-hero-pointer-x) var(--cinema-hero-pointer-y),
+      rgba(251, 193, 91, .24), rgba(241, 175, 66, .09) 40%, transparent 85%);
+  opacity: calc(.66 - var(--cinema-hero-progress) * .3);
+  transition: opacity .15s ease-out;
+}
+.presentation .hero-cinematic .hero-content {
+  max-width: min(960px, 95%);
+  color: var(--cinema-cream);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, .14);
+}
+.presentation .hero-cinematic h1 {
+  font-size: clamp(70px, 8.8vw, 154px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.16;
+  margin: 23px 0 30px;
+  text-shadow: 0 12px 40px rgba(0, 0, 0, .27);
+}
+.presentation .hero-cinematic .hero-title-second {
+  display: block;
+  font-size: clamp(46px, 5.3vw, 92px);
+  font-weight: 500;
+  line-height: 1.25;
+  color: #fff4dd;
+  text-shadow: 0 6px 28px rgba(0, 0, 0, .32);
+}
+.presentation .hero-cinematic h1 em {
+  background: linear-gradient(104deg, #edaa34 8%, #ffe1a0 52%, #f1b849 92%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 9px rgba(7, 11, 13, .2));
+}
+.cinema-title-line {
+  display: block;
+  overflow: clip;
+  animation: cinema-title-wipe 1.3s cubic-bezier(.18,.76,.22,1) both;
+}
+.cinema-title-line:nth-child(2) { animation-delay: .2s; }
+@keyframes cinema-title-wipe {
+  from { opacity: .04; clip-path: inset(0 0 100% 0); transform: translate3d(0, 26px, 0); }
+  to { opacity: 1; clip-path: inset(0 0 0 0); transform: translate3d(0, 0, 0); }
+}
+.presentation .hero-cinematic .hero-kicker {
+  color: #fbe1aa;
+  font-size: clamp(13px, 1vw, 16px);
+  font-weight: 600;
+  text-shadow: 0 2px 10px rgba(0,0,0,.4);
+}
+.presentation .hero-cinematic .hero-lead {
+  max-width: 610px;
+  font-size: clamp(16px, 1.35vw, 20px);
+  font-weight: 500;
+  line-height: 1.93;
+  opacity: 1;
+  color: #fff8ec;
+  text-shadow: 0 3px 14px rgba(0,0,0,.52);
+}
+.presentation .hero-cinematic .hero-bottom,
+.presentation .hero-cinematic .hero-side-note {
+  color: #f8eedb;
+  font-weight: 500;
+}
+.presentation .header-contact,
+.presentation .hero-discover {
+  font-weight: 600;
+  text-shadow: 0 2px 9px rgba(0,0,0,.34);
+}
+.presentation .header-contact:focus-visible,
+.presentation .hero-discover:focus-visible {
+  outline: 3px solid #f6d08a;
+  outline-offset: 7px;
+}
+.presentation .hero-discover[data-cinema-magnetic] {
+  transform: translate3d(var(--cinema-cta-x), var(--cinema-cta-y), 0);
+  transition: transform .16s ease-out, color .24s ease;
+  will-change: transform;
+}
+.presentation .hero-discover .discover-icon {
+  border-color: #f3c978;
+  color: #f6d28e;
+  background: rgba(19,28,31,.22);
+  box-shadow: 0 0 18px rgba(233,165,57,.11);
+}
+.presentation .hero-discover:hover .discover-icon {
+  background: #efbb61;
+  color: #171c1e;
+  border-color: #efbb61;
+  box-shadow: 0 0 32px rgba(234,178,77,.35);
+}
+
+/* Stronger editorial hierarchy on light sections without turning the page dark. */
+.presentation .section-heading {
+  font-size: clamp(45px, 5.25vw, 86px);
+  line-height: 1.25;
+  font-weight: 600;
+  color: var(--cinema-ink);
+}
+.presentation .section-heading span { color: #95651d; }
+.presentation .overview-copy,
+.presentation .chapter-top p,
+.presentation .location-heading p {
+  color: #344146;
+  font-size: clamp(16px, 1.2vw, 19px);
+  font-weight: 450;
+  line-height: 2.05;
+}
+.presentation .eyebrow {
+  color: #805918;
+  font-weight: 700;
+}
+.presentation .fleet-experience__header h2 {
+  font-size: clamp(47px, 5.55vw, 86px);
+  font-weight: 650;
+  line-height: 1.24;
+  color: var(--cinema-ink);
+}
+.presentation .fleet-experience__header h2 em { color: #a27329; }
+.presentation .fleet-experience__header p {
+  color: #344146;
+  font-weight: 500;
+  font-size: clamp(16px, 1.2vw, 19px);
+}
+.presentation .cinematic-bridge__story h2 {
+  font-size: clamp(65px, 8.3vw, 140px);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.18;
+  text-shadow: 0 8px 40px rgba(0,0,0,.52);
+}
+.presentation .cinematic-bridge__story h2 em { color: #f5c676; }
+.presentation .cinematic-bridge__before,
+.presentation .cinematic-bridge__after {
+  color: #fff6e7;
+  font-weight: 500;
+  text-shadow: 0 3px 21px rgba(0,0,0,.57);
+}
+
+/* A few slowly shifting radial gradients read like suspended dust and haze;
+   no third-party shaders, GPU-heavy canvas, or looping video asset. */
+.cinema-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  isolation: isolate;
+}
+.cinema-atmosphere__haze,
+.cinema-atmosphere__light {
+  position: absolute;
+  inset: -8%;
+  display: block;
+  pointer-events: none;
+}
+.cinema-atmosphere__haze {
+  background:
+    radial-gradient(ellipse 70% 28% at 12% 75%, rgba(220,220,205,.2), transparent 83%),
+    radial-gradient(ellipse 60% 34% at 70% 84%, rgba(227,213,181,.20), transparent 84%);
+  opacity: .62;
+  -webkit-mask-image: linear-gradient(180deg, transparent, black 28%, black 86%, transparent);
+  mask-image: linear-gradient(180deg, transparent, black 28%, black 86%, transparent);
+  animation: cinema-fog-drift 21s ease-in-out infinite alternate;
+}
+.cinema-atmosphere__haze--far {
+  transform: translate3d(var(--cinema-fog-x), var(--cinema-fog-y), 0);
+  background:
+    radial-gradient(ellipse 80% 32% at 15% 80%, rgba(241,233,211,.17), transparent 82%),
+    radial-gradient(ellipse 65% 29% at 87% 62%, rgba(239,218,172,.13), transparent 85%);
+  animation-duration: 25s;
+}
+.cinema-atmosphere__haze--near {
+  transform: translate3d(calc(var(--cinema-fog-x) * -0.5), calc(var(--cinema-fog-y) * -0.5), 0);
+  background:
+    radial-gradient(ellipse 66% 22% at 32% 88%, rgba(226,217,190,.24), transparent 90%),
+    radial-gradient(ellipse 55% 20% at 83% 77%, rgba(236,220,197,.23), transparent 84%);
+  opacity: .65;
+  animation-duration: 17s;
+  animation-direction: alternate-reverse;
+}
+.cinema-atmosphere__light {
+  inset: 0;
+  background: radial-gradient(ellipse 45% 49% at var(--cinema-hero-pointer-x) var(--cinema-hero-pointer-y), rgba(255,200,106,.13), transparent 83%);
+  opacity: .7;
+}
+@keyframes cinema-fog-drift {
+  from { translate: -2% 0; }
+  to { translate: 2.5% -2%; }
+}
+.cinema-atmosphere--hero { z-index: 0; opacity: .72; }
+.cinema-atmosphere--bridge { z-index: 1; opacity: calc(.52 + var(--cinema-fog-strength)); }
+.cinema-atmosphere--bridge .cinema-atmosphere__haze--far {
+  background: radial-gradient(ellipse 94% 36% at 27% 79%, rgba(225,213,184,.24), transparent 81%);
+}
+.cinema-atmosphere--bridge .cinema-atmosphere__haze--near {
+  background: radial-gradient(ellipse 80% 22% at 79% 82%, rgba(225,206,175,.21), transparent 85%);
+}
+.cinema-atmosphere--bridge .cinema-atmosphere__light {
+  background: radial-gradient(ellipse 40% 51% at var(--cinema-mask-x) 50%, rgba(243,173,65,.18), transparent 88%);
+}
+.cinema-atmosphere--fleet { z-index: 0; opacity: .42; }
+.cinema-atmosphere--fleet .cinema-atmosphere__light {
+  background: radial-gradient(ellipse 53% 54% at var(--cinema-fleet-pointer-x) var(--cinema-fleet-pointer-y), rgba(255,218,130,.14), transparent 85%);
+}
+.presentation .fleet-experience__stage .fleet-experience__headline,
+.presentation .fleet-experience__stage .fleet-experience__photo-note { z-index: 2; }
+.presentation .fleet-experience__stage .fleet-experience__corners { z-index: 1; }
+.presentation .fleet-experience__stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: radial-gradient(circle 240px at var(--cinema-fleet-pointer-x) var(--cinema-fleet-pointer-y),
+    rgba(249,212,131,.15), transparent 85%);
+  opacity: 0;
+  transition: opacity .25s ease-out;
+}
+.presentation[data-cinema-pointer="active"] .fleet-experience__stage:hover::after { opacity: 1; }
+.presentation .fleet-experience__image.is-active {
+  transform: translate3d(var(--cinema-fleet-mouse-x), var(--cinema-fleet-mouse-y), 0) scale(var(--cinema-fleet-scale, 1.05));
+  transition: opacity .8s ease, filter .95s ease, visibility .8s ease, transform .8s ease-out;
+}
+
+/* Dual clipped and feathered masks: clip-path remains the fallback for browsers
+   that do not support mask-image. Both follow the same scroll progress. */
+.presentation .cinematic-bridge__shot--production {
+  clip-path: circle(calc(var(--cinema-portal) * 148%) at var(--cinema-mask-x) 53%);
+  -webkit-mask-image: radial-gradient(circle at var(--cinema-mask-x) 53%,
+    #000 0%, #000 calc(var(--cinema-portal) * 108%),
+    transparent calc(var(--cinema-portal) * 127% + 7px));
+  mask-image: radial-gradient(circle at var(--cinema-mask-x) 53%,
+    #000 0%, #000 calc(var(--cinema-portal) * 108%),
+    transparent calc(var(--cinema-portal) * 127% + 7px));
+}
+.presentation .cinematic-bridge__shot--production img {
+  filter: saturate(.93) contrast(1.06);
+}
+.presentation .cinematic-bridge__shadow {
+  background:
+    linear-gradient(270deg, rgba(7,13,17,.86), rgba(8,15,19,.38) 61%, rgba(7,13,17,.62)),
+    linear-gradient(0deg, rgba(7,14,18,.86), transparent 42%, rgba(9,17,21,.28));
+}
+
+/* A mask on image-gallery reveals, while preserving the original accessibility
+   semantics and leaving image labels unaffected. */
+.presentation .gallery-item.reveal .gallery-slider {
+  -webkit-mask-image: linear-gradient(110deg, transparent 0%, #000 16%, #000 100%);
+  mask-image: linear-gradient(110deg, transparent 0%, #000 16%, #000 100%);
+}
+.presentation .gallery-item.reveal.is-visible .gallery-slider {
+  -webkit-mask-image: linear-gradient(110deg, #000, #000);
+  mask-image: linear-gradient(110deg, #000, #000);
+  transition: clip-path 1.15s cubic-bezier(.2,.7,.2,1), -webkit-mask-image .6s ease;
+}
+
+@media (max-width: 900px) {
+  .presentation .hero-cinematic h1 { font-size: clamp(60px, 9.5vw, 100px); }
+  .presentation .hero-cinematic .hero-title-second { font-size: clamp(40px, 6.5vw, 72px); }
+  .presentation .section-heading { font-size: clamp(41px, 6.8vw, 75px); }
+  .presentation .cinematic-bridge__story h2 { font-size: clamp(52px, 8vw, 100px); }
+  .cinema-atmosphere__haze { animation-duration: 30s; }
+}
+@media (max-width: 640px), (pointer: coarse) {
+  .presentation .hero-cinematic::after {
+    background: radial-gradient(ellipse 75% 38% at 45% 28%, rgba(243,178,74,.1), transparent);
+    transition: none;
+  }
+  .presentation .hero-cinematic h1 { font-size: clamp(51px, 11vw, 77px); line-height: 1.22; }
+  .presentation .hero-cinematic .hero-title-second { font-size: clamp(34px, 8.2vw, 53px); line-height: 1.36; }
+  .presentation .hero-cinematic .hero-lead { font-size: 15px; line-height: 1.95; font-weight: 500; }
+  .presentation .section-heading { font-size: clamp(38px, 9vw, 56px); line-height: 1.36; }
+  .presentation .cinematic-bridge__story h2 { font-size: clamp(46px, 11vw, 77px); }
+  .presentation .fleet-experience__header h2 { font-size: clamp(37px, 9.5vw, 58px); }
+  .presentation .hero-discover[data-cinema-magnetic] { transform: none; will-change: auto; }
+  .presentation .fleet-experience__image.is-active { transform: scale(1.02); }
+  .cinema-atmosphere { opacity: .35; }
+  .cinema-atmosphere__haze { animation: none; }
+  .cinema-atmosphere__light { opacity: .25; }
+  .presentation .cinematic-bridge__shot--production {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cinema-atmosphere { display: none !important; }
+  .presentation .cinema-title-line { animation: none !important; clip-path: none; transform: none; opacity: 1; }
+  .presentation .hero-discover[data-cinema-magnetic] { transform: none !important; transition: none; }
+  .presentation .hero-cinematic::after { opacity: .5; }
+  .presentation .fleet-experience__image.is-active { transform: none !important; }
+  .presentation .fleet-experience__stage::after { display: none; }
+  .presentation .cinematic-bridge__shot--production {
+    -webkit-mask-image: none;
+    mask-image: none;
+    clip-path: none;
+  }
+  .presentation .gallery-item.reveal .gallery-slider,
+  .presentation .gallery-item.reveal.is-visible .gallery-slider {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+}
