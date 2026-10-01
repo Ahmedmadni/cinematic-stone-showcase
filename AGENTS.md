@@ -11,3 +11,4 @@
 
 - Keep the investment presentation as a single Arabic RTL page at `/`, with all sections in one route; the user requested a cinematic one-page experience rather than multiple pages.
 - Keep presentation imagery in `src/assets` and label generated images as illustrative; actual site and equipment photos have not been supplied.
+- Store investment inquiries through a validated public server function into a locked Cloud table; public visitors must never read submitted contact details.

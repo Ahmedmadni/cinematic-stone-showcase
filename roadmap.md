@@ -1,3 +1,7 @@
 - [x] Extract and select verified non-revenue facts from the supplied investment document.
 - [x] Create illustrative quarry and equipment imagery and build the single-page Arabic presentation.
 - [x] Verify desktop/mobile presentation, interactions, and absence of sales or revenue figures.
+- [x] Refine mobile motion and image framing for touch screens.
+- [x] Label each illustrative image with the intended real-world site/equipment replacement.
+- [x] Add and verify a short investment inquiry form that securely stores submissions.
+- [x] Replace the temporary brand mark with the supplied official company logo.

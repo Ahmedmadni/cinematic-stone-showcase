@@ -1,0 +1,1 @@
+CREATE POLICY "No direct client access to investment inquiries" ON public.investment_inquiries FOR ALL TO authenticated USING (false) WITH CHECK (false);
