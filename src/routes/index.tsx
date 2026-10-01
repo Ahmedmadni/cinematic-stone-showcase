@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
 import { AutoVisual } from "@/components/AutoVisual";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
+import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
+import { QuarryTransition } from "@/components/cinematic/QuarryTransition";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
@@ -172,6 +174,7 @@ function Index() {
 
   return (
     <div className="presentation" dir="rtl" onPointerMove={onPointerMove}>
+      <CinematicDirector />
       <div className="scene-backdrop" ref={sceneRef} aria-hidden="true">
         <AutoVisual className="scene-visual" eager interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
         <div className="scene-shade" />
@@ -185,8 +188,9 @@ function Index() {
       </header>
 
       <main>
-        <section className="hero" id="البداية" aria-labelledby="hero-title">
+        <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
+          <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
             <span className="photo-placeholder hero-photo-label">صورة تجريبية · منظر عام لمحجر الصمان</span>
             <div className="hero-kicker"><span className="kicker-dot" /> أصل صناعي في قلب الصمان <span className="kicker-rule" /></div>
@@ -213,7 +217,9 @@ function Index() {
           </div>
         </section>
 
-        <section className="visual-chapter section-pad" aria-labelledby="production-title">
+        <QuarryTransition />
+
+        <section className="visual-chapter section-pad production-cinematic" aria-labelledby="production-title">
           <div className="section-inner">
             <Eyebrow number="02 / 06">القدرة التشغيلية</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">من الحجر الخام<br /><span>إلى قيمة تُبنى.</span></h2><p>خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.</p></div>
