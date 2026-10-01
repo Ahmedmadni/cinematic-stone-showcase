@@ -1,7 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
+import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import equipment from "@/assets/equipment.jpg";
@@ -38,6 +43,38 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 
 function Index() {
   const sceneRef = useRef<HTMLDivElement>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const updateField = (key: keyof InquiryInput, value: string) => {
+    setFields((current) => ({ ...current, [key]: value }));
+    setFieldErrors((current) => ({ ...current, [key]: "" }));
+  };
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (submitting) return;
+    setFormError("");
+    const parsed = inquirySchema.safeParse(fields);
+    if (!parsed.success) {
+      const errors: Record<string, string> = {};
+      parsed.error.issues.forEach((issue) => { const key = String(issue.path[0]); if (!errors[key]) errors[key] = issue.message; });
+      setFieldErrors(errors);
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await submitInquiry({ data: parsed.data });
+      setSubmitted(true);
+    } catch {
+      setFormError("تعذر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
@@ -53,7 +90,7 @@ function Index() {
   }, []);
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const x = (event.clientX / window.innerWidth - 0.5) * 18;
     const y = (event.clientY / window.innerHeight - 0.5) * 18;
     sceneRef.current?.style.setProperty("--pointer-x", `${x}px`);
@@ -69,8 +106,7 @@ function Index() {
 
       <header className="site-header">
         <a href="#البداية" className="brand" aria-label="العودة إلى بداية العرض">
-          <span className="brand-mark" aria-hidden="true"><span /><span /><span /></span>
-          <span className="brand-type"><strong>الأسطول الآلي</strong><small>محجر الصمان</small></span>
+          <img className="brand-logo" src={logoAsset.url} width={1804} height={2338} alt="شعار شركة الأسطول الآلي" /><span className="brand-project">محجر الصمان</span>
         </a>
         <a className="header-contact" href="#التواصل">تواصل للاستفسار <ArrowUpLeft size={17} strokeWidth={1.5} /></a>
       </header>
@@ -79,6 +115,7 @@ function Index() {
         <section className="hero" id="البداية" aria-labelledby="hero-title">
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <div className="hero-content">
+            <span className="photo-placeholder hero-photo-label">صورة تجريبية · منظر عام لمحجر الصمان</span>
             <div className="hero-kicker"><span className="kicker-dot" /> أصل صناعي في قلب الصمان <span className="kicker-rule" /></div>
             <h1 id="hero-title">محجر <em>الصمان</em><span className="hero-title-second">قوّةٌ من الأرض.</span></h1>
             <p className="hero-lead">فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.</p>
@@ -108,8 +145,8 @@ function Index() {
             <Eyebrow number="02 / 05">القدرة التشغيلية</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">من الحجر الخام<br /><span>إلى قيمة تُبنى.</span></h2><p>خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.</p></div>
             <figure className="image-feature reveal">
-              <div className="image-window"><img src={crushingPlant} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" /></div>
-              <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>خطوط الكسارات والإنتاج <small>صورة تجريبية</small></span></figcaption>
+              <div className="image-window"><span className="photo-placeholder">صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان</span><img src={crushingPlant} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" /></div>
+              <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>خطا الكسارات والفرز — مجمع كسارات الصمان <small>صورة بديلة للتحديث</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>خطان للإنتاج</h3></div><p>كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
           </div>
@@ -118,7 +155,7 @@ function Index() {
         <section className="equipment-chapter section-pad" aria-labelledby="equipment-title">
           <div className="section-inner equipment-layout">
             <div className="equipment-text reveal"><Eyebrow number="03 / 05">الأصول والمعدات</Eyebrow><h2 className="section-heading" id="equipment-title">القوة خلف<br /><span>كل حركة.</span></h2><p>أسطول من الحفارات والشيولات يعمل مع منظومة الإنتاج، إلى جانب الموازين والمولدات والمرافق الداعمة للتشغيل.</p><div className="equipment-counts"><div><strong>١٤</strong><span>حفاراً</span></div><div><strong>٦</strong><span>شيولات</span></div><div><strong>٢</strong><span>ميزان شاحنات</span></div><div><strong>٣</strong><span>مولدات كهرباء</span></div></div></div>
-            <figure className="equipment-image reveal"><div className="image-window"><img src={equipment} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لحفار وشيول في محجر حجري" /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>معدات الاستخراج والتحميل <small>صورة تجريبية</small></span></figcaption></figure>
+            <figure className="equipment-image reveal"><div className="image-window"><span className="photo-placeholder">صورة تجريبية · حفارات وشيولات — محاجر الصمان</span><img src={equipment} loading="lazy" width={1536} height={1024} alt="صورة تجريبية توضيحية لحفار وشيول في محجر حجري" /></div><figcaption><span className="latin" dir="ltr">FIG. 02 — EXTRACTION</span><span>حفارات وشيولات الاستخراج والتحميل — محاجر الصمان <small>صورة بديلة للتحديث</small></span></figcaption></figure>
           </div>
         </section>
 
@@ -137,7 +174,32 @@ function Index() {
           <div className="section-inner assurance-layout reveal"><div><Eyebrow number="05 / 05">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
         </section>
 
-        <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title"><div className="section-inner contact-content reveal"><div className="contact-kicker"><span className="kicker-dot" /> الخطوة التالية</div><h2 id="contact-title">لنبدأ <em>الحديث.</em></h2><p>للاستفسار عن الفرصة الاستثمارية والحصول على المزيد من التفاصيل، تواصل مع شركة الأسطول الآلي.</p><div className="contact-actions"><Button asChild size="lg" className="contact-button"><a href="mailto:info@alostool.com.sa?subject=استفسار%20عن%20فرصة%20محجر%20الصمان"><Mail size={18} /> راسلنا الآن <ArrowLeft size={18} /></a></Button><a href="tel:920026556" className="phone-link" dir="ltr"><Phone size={17} /> 920026556</a></div></div></section>
+        <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title">
+          <div className="section-inner contact-layout reveal">
+            <div className="contact-content">
+              <div className="contact-kicker"><span className="kicker-dot" /> الخطوة التالية</div>
+              <h2 id="contact-title">لنبدأ <em>الحديث.</em></h2>
+              <p>مهتم بفرصة محجر الصمان؟ اترك بياناتك للتواصل بشأن التفاصيل الاستثمارية.</p>
+              <div className="contact-direct"><a href="mailto:info@alostool.com.sa?subject=استفسار%20عن%20فرصة%20محجر%20الصمان"><Mail size={17} /> info@alostool.com.sa</a><a href="tel:920026556" dir="ltr"><Phone size={17} /> 920026556</a></div>
+            </div>
+            <div className="inquiry-panel">
+              {submitted ? <div className="inquiry-success" role="status"><span>تم استلام اهتمامك</span><h3>شكراً لتواصلك.</h3><p>وصلتنا بياناتك، وسنتواصل معك بشأن الفرصة الاستثمارية.</p></div> : <form onSubmit={handleSubmit} noValidate>
+                <div className="form-title"><span className="latin" dir="ltr">INVESTMENT INQUIRY</span><h3>سجّل اهتمامك</h3></div>
+                <div className="form-fields">
+                  <div className="form-field"><Label htmlFor="inquiry-name">الاسم الكامل <span>*</span></Label><Input id="inquiry-name" name="name" autoComplete="name" value={fields.name} onChange={(e) => updateField("name", e.target.value)} maxLength={100} aria-invalid={!!fieldErrors.name} aria-describedby={fieldErrors.name ? "name-error" : undefined} placeholder="الاسم الكامل" /><small id="name-error">{fieldErrors.name}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-email">البريد الإلكتروني <span>*</span></Label><Input id="inquiry-email" name="email" type="email" dir="ltr" autoComplete="email" value={fields.email} onChange={(e) => updateField("email", e.target.value)} maxLength={255} aria-invalid={!!fieldErrors.email} aria-describedby={fieldErrors.email ? "email-error" : undefined} placeholder="name@example.com" /><small id="email-error">{fieldErrors.email}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-phone">رقم الهاتف</Label><Input id="inquiry-phone" name="phone" type="tel" dir="ltr" autoComplete="tel" value={fields.phone} onChange={(e) => updateField("phone", e.target.value)} maxLength={30} aria-invalid={!!fieldErrors.phone} aria-describedby={fieldErrors.phone ? "phone-error" : undefined} placeholder="+966" /><small id="phone-error">{fieldErrors.phone}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-company">الجهة / الشركة</Label><Input id="inquiry-company" name="company" autoComplete="organization" value={fields.company} onChange={(e) => updateField("company", e.target.value)} maxLength={120} placeholder="اسم الجهة" /></div>
+                  <div className="form-field form-field-wide"><Label htmlFor="inquiry-message">رسالتك <span className="optional-label">اختياري</span></Label><Textarea id="inquiry-message" name="message" value={fields.message} onChange={(e) => updateField("message", e.target.value)} maxLength={1000} placeholder="ما الذي تود معرفته عن الفرصة؟" /></div>
+                  <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">الموقع الإلكتروني</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
+                </div>
+                {formError && <p className="form-error" role="alert">{formError}</p>}
+                <Button type="submit" disabled={submitting} className="contact-button">{submitting ? "جارٍ الإرسال..." : "أرسل اهتمامك"} <ArrowLeft size={18} /></Button>
+                <p className="form-privacy">تُستخدم بياناتك فقط للتواصل بشأن هذه الفرصة الاستثمارية.</p>
+              </form>}
+            </div>
+          </div>
+        </section>
       </main>
       <footer className="site-footer"><span>© شركة الأسطول الآلي</span><span>الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.</span><a href="#البداية">العودة للأعلى ↑</a></footer>
     </div>
