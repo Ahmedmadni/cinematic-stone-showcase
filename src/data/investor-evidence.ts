@@ -34,7 +34,7 @@ export const isoEvidence = [
   },
 ] as const;
 
-export const evidenceIssuer = "QCC (Quality Control Certification)";
+export const evidenceIssuer = "QCC (Certification Control Quality)";
 export const evidenceDisclaimers = {
   iso: "هذه البيانات من نسخة العرض الاستثماري، وليست نسخًا أصلية للشهادات أو تحققًا من استمرار سريانها أو نتائج المراجعات الدورية. يلزم طلب النسخ والتحقق لدى جهة المنح.",
   permits: "حالة كل رخصة مأخوذة من المستند التاريخي؛ يلزم الاستعلام الرسمي عن التجديد، والمرخص له، وحقوق النقل والتشغيل قبل أي اتفاق.",
