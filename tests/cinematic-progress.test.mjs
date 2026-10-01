@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { clampUnit, pinnedProgress, segmentProgress, smoothStep } from "../src/lib/cinematic-progress.ts";
+import { clampUnit, normalizedPointer, pinnedProgress, segmentProgress, signedPointer, smoothStep } from "../src/lib/cinematic-progress.ts";
 
 test("clampUnit bounds and sanitizes non-finite progress", () => {
   assert.equal(clampUnit(-1), 0);
@@ -31,4 +31,24 @@ test("smoothStep is stable at endpoints and midpoint", () => {
   assert.equal(smoothStep(0.5), 0.5);
   assert.equal(smoothStep(1), 1);
   assert.equal(smoothStep(10), 1);
+});
+
+test("mouse positions remain bounded inside and outside viewport and scene rectangles", () => {
+  assert.equal(normalizedPointer(50, 0, 100), 0.5);
+  assert.equal(normalizedPointer(-99, 0, 100), 0);
+  assert.equal(normalizedPointer(999, 0, 100), 1);
+  assert.equal(normalizedPointer(180, 80, 200), 0.5);
+  assert.equal(signedPointer(0, 0, 100), -1);
+  assert.equal(signedPointer(50, 0, 100), 0);
+  assert.equal(signedPointer(100, 0, 100), 1);
+});
+
+test("pointer math falls back to center for zero, negative, or invalid dimensions", () => {
+  for (const invalid of [0, -10, NaN, Infinity]) {
+    assert.equal(normalizedPointer(60, 10, invalid), 0.5);
+    assert.equal(signedPointer(60, 10, invalid), 0);
+  }
+  assert.equal(normalizedPointer(NaN, 0, 100), 0.5);
+  assert.equal(signedPointer(Infinity, 0, 100), 0);
+  assert.equal(normalizedPointer(30, Infinity, 100), 0.5);
 });
