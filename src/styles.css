@@ -4,6 +4,7 @@
 @import "./styles/cinematic.css";
 @import "./styles/immersive.css";
 @import "./styles/cinematic-effects.css";
+@import "./styles/investor-evidence.css";
 
 @custom-variant dark (&:is(.dark *));
 
