@@ -54,6 +54,7 @@ export function ProjectAssistant() {
               setMessages((m) => {
                 const copy = [...m];
                 const last = copy[copy.length - 1];
+                if (!last || last.role !== "assistant") return m;
                 copy[copy.length - 1] = { ...last, content: last.content + evt.delta };
                 return copy;
               });
