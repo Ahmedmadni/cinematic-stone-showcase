@@ -9,9 +9,10 @@ type GallerySlidesProps = {
   title: string;
   replacement: string;
   onOpen: (slide: number) => void;
+  isPaused?: boolean;
 };
 
-export function GallerySlides({ slides, title, replacement, onOpen }: GallerySlidesProps) {
+export function GallerySlides({ slides, title, replacement, onOpen, isPaused = false }: GallerySlidesProps) {
   const frame = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -41,10 +42,10 @@ export function GallerySlides({ slides, title, replacement, onOpen }: GallerySli
   }, []);
 
   useEffect(() => {
-    if (!visible || !pageVisible || !motionAllowed || paused || slides.length < 2) return;
+    if (!visible || !pageVisible || !motionAllowed || paused || isPaused || slides.length < 2) return;
     const timer = window.setTimeout(() => setActive((current) => (current + 1) % slides.length), 6000);
     return () => window.clearTimeout(timer);
-  }, [visible, pageVisible, motionAllowed, paused, slides.length, active, cycle]);
+  }, [visible, pageVisible, motionAllowed, paused, isPaused, slides.length, active, cycle]);
 
   const choose = (index: number) => {
     setActive((index + slides.length) % slides.length);
