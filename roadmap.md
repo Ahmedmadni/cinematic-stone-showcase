@@ -6,5 +6,5 @@
 - [x] Add and verify a short investment inquiry form that securely stores submissions.
 - [x] Replace the temporary brand mark with the supplied official company logo.
 - [x] Replace automatic email notices with visitor-selected prefilled email to a.elmadin@alostool.com.sa or WhatsApp to +966560409811 after saving validated details.
-- [ ] Add clearly marked illustrative imagery for other equipment, facilities, offices, maintenance, site roads, and recreation.
-- [ ] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
+- [x] Add clearly marked illustrative imagery for other equipment, facilities, offices, maintenance, site roads, and recreation.
+- [x] Improve the single Arabic page's search metadata and structured content; defer sitemap until a public site URL exists.
