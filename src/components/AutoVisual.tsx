@@ -10,7 +10,7 @@ export function AutoVisual({ images, className = "", interval = 7200, eager = fa
   const [motionAllowed, setMotionAllowed] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setVisible(entry.isIntersecting), { threshold: 0.08 });
+    const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { threshold: 0.08 });
     const element = frame.current;
     if (element) observer.observe(element);
     return () => observer.disconnect();
