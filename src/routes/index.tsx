@@ -185,9 +185,22 @@ function Index() {
           </div>
         </section>
 
+        <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
+          <div className="section-inner">
+            <Eyebrow number="04 / 06">مشاهد من المنظومة</Eyebrow>
+            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">ما وراء خطوط الإنتاج.<br /><span>موقعٌ متكامل.</span></h2><p>معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.</p></div>
+            <div className="site-gallery">
+              {siteGallery.map((item) => <figure className="gallery-item reveal" key={item.number}>
+                <div className="image-window"><img src={item.image} loading="lazy" width={1536} height={1024} alt={`تصور توضيحي غير حقيقي: ${item.replacement} في موقع محجر الصمان`} /><span className="photo-placeholder">صورة تجريبية · {item.replacement}</span></div>
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{item.title}</h3><p>{item.description}</p></div><small>تُستبدل بصورة: {item.replacement}</small></figcaption>
+              </figure>)}
+            </div>
+          </div>
+        </section>
+
         <section className="location-chapter section-pad" aria-labelledby="location-title">
           <div className="section-inner">
-            <Eyebrow number="04 / 05">الموقع والمحاجر</Eyebrow>
+            <Eyebrow number="05 / 06">الموقع والمحاجر</Eyebrow>
             <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">الصمان،<br /><span>حيث تبدأ الحكاية.</span></h2><p>مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
             <div className="quarry-list">
               {quarries.map((quarry) => <div className="quarry-row reveal" key={quarry.index}><span className="latin quarry-index">{quarry.index}</span><h3>{quarry.name}</h3><span className="quarry-area">{quarry.area} <small>م²</small></span><ArrowUpLeft size={20} strokeWidth={1.2} aria-hidden="true" /></div>)}
@@ -197,7 +210,7 @@ function Index() {
         </section>
 
         <section className="assurance-chapter section-pad" aria-labelledby="assurance-title">
-          <div className="section-inner assurance-layout reveal"><div><Eyebrow number="05 / 05">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
+           <div className="section-inner assurance-layout reveal"><div><Eyebrow number="06 / 06">الجاهزية والاعتماد</Eyebrow><h2 className="section-heading" id="assurance-title">أساسٌ متين<br /><span>للمستقبل.</span></h2></div><div className="assurance-details"><p>فريق تشغيلي وإداري يضم ٣٠ موظفاً وعاملاً، مع مكاتب ومستودعات وسكن للعمال وبنية تحتية داخل الموقع.</p><div className="iso-list"><div><span>إدارة الجودة</span><strong className="latin" dir="ltr">ISO 9001</strong></div><div><span>الإدارة البيئية</span><strong className="latin" dir="ltr">ISO 14001</strong></div><div><span>الصحة والسلامة المهنية</span><strong className="latin" dir="ltr">ISO 45001</strong></div></div><small>الشهادات الواردة في المستند صالحة حتى ١٧ أغسطس ٢٠٢٨.</small></div></div>
         </section>
 
         <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title">
