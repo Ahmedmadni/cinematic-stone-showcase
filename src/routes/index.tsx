@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownLeft, ArrowLeft, ArrowRight, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle, X } from "lucide-react";
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { GallerySlides } from "@/components/GallerySlides";
 import { AutoVisual } from "@/components/AutoVisual";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
+import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import { QuarryTransition } from "@/components/cinematic/QuarryTransition";
 import { ProductionFlow } from "@/components/cinematic/ProductionFlow";
 import { FleetExperience } from "@/components/cinematic/FleetExperience";
@@ -105,7 +106,6 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 }
 
 function Index() {
-  const sceneRef = useRef<HTMLDivElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [readyInquiry, setReadyInquiry] = useState<InquiryInput | null>(null);
@@ -168,22 +168,14 @@ function Index() {
     return () => observer.disconnect();
   }, []);
 
-  const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const x = (event.clientX / window.innerWidth - 0.5) * 18;
-    const y = (event.clientY / window.innerHeight - 0.5) * 18;
-    sceneRef.current?.style.setProperty("--pointer-x", `${x}px`);
-    sceneRef.current?.style.setProperty("--pointer-y", `${y}px`);
-  };
-
   const links = readyInquiry ? contactLinks(readyInquiry) : null;
   const selectedGallery = selectedImage ? siteGallery[selectedImage.item] : undefined;
   const selectedSlide = selectedImage ? selectedGallery?.slides[selectedImage.slide] : undefined;
 
   return (
-    <div className="presentation" dir="rtl" onPointerMove={onPointerMove}>
+    <div className="presentation" dir="rtl">
       <CinematicDirector />
-      <div className="scene-backdrop" ref={sceneRef} aria-hidden="true">
+      <div className="scene-backdrop" aria-hidden="true">
         <AutoVisual className="scene-visual" eager interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
         <div className="scene-shade" />
       </div>
@@ -197,14 +189,15 @@ function Index() {
 
       <main>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
+          <AtmosphereLayers variant="hero" />
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
             <span className="photo-placeholder hero-photo-label">صورة تجريبية · منظر عام لمحجر الصمان</span>
             <div className="hero-kicker"><span className="kicker-dot" /> أصل صناعي في قلب الصمان <span className="kicker-rule" /></div>
-            <h1 id="hero-title">محجر <em>الصمان</em><span className="hero-title-second">قوّةٌ من الأرض.</span></h1>
+            <h1 id="hero-title"><span className="cinema-title-line">محجر <em>الصمان</em></span><span className="hero-title-second cinema-title-line">قوّةٌ من الأرض.</span></h1>
             <p className="hero-lead">فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.</p>
-            <a className="hero-discover" href="#الفرصة"><span className="discover-icon"><MoveDownRight size={21} strokeWidth={1.4} /></span><span>استكشف الفرصة</span></a>
+            <a className="hero-discover" data-cinema-magnetic="true" href="#الفرصة"><span className="discover-icon"><MoveDownRight size={21} strokeWidth={1.4} /></span><span>استكشف الفرصة</span></a>
           </div>
           <div className="hero-bottom"><span>شركة الأسطول الآلي <span className="hero-bottom-divider">/</span> شركة مساهمة مقفلة</span><span className="latin" dir="ltr">25°30′ N — 48°21′ E</span></div>
         </section>
