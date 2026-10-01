@@ -255,6 +255,7 @@ figcaption small { color: var(--primary); margin-right: 8px; font-size: 11px; }
 .equipment-image.reveal .image-window { clip-path: inset(100% 0 0 0); }
 .gallery-item:nth-child(even).reveal .gallery-slider { clip-path: inset(0 100% 0 0); }
 .gallery-item:nth-child(odd).reveal .gallery-slider { clip-path: inset(0 0 0 100%); }
+.gallery-item:nth-child(n).reveal.is-visible .gallery-slider { clip-path: inset(0 0 0 0); }
 .facts-grid .reveal:nth-child(2) { transition-delay: .12s; }
 .facts-grid .reveal:nth-child(3) { transition-delay: .24s; }
 @keyframes heroEnter { from { opacity: 0; transform: translateY(32px); } to { opacity: 1; transform: translateY(0); } }
