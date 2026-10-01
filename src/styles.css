@@ -195,10 +195,14 @@ figcaption small { color: var(--primary); margin-right: 8px; font-size: 11px; }
 .form-honeypot { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .inquiry-panel .contact-button { width: 100%; margin-top: 18px; }
 .form-privacy { color: var(--text-dim); font-size: 11px; margin: 15px 0 0; }
-.inquiry-success { padding: 80px 0; }
+.inquiry-success { padding: 24px 0; }
 .inquiry-success span { color: var(--primary); font-size: 13px; }
 .inquiry-success h3 { font-size: 32px; font-weight: 400; margin: 10px 0; }
 .inquiry-success p { color: var(--text-dim); line-height: 1.8; }
+.inquiry-channels { display: grid; gap: 12px; margin-top: 28px; }
+.inquiry-channels .contact-button { margin-top: 0; min-height: 58px; height: auto; padding-block: 12px; gap: 12px; text-align: right; white-space: normal; line-height: 1.5; }
+.inquiry-channels .contact-button svg:last-child { margin-right: auto; flex: none; }
+.inquiry-success .channel-note { font-size: 12px; margin-top: 18px; }
 .contact-actions { display: flex; align-items: center; justify-content: center; gap: 36px; flex-wrap: wrap; }
 .contact-button { min-width: 206px; height: 55px; border-radius: 0; font-size: 14px; justify-content: space-between; padding: 0 24px; }
 .phone-link { color: var(--foreground); text-decoration: none; display: flex; gap: 12px; align-items: center; font-family: "Barlow Condensed", sans-serif; letter-spacing: .07em; font-size: 22px; }
