@@ -1,0 +1,491 @@
+/* AL SOMMAN — Phase 03 / immersive editorial chapters.
+   No WebGL dependency: images, selective cinematic depth, native buttons.
+   All site representations and license statuses remain source-qualified. */
+
+/* — Material journey — */
+.production-flow {
+  margin-top: clamp(64px, 8vw, 110px);
+  background: #171e21;
+  color: #f5f0e5;
+  border: 1px solid rgba(231,172,50,.26);
+  overflow: hidden;
+}
+.production-flow__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 23px clamp(22px,3.6vw,50px);
+  border-bottom: 1px solid rgba(244,234,208,.17);
+  color: #d5bb7b;
+  font-size: 13px;
+}
+.production-flow__top .latin { font-size: 13px; letter-spacing: .14em; }
+.production-flow__layout {
+  display: grid;
+  grid-template-columns: minmax(270px,.85fr) minmax(0,1.3fr);
+  min-height: 440px;
+}
+.production-flow__steps {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(244,234,208,.18);
+}
+.production-flow__step {
+  width: 100%;
+  min-height: 132px;
+  padding: 30px clamp(20px,3vw,40px);
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  text-align: right;
+  border: 0;
+  border-bottom: 1px solid rgba(244,234,208,.12);
+  display: grid;
+  align-items: center;
+  grid-template-columns: 45px 1fr 24px;
+  gap: 12px;
+  cursor: pointer;
+  transition: background .4s ease, color .4s ease;
+}
+.production-flow__step:last-child { border-bottom: 0; }
+.production-flow__step.is-active {
+  color: #f9f1df;
+  background: linear-gradient(270deg,rgba(231,172,50,.20),rgba(231,172,50,.03));
+  box-shadow: inset -3px 0 #e7ac32;
+}
+.production-flow__step:hover { color: white; background-color: rgba(255,255,255,.045); }
+.production-flow__step .latin { font-size: 17px; color: #e7ac32; }
+.production-flow__step strong { font-size: clamp(17px,1.6vw,23px); font-weight: 400; }
+.production-flow__step svg { color: #e7ac32; }
+.production-flow__view {
+  padding: 35px clamp(25px,4vw,65px);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  background: radial-gradient(ellipse at 62% 12%,rgba(217,159,61,.17),transparent 55%),#1a2225;
+}
+.production-flow__scan {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(100%, 380px);
+  height: 210px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.production-flow__scan::before {
+  content: "";
+  position: absolute;
+  inset: 7% 8%;
+  border-radius: 50%;
+  border: 1px solid rgba(231,172,50,.29);
+  box-shadow: 0 0 0 20px rgba(231,172,50,.025),0 0 0 43px rgba(231,172,50,.035);
+}
+.production-flow__scan::after {
+  content: "";
+  position: absolute;
+  width: 63%;
+  height: 1px;
+  background: linear-gradient(90deg,transparent,#e7ac32,transparent);
+  transform: rotate(-22deg);
+}
+.production-flow__center {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 125px;
+  height: 125px;
+  border: 1px dashed rgba(231,172,50,.65);
+  border-radius: 50%;
+  background: rgba(11,18,22,.46);
+}
+.production-flow__center .latin { color: #e9b854; font-size: 20px; }
+.production-flow__beam {
+  position: absolute;
+  inset: 10%;
+  border-radius: 50%;
+  border: 1px solid rgba(231,172,50,.18);
+}
+.production-flow__beam--crushing { border-style: dashed; }
+.production-flow__beam--dispatch { border-width: 2px; border-style: dotted; }
+.production-flow__indicator {
+  color: #e2b861;
+  font-size: 12px;
+  letter-spacing: .1em;
+}
+.production-flow__view h3 {
+  margin: 10px 0 5px;
+  font-size: clamp(24px,2.7vw,40px);
+  font-weight: 500;
+}
+.production-flow__view p { margin: 0; font-size: 15px; line-height: 1.95; max-width: 520px; }
+.production-flow__view small { margin-top: 18px; font-size: 11px; line-height: 1.7; color: #d0c8b8; }
+.production-flow__step:focus-visible,
+.fleet-experience__selector:focus-visible,
+.quarry-atlas__tile:focus-visible,
+.fleet-experience__next:focus-visible,
+.quarry-atlas__readout a:focus-visible {
+  outline: 3px solid #e7ac32;
+  outline-offset: 3px;
+  position: relative;
+  z-index: 5;
+}
+
+/* — Equipment focus room — */
+.fleet-experience__header {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 45px;
+  align-items: end;
+  margin-bottom: 54px;
+}
+.fleet-experience__eyebrow {
+  display: inline-flex;
+  gap: 13px;
+  color: var(--primary);
+  margin-bottom: 22px;
+  font-size: 13px;
+  align-items: center;
+}
+.fleet-experience__header h2 {
+  margin: 0;
+  font-size: clamp(48px,6.1vw,90px);
+  font-weight: 500;
+  line-height: 1.35;
+}
+.fleet-experience__header h2 em { color: var(--primary); font-style: normal; }
+.fleet-experience__header p { color: var(--text-dim); line-height: 2.1; font-size: 16px; max-width: 350px; }
+.fleet-experience__composition {
+  display: grid;
+  grid-template-columns: minmax(0,1.35fr) minmax(315px,.65fr);
+  background: #161d20;
+  min-height: 650px;
+  color: #f6f0e6;
+  border: 1px solid rgba(231,172,50,.22);
+}
+.fleet-experience__stage {
+  min-height: 650px;
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: #11191c;
+}
+.fleet-experience__image {
+  position: absolute;
+  z-index: -2;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  visibility: hidden;
+  transform: scale(var(--cinema-fleet-scale,1.055));
+  filter: saturate(.78);
+  transition: opacity .8s ease, filter 1.1s ease, visibility .8s ease, transform 1.5s ease;
+  pointer-events: none;
+}
+.fleet-experience__image.is-active { opacity: 1; visibility: visible; filter: saturate(.96); }
+.fleet-experience__shade {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: linear-gradient(0deg,rgba(11,17,20,.94),transparent 53%),linear-gradient(90deg,rgba(11,17,20,.15),rgba(11,17,20,.35));
+}
+.fleet-experience__photo-note {
+  position: absolute;
+  top: 26px;
+  right: 30px;
+  background: rgba(15,23,27,.81);
+  border: 1px solid rgba(255,255,255,.25);
+  font-size: 11px;
+  padding: 9px 12px;
+}
+.fleet-experience__headline {
+  position: absolute;
+  right: clamp(26px,4vw,62px);
+  left: 28px;
+  bottom: 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fleet-experience__headline .latin { color: #e7ac32; font-size: 14px; }
+.fleet-experience__headline strong {
+  font-size: clamp(48px,6vw,100px);
+  font-weight: 500;
+  line-height: 1.2;
+  animation: fleetFocus .65s cubic-bezier(.22,.68,.23,1) both;
+}
+@keyframes fleetFocus {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.fleet-experience__corners {
+  position: absolute;
+  inset: 18px;
+  border: 1px solid rgba(255,255,255,.18);
+  pointer-events: none;
+}
+.fleet-experience__console {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: clamp(25px,3vw,48px);
+  border-right: 1px solid rgba(255,255,255,.15);
+}
+.fleet-experience__console-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  color: rgba(255,255,255,.65);
+  font-size: 11px;
+}
+.fleet-experience__console-label .latin { color: #e7ac32; letter-spacing: .08em; }
+.fleet-experience__selectors { margin-top: 30px; border-top: 1px solid rgba(255,255,255,.17); }
+.fleet-experience__selector {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid rgba(255,255,255,.17);
+  background: transparent;
+  color: rgba(255,255,255,.75);
+  text-align: right;
+  cursor: pointer;
+  min-height: 71px;
+  display: grid;
+  align-items: center;
+  grid-template-columns: 36px 1fr 28px;
+  gap: 14px;
+  padding: 12px 6px;
+  transition: color .25s ease, background .25s ease, padding .25s ease;
+}
+.fleet-experience__selector:hover,.fleet-experience__selector.is-selected {
+  color: #fff9ec;
+  background: rgba(231,172,50,.10);
+  padding-inline: 12px;
+}
+.fleet-experience__selector.is-selected { box-shadow: inset -3px 0 #e7ac32; }
+.fleet-experience__selector-icon { color: #e7ac32; }
+.fleet-experience__selector .latin { color: #d7c296; font-size: 12px; }
+.fleet-experience__detail {
+  padding-top: 32px;
+  margin-top: auto;
+}
+.fleet-experience__count { display: flex; align-items: baseline; gap: 14px; color: #e7ac32; }
+.fleet-experience__count strong { font-size: clamp(60px,6vw,92px); line-height: 1; font-weight: 500; }
+.fleet-experience__count span { font-size: 14px; }
+.fleet-experience__detail p { font-size: 15px; line-height: 2; color: #f6f1e8; }
+.fleet-experience__detail small { display: block; color: #d7cdb8; line-height: 1.85; font-size: 12px; }
+.fleet-experience__next {
+  margin-top: 25px;
+  padding-bottom: 11px;
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  gap: 12px;
+  color: #e7ac32;
+  font-size: 13px;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(231,172,50,.6);
+}
+
+/* — Abstract, explicitly non-geographic quarry visualization — */
+.quarry-atlas {
+  margin-top: 70px;
+  border: 1px solid var(--line-soft);
+  background: #e9e4da;
+  color: #273238;
+  overflow: hidden;
+}
+.quarry-atlas__topline {
+  padding: 22px 28px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: center;
+  background: #273033;
+  color: #eee5d5;
+  font-size: 13px;
+}
+.quarry-atlas__topline > span:first-child { display: inline-flex; gap: 10px; align-items: center; }
+.quarry-atlas__topline svg { color: #e7ac32; }
+.quarry-atlas__topline .latin { font-size: 12px; color: #e7ac32; }
+.quarry-atlas__body {
+  display: grid;
+  grid-template-columns: minmax(0,1.25fr) minmax(300px,.75fr);
+  min-height: 560px;
+}
+.quarry-atlas__field {
+  position: relative;
+  min-height: 560px;
+  isolation: isolate;
+  background: radial-gradient(ellipse at 42% 43%,#d5cdbb,#eee9dd 55%,#ccc2af);
+  overflow: hidden;
+  border-left: 1px solid rgba(48,57,56,.2);
+}
+.quarry-atlas__contours {
+  position: absolute;
+  inset: -10%;
+  z-index: -1;
+  opacity: .55;
+  background: repeating-radial-gradient(ellipse at 53% 47%,transparent 0 17px,rgba(93,90,73,.19) 18px 19px,transparent 20px 31px);
+  transform: scale(var(--cinema-territory-scale,1.07));
+  pointer-events: none;
+}
+.quarry-atlas__tile {
+  position: absolute;
+  border: 1px solid rgba(40,49,43,.38);
+  background: linear-gradient(135deg,rgba(130,127,99,.63),rgba(85,103,91,.63));
+  color: #fbf9ef;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 5px;
+  text-align: right;
+  padding: clamp(15px,3vw,29px);
+  box-shadow: 0 5px 30px rgba(51,54,49,.1);
+  transition: filter .3s ease, box-shadow .3s ease, background .3s ease, transform .3s ease;
+}
+.quarry-atlas__tile:hover,.quarry-atlas__tile.is-active {
+  background: linear-gradient(135deg,#a77d36,#594d35);
+  box-shadow: inset 0 0 0 2px #ebc46a,0 14px 32px rgba(65,45,13,.27);
+  z-index: 2;
+}
+.quarry-atlas__tile--1 {
+  inset: 9% 47% 51% 10%;
+  clip-path: polygon(7% 5%,96% 0,100% 95%,4% 100%,0 29%);
+}
+.quarry-atlas__tile--2 {
+  inset: 16% 7% 43% 56%;
+  clip-path: polygon(10% 0,92% 7%,100% 74%,82% 100%,0 96%,3% 30%);
+}
+.quarry-atlas__tile--3 {
+  inset: 55% 24% 8% 22%;
+  clip-path: polygon(6% 0,100% 10%,91% 100%,0 89%);
+}
+.quarry-atlas__tile-number { color: #fae09e; font-size: 16px; }
+.quarry-atlas__tile-title { font-size: clamp(15px,1.8vw,22px); font-weight: 600; }
+.quarry-atlas__tile-size { font-size: clamp(16px,2.2vw,27px); white-space: nowrap; }
+.quarry-atlas__tile-size small { font-size: 12px; }
+.quarry-atlas__annotation {
+  position: absolute;
+  left: 24px;
+  bottom: 18px;
+  color: #525c56;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 10px;
+}
+.quarry-atlas__readout { padding: clamp(24px,3.8vw,54px); display: flex; flex-direction: column; }
+.quarry-atlas__mini-label { color: #786742; font-size: 12px; }
+.quarry-atlas__record { font-size: 13px; color: #886d33; margin-top: 9px; }
+.quarry-atlas__readout h3 { font-size: clamp(26px,3vw,44px); font-weight: 500; margin: 15px 0 5px; }
+.quarry-atlas__metric { display: flex; align-items: baseline; gap: 11px; }
+.quarry-atlas__metric strong { font-size: clamp(36px,4vw,58px); font-weight: 500; color: #a0782c; }
+.quarry-atlas__metric span { font-size: 13px; }
+.quarry-atlas__readout dl { margin: 21px 0; border-top: 1px solid rgba(60,65,62,.21); }
+.quarry-atlas__readout dl div {
+  border-bottom: 1px solid rgba(60,65,62,.21);
+  display: grid;
+  gap: 15px;
+  grid-template-columns: 118px 1fr;
+  align-items: center;
+  padding: 11px 0;
+  font-size: 12px;
+}
+.quarry-atlas__readout dt { color: #63716e; }
+.quarry-atlas__readout dd { margin: 0; color: #273238; font-weight: 600; }
+.quarry-atlas__readout p { color: #48524f; line-height: 1.9; font-size: 12px; }
+.quarry-atlas__readout a { display: inline-flex; align-items: center; gap: 12px; width: fit-content; margin-top: auto; color: #775c21; text-decoration: none; border-bottom: 1px solid #aa843e; padding: 10px 0; font-size: 12px; }
+.quarry-atlas__footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  align-items: center;
+  padding: 18px 28px;
+  border-top: 1px solid rgba(56,65,63,.2);
+  background: #ddd5c6;
+  font-size: 11px;
+  line-height: 1.9;
+}
+.quarry-atlas__footer p { max-width: 620px; margin: 0; }
+.quarry-atlas__footer span { white-space: nowrap; }
+.quarry-atlas__footer strong { color: #7d6028; }
+
+/* — Smaller viewports — */
+@media (max-width: 1000px) {
+  .fleet-experience__header { grid-template-columns: 1fr; gap: 8px; }
+  .fleet-experience__header p { max-width: 650px; }
+  .fleet-experience__composition { grid-template-columns: minmax(0,1fr) minmax(270px,.85fr); }
+  .fleet-experience__stage { min-height: 610px; }
+  .quarry-atlas__body { grid-template-columns: minmax(0,1fr) minmax(300px,1fr); }
+}
+@media (max-width: 760px) {
+  .production-flow__top { align-items: start; flex-direction: column; gap: 5px; }
+  .production-flow__layout { grid-template-columns: 1fr; }
+  .production-flow__steps { border-left: 0; flex-direction: row; overflow-x: auto; }
+  .production-flow__step { min-width: 160px; min-height: 105px; padding: 14px; grid-template-columns: 1fr; gap: 8px; }
+  .production-flow__step svg { display: none; }
+  .production-flow__step.is-active { box-shadow: inset 0 -3px #e7ac32; }
+  .production-flow__view { min-height: 405px; }
+  .fleet-experience__composition { grid-template-columns: 1fr; }
+  .fleet-experience__stage { min-height: 470px; }
+  .fleet-experience__console { border-right: 0; }
+  .fleet-experience__selectors { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .fleet-experience__selector { grid-template-columns: 24px 1fr; gap: 7px; min-height: 65px; font-size: 12px; }
+  .fleet-experience__selector .latin { display: none; }
+  .quarry-atlas__body { grid-template-columns: 1fr; }
+  .quarry-atlas__field { min-height: 420px; border-left: 0; border-bottom: 1px solid rgba(56,65,63,.2); }
+  .quarry-atlas__readout { min-height: 430px; }
+  .quarry-atlas__footer { flex-direction: column; align-items: start; gap: 8px; }
+}
+@media (max-width: 480px) {
+  .production-flow__top { padding: 20px; }
+  .production-flow__step { min-width: 133px; font-size: 13px; }
+  .production-flow__step strong { font-size: 14px; }
+  .production-flow__view { padding: 28px 23px; }
+  .production-flow__scan { height: 175px; }
+  .production-flow__view h3 { font-size: 25px; }
+  .fleet-experience__header h2 { font-size: clamp(39px,10vw,60px); }
+  .fleet-experience__header p { font-size: 14px; }
+  .fleet-experience__stage { min-height: 390px; }
+  .fleet-experience__headline { bottom: 30px; right: 24px; }
+  .fleet-experience__headline strong { font-size: 51px; }
+  .fleet-experience__photo-note { top: 17px; right: 17px; left: 17px; font-size: 10px; }
+  .fleet-experience__corners { inset: 10px; }
+  .fleet-experience__console { padding: 21px; }
+  .fleet-experience__console-label { flex-direction: column; }
+  .fleet-experience__selector { padding: 10px 8px; }
+  .quarry-atlas__topline { padding: 19px; }
+  .quarry-atlas__topline .latin { display: none; }
+  .quarry-atlas__field { min-height: 340px; }
+  .quarry-atlas__tile { padding: 11px; }
+  .quarry-atlas__tile-title { font-size: 13px; }
+  .quarry-atlas__tile-size { font-size: 14px; }
+  .quarry-atlas__tile-size small { font-size: 10px; }
+  .quarry-atlas__tile-number { font-size: 12px; }
+  .quarry-atlas__annotation { left: 15px; bottom: 9px; font-size: 9px; }
+  .quarry-atlas__readout { min-height: 420px; padding: 25px; }
+  .quarry-atlas__readout dl div { grid-template-columns: 110px 1fr; }
+  .quarry-atlas__footer { padding: 18px; }
+  .quarry-atlas__footer span { white-space: normal; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fleet-experience__image,
+  .fleet-experience__image.is-active,
+  .fleet-experience__headline strong,
+  .quarry-atlas__contours {
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+}
