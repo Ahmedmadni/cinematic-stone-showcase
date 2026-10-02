@@ -8,7 +8,7 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
  * Progress is provided by CinematicDirector as CSS variables.
  */
 export function QuarryTransition() {
-  const { t, language } = useSiteLanguage();
+  const { t } = useSiteLanguage();
   return (
     <section
       className="cinematic-bridge"
