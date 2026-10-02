@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ArrowDownLeft, ArrowUpLeft, Layers3, Mouse, Mountain, Truck } from "lucide-react";
+import { ArrowDownLeft, Layers3, Mouse, Mountain, Truck } from "lucide-react";
 import { productionSteps } from "@/data/experience-data";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import extractionPhoto from "@/assets/excavators.jpg";
@@ -111,7 +111,7 @@ export function ProductionFlow() {
               <small>ملخص توضيحي من العرض الاستثماري؛ لا يمثل مخطط تشغيل هندسيًا أو مراقبة تشغيل مباشرة.</small>
             </div>
             <div className="production-flow__stage-progress" aria-hidden="true"><span /></div>
-            <div className="production-flow__visual-marker" aria-hidden="true"><ArrowUpLeft size={22} /></div>
+            <a className="production-flow__visual-marker" href="#equipment-title" aria-label="تجاوز مشاهد رحلة الحجر والانتقال إلى قسم المعدات">إلى المعدات <ArrowDownLeft size={18} aria-hidden="true" /></a>
           </div>
         </div>
       </div>
