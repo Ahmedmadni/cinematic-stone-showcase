@@ -322,8 +322,9 @@ try {
   await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
     await openWithRetry(desktopPage, baseURL);
     const carousel = desktopPage.locator(".hero-gallery");
+    await desktopPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await desktopPage.mouse.move(0, 0);
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true");
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
     const first = await carousel.getAttribute("data-hero-active");
     await desktopPage.waitForFunction(previous =>
       document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
