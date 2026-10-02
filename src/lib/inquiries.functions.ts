@@ -13,7 +13,7 @@ export const inquirySchema = z.object({
 export type InquiryInput = z.infer<typeof inquirySchema>;
 
 export const submitInquiry = createServerFn({ method: "POST" })
-  .inputValidator((data) => inquirySchema.parse(data))
+  .validator((data) => inquirySchema.parse(data))
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("investment_inquiries").insert({
