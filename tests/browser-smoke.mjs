@@ -208,6 +208,39 @@ try {
 
   await desktop.close();
 
+  const fullMotionMobile = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "no-preference",
+    locale: "ar-SA",
+  });
+  const motionPage = await fullMotionMobile.newPage();
+  await caseRun("mobile touch scrolling actually advances material and equipment", async () => {
+    await openWithRetry(motionPage, baseURL);
+    for (const [id, count, data] of [
+      ["material-scroll-track", 3, "cinema-material-scene"],
+      ["fleet-scroll-track", 4, "cinema-fleet-scene"],
+    ]) {
+      for (const scene of [0, count - 1]) {
+        await motionPage.evaluate(({ id, count, scene }) => {
+          const el = document.getElementById(id);
+          if (!el) throw new Error("Scene missing: " + id);
+          const bounds = el.getBoundingClientRect();
+          const start = scrollY + bounds.top;
+          window.scrollTo({ top: start + Math.max(0, bounds.height - innerHeight) * ((scene + .5) / count), behavior: "instant" });
+        }, { id, count, scene });
+        await motionPage.waitForFunction(({ key, scene }) =>
+          document.querySelector(".presentation")?.getAttribute("data-" + key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())) === String(scene),
+          { key: data, scene }, { timeout: 12000, polling: "raf" });
+      }
+    }
+    assert.ok((await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5);
+    await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
+  });
+  await fullMotionMobile.close();
+
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
