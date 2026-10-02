@@ -49,6 +49,10 @@
   object-position: 66% 52%;
   transform: scale(1.01);
 }
+.presentation[data-language="ar"] .hero-cinematic .hero-media__loading {
+  -webkit-mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.16) 10%,rgba(0,0,0,.72) 23%,black 39%);
+  mask-image:linear-gradient(to left,transparent 0%,rgba(0,0,0,.16) 10%,rgba(0,0,0,.72) 23%,black 39%);
+}
 .presentation .hero-cinematic .hero-media__soft-joint {
   position: absolute;
   inset-block: 0;
@@ -114,6 +118,7 @@
     mask-image:linear-gradient(to right,transparent,rgba(0,0,0,.7) 25%,#000 48%);
   }
   .presentation .hero-cinematic .hero-media__breaker img {object-position:17% 52%;}
+  .presentation[data-language="ar"] .hero-cinematic .hero-media__loading { -webkit-mask-image:linear-gradient(to left,transparent,rgba(0,0,0,.7) 25%,#000 48%);mask-image:linear-gradient(to left,transparent,rgba(0,0,0,.7) 25%,#000 48%); }
   .presentation .hero-cinematic .hero-media__loading img {object-position:66% 52%;}
   .presentation[data-language="en"] .hero-cinematic::before {
     background:linear-gradient(0deg,rgba(11,17,18,.86) 0%,rgba(11,17,18,.56) 43%,rgba(11,17,18,.06) 100%);
