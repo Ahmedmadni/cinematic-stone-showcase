@@ -9,6 +9,7 @@
 @import "./styles/location-map.css";
 @import "./styles/fleet-scroll.css";
 @import "./styles/storytelling-refinement.css";
+@import "./styles/editorial-rebuild.css";
 
 @custom-variant dark (&:is(.dark *));
 

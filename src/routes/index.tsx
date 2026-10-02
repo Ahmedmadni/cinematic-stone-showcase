@@ -166,7 +166,7 @@ function Index() {
     <div className="presentation" dir="rtl">
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
-        <AutoVisual className="scene-visual" eager interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
+        <AutoVisual className="scene-visual" interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
         <div className="scene-shade" />
       </div>
 
@@ -179,7 +179,9 @@ function Index() {
 
       <main>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
-          <AtmosphereLayers variant="hero" />
+          <div className="hero-media" aria-hidden="true">
+            <picture><source media="(max-width: 640px)" srcSet={equipment} /><img src={equipment} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></picture>
+          </div>
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">

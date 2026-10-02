@@ -15,3 +15,5 @@
 - After saving a validated investment inquiry, offer visitor-initiated prefilled email to the fixed employee address or WhatsApp to the fixed company number; do not send automatic notices, so visitors review and send their own message.
 - Keep each gallery subject's slide timer and visibility handling in its own GallerySlides instance; this isolates autoplay and pauses off-screen or for reduced motion.
 - Keep main visual transitions in independent AutoVisual instances so each pauses off-screen and when the page is hidden or reduced motion is requested.
+- Keep the priority hero as an independent static illustrative image and preserve passive scroll-driven CSS chapter masks; this avoids competing LCP downloads and scroll-jacking.
+- Keep blueprint SVG motifs as decorative source assets behind light sections only; this preserves legibility and separates editorial art from real site evidence.
