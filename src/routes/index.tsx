@@ -40,23 +40,25 @@ import housingAlt from "@/assets/worker-housing-recreation-alt.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي" },
-      { name: "description", content: "تعرّف على فرصة الاستثمار في محجر وكسارة الصمان بالمنطقة الشرقية: ثلاثة محاجر، خطا إنتاج للبحص، حفارات وشيولات ومرافق تشغيلية. سجّل اهتمامك للتواصل." },
-      { property: "og:title", content: "محجر وكسارة الصمان | شركة الأسطول الآلي" },
-      { property: "og:description", content: "عرض استثماري عربي لمحاجر الصمان، خطوط التكسير والفرز، المعدات والمرافق التشغيلية. الصور توضيحية وليست صور الموقع الفعلية." },
+      { title: "Al Somman Quarry & Crushing Plant | Al Ostool Investment Opportunity" },
+      { name: "description", content: "Explore the documented Al Somman quarry and crushing plant investment opportunity in Saudi Arabia: three quarry records, two production lines, excavators, loaders and support facilities. Images are illustrative." },
+      { property: "og:title", content: "Al Somman Quarry & Crushing Plant | Al Ostool" },
+      { property: "og:description", content: "A bilingual investment presentation of the documented Al Somman quarry, crushing lines, equipment and facilities. Illustrative imagery only; current permit status requires verification." },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "ar_SA" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
     scripts: [{ type: "application/ld+json", children: JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebPage",
-      name: "محجر وكسارة الصمان | شركة الأسطول الآلي",
-      inLanguage: "ar-SA",
-      description: "فرصة استثمارية في محاجر الصمان وخطوط إنتاج البحص بالمنطقة الشرقية في المملكة العربية السعودية.",
-      about: { "@type": "Place", name: "محجر الصمان", address: { "@type": "PostalAddress", addressRegion: "المنطقة الشرقية", addressCountry: "SA" } },
-      publisher: { "@type": "Organization", name: "شركة الأسطول الآلي", email: "info@alostool.com.sa" },
+      name: "Al Somman Quarry & Crushing Plant | Al Ostool",
+      inLanguage: ["en", "ar-SA"],
+      description: "Bilingual reference presentation of the Al Somman quarry and two crushing lines in Saudi Arabia, Eastern Province.",
+      about: { "@type": "Place", name: "Al Somman Quarry", address: { "@type": "PostalAddress", addressRegion: "Eastern Province", addressCountry: "SA" } },
+      publisher: { "@type": "Organization", name: "Al Ostool Alaali", email: "info@alostool.com.sa" },
     }) }],
   }),
   component: Index,
@@ -360,7 +362,7 @@ function Index() {
         <button type="button" className="somman-tool somman-tool--language" aria-label={language === "ar" ? "Switch website to English" : "تغيير لغة الموقع إلى العربية"} title={language === "ar" ? "English" : "العربية"} onClick={() => setLanguage(prev => prev === "ar" ? "en" : "ar")}>
           <Languages size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
-        <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" onClick={() => setAssistantOpen(open => !open)}>
+        <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" title={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} onClick={() => setAssistantOpen(open => !open)}>
           <Bot size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
       </div>
