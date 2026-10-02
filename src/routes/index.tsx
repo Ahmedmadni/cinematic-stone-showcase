@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle, Languages, Bot, X } from "lucide-react";
 import { useEffect, useRef, useState, type FormEvent } from "react";
-import { SiteLanguageContext, translateSite, type SiteLanguage } from "@/lib/site-language";
+import { SiteLanguageContext, translateSite, localizeDisplayNumber, type SiteLanguage } from "@/lib/site-language";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -81,18 +81,30 @@ const siteGallery = [
 const investmentEmail = "a.elmadin@alostool.com.sa";
 const investmentWhatsApp = "966560409811";
 
-function contactLinks(inquiry: InquiryInput) {
-  const body = [
+function contactLinks(inquiry: InquiryInput, language: SiteLanguage) {
+  // Contacts are visitor-initiated. The user reviews the email/WhatsApp
+  // content in their own app before deciding to send it.
+  const subject = language === "en"
+    ? "Al Somman Quarry — investment inquiry"
+    : "استفسار استثماري — محجر الصمان";
+  const body = (language === "en" ? [
+    "Investment inquiry — Al Somman quarry and crushing plant",
+    "Name: " + inquiry.name,
+    "Email: " + inquiry.email,
+    inquiry.phone && "Phone: " + inquiry.phone,
+    inquiry.company && "Company: " + inquiry.company,
+    inquiry.message && "Message: " + inquiry.message,
+  ] : [
     "استفسار استثماري بشأن محجر وكسارة الصمان",
-    `الاسم: ${inquiry.name}`,
-    `البريد الإلكتروني: ${inquiry.email}`,
-    inquiry.phone && `رقم الهاتف: ${inquiry.phone}`,
-    inquiry.company && `الجهة / الشركة: ${inquiry.company}`,
-    inquiry.message && `الرسالة: ${inquiry.message}`,
-  ].filter(Boolean).join("\n");
+    "الاسم: " + inquiry.name,
+    "البريد الإلكتروني: " + inquiry.email,
+    inquiry.phone && "رقم الهاتف: " + inquiry.phone,
+    inquiry.company && "الجهة / الشركة: " + inquiry.company,
+    inquiry.message && "الرسالة: " + inquiry.message,
+  ]).filter(Boolean).join("\n");
   return {
-    email: `mailto:${investmentEmail}?subject=${encodeURIComponent("استفسار استثماري — محجر الصمان")}&body=${encodeURIComponent(body)}`,
-    whatsApp: `https://wa.me/${investmentWhatsApp}?text=${encodeURIComponent(body)}`,
+    email: "mailto:" + investmentEmail + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(body),
+    whatsApp: "https://wa.me/" + investmentWhatsApp + "?text=" + encodeURIComponent(body),
   };
 }
 
@@ -190,7 +202,7 @@ function Index() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [assistantOpen]);
 
-  const links = readyInquiry ? contactLinks(readyInquiry) : null;
+  const links = readyInquiry ? contactLinks(readyInquiry, language) : null;
   const selectedGallery = selectedImage ? siteGallery[selectedImage.item] : undefined;
   const selectedSlide = selectedImage ? selectedGallery?.slides[selectedImage.slide] : undefined;
 
@@ -238,7 +250,7 @@ function Index() {
               </div>
             </div>
             <div className="facts-grid">
-              {facts.map((fact) => <div className="fact reveal" key={t(fact.label)}><div className="fact-number"><b>{fact.number}</b><span>{t(fact.unit)}</span></div><p>{t(fact.label)}</p></div>)}
+              {facts.map((fact) => <div className="fact reveal" key={t(fact.label)}><div className="fact-number"><b>{localizeDisplayNumber(fact.number, language)}</b><span>{t(fact.unit)}</span></div><p>{t(fact.label)}</p></div>)}
             </div>
           </div>
         </section>
@@ -269,7 +281,7 @@ function Index() {
             <div className="site-gallery">
               {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
                 <GallerySlides slides={item.slides.map(slide => ({ ...slide, label: t(slide.label) }))} title={t(item.title)} replacement={t(item.replacement)} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
-                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>تُستبدل بصورة: {t(item.replacement)}</small></figcaption>
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{t("تُستبدل بصورة:")} {t(item.replacement)}</small></figcaption>
               </figure>)}
             </div>
           </div>
