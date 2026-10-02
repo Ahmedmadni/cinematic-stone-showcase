@@ -315,6 +315,14 @@ const english: Record<string, string> = {
   "مشهد": "Scene",
   "مساعد الصمان — يجيب من معلومات المشروع المعتمدة فقط": "Al Somman assistant — quarry questions only",
 
+  "إغلاق الصورة": "Close image",
+  "الصورة السابقة": "Previous image",
+  "الصورة التالية": "Next image",
+  "صورة تجريبية توضيحية:": "Illustrative image:",
+  "صورة تجريبية ·": "Illustrative image ·",
+  "م³ / يوم": "m³ / day",
+  "م²": "m²",
+
 } as const;
 
 type LanguageContextValue = {
@@ -332,4 +340,10 @@ export function translateSite(text: string, language: SiteLanguage): string {
 
 export function useSiteLanguage() {
   return useContext(SiteLanguageContext);
+}
+
+/** Convert presentation Arabic-Indic digits only in English UI, never licence IDs. */
+export function localizeDisplayNumber(value: string, language: SiteLanguage) {
+  if (language === "ar") return value;
+  return value.replace(/[٠-٩]/g, digit => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))).replace(/٬/g, ",");
 }
