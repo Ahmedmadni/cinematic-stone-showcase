@@ -93,7 +93,7 @@ export function MapExperience() {
             {mapAllowed ? (
               <iframe
                 title={t("Google Maps — مركز استرشادي لإحداثيات رخصة محجر الصمان")}
-                src={googleSatelliteEmbedSource(import.meta.env["VITE_GOOGLE_MAPS_EMBED_KEY"])}
+                src={googleSatelliteEmbedSource(import.meta.env["VITE_GOOGLE_MAPS_EMBED_KEY"]).replace("hl=ar", "hl=" + language).replace("language=ar", "language=" + language)}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
@@ -135,7 +135,7 @@ export function MapExperience() {
                 key={landmark.id}
                 type="button"
                 aria-pressed={focus === landmark.id}
-                aria-label={"استعرض " + landmark.name + " في المشهد التصوري"}
+                aria-label={t("استعرض") + " " + t(landmark.name) + " " + t("في المشهد التصوري")}
                 className={"somman-location-experience__hotspot" + (focus === landmark.id ? " is-active" : "")}
                 style={{ left: landmark.x, top: landmark.y }}
                 onClick={() => setFocus(landmark.id)}
