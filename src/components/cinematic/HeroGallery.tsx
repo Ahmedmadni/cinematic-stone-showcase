@@ -58,7 +58,9 @@ export function HeroGallery() {
       ([entry]) => setInView(entry?.isIntersecting ?? false),
       { threshold: 0.12 },
     );
-    const node = heroRef.current;
+    // The hero layer has a negative z-index; observe its full section instead
+    // so browser restoration/transform clipping cannot suppress autoplay.
+    const node = heroRef.current?.closest(".hero-cinematic") ?? heroRef.current;
     if (node) observer.observe(node);
     return () => {
       observer.disconnect();
