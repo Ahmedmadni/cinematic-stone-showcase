@@ -1,5 +1,6 @@
 import { useSiteLanguage } from "@/lib/site-language";
-import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type TouchEvent as ReactTouchEvent } from "react";
+import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
 import { ArrowLeft, ArrowRight, Pause, Play, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -30,6 +31,7 @@ export function GalleryLightbox({
   const { t, language } = useSiteLanguage();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
   const [manuallyPaused, setManuallyPaused] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
   const [motionAllowed, setMotionAllowed] = useState(false);
@@ -69,13 +71,37 @@ export function GalleryLightbox({
     return () => window.clearTimeout(timer);
   }, [playing, image, onNext]);
 
+  function handleTouchStart(event: ReactTouchEvent<HTMLDivElement>) {
+    if (event.touches.length !== 1 || isInteractiveGalleryTarget(event.target)) {
+      touchStart.current = null;
+      return;
+    }
+    const first = event.touches[0];
+    if (first) touchStart.current = { x: first.clientX, y: first.clientY };
+  }
+
+  function handleTouchEnd(event: ReactTouchEvent<HTMLDivElement>) {
+    const first = touchStart.current;
+    touchStart.current = null;
+    if (!first || event.changedTouches.length !== 1) return;
+    const touch = event.changedTouches[0];
+    if (!touch) return;
+    const step = gallerySwipeStep(touch.clientX - first.x, touch.clientY - first.y, language === "ar" ? "rtl" : "ltr");
+    if (!step) return;
+    setManuallyPaused(true);
+    if (step === 1) onNext();
+    else onPrevious();
+  }
+
   function handleKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      onNext();
+      if (language === "ar") onNext();
+      else onPrevious();
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      onPrevious();
+      if (language === "ar") onPrevious();
+      else onNext();
     }
   }
 
@@ -108,7 +134,7 @@ export function GalleryLightbox({
           <X size={24} aria-hidden="true" />
         </Button>
       </div>
-      <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
+      <div className="lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
         <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
         <div className="lightbox-caption">
           <div>
