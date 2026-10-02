@@ -208,7 +208,6 @@ const english: Record<string, string> = {
   "تعرف على منظومة الإنتاج والمعدات والمرافق والمناطق.": "Discover production lines, equipment and site facilities.",
   "راجع المستندات": "Review the records",
   "استعرض البيانات المرجعية وحدد الوثائق التي تحتاج التحقق.": "Read the reference information and identify documents needing verification.",
-  "سجّل اهتمامك": "Register your interest",
   "اترك بياناتك ثم اختر وسيلة التواصل المناسبة بنفسك.": "Leave your details and select your preferred contact method.",
   "إدارة الجودة": "Quality management",
   "الإدارة البيئية": "Environmental management",
