@@ -406,6 +406,15 @@ try {
     }
     const firstGallery = galleries.first();
     await firstGallery.scrollIntoViewIfNeeded();
+    // A touchscreen may synthesize mouse compatibility events. A touch
+    // pointerover must not freeze the card's auto-rotation indefinitely.
+    await desktopPage.mouse.move(0, 0);
+    await firstGallery.evaluate((element) => {
+      element.dispatchEvent(new PointerEvent("pointerover", {
+        bubbles: true, pointerType: "touch",
+      }));
+    });
+    assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
     await desktopPage.mouse.move(0, 0);
     await desktopPage.waitForFunction(() =>
       document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
