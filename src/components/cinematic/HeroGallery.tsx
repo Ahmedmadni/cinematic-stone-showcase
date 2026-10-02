@@ -91,7 +91,7 @@ export function HeroGallery() {
     // Preload only the next frame, not all ten large hero photos.
     if (!playing) return;
     const next = new Image();
-    next.src = scenes[(active + 1) % scenes.length].src;
+    next.src = (scenes[(active + 1) % scenes.length] ?? scenes[0]).src;
   }, [active, playing]);
 
   function choose(index: number) {
@@ -104,9 +104,10 @@ export function HeroGallery() {
     setPaused(true);
   }
 
-  const current = scenes[active];
-  const previous = outgoing === null ? null : scenes[outgoing];
+  const current = scenes[active] ?? scenes[0];
+  const previous = outgoing === null ? null : (scenes[outgoing] ?? null);
   const label = language === "en" ? current.en : current.ar;
+  const isMotionPaused = !motionAllowed || paused;
 
   return (
     <>
@@ -148,7 +149,7 @@ export function HeroGallery() {
           type="button"
           className="hero-gallery__motion-toggle"
           onClick={() => setPaused(p => !p)}
-          aria-label={paused || !motionAllowed ? (language === "en" ? "Play hero slideshow" : "تشغيل صور الهيرو") : (language === "en" ? "Pause hero slideshow" : "إيقاف صور الهيرو")}
+          aria-label={isMotionPaused ? (language === "en" ? "Play hero slideshow" : "تشغيل صور الهيرو") : (language === "en" ? "Pause hero slideshow" : "إيقاف صور الهيرو")}
           aria-pressed={!paused && motionAllowed}
           title={language === "en" ? (paused ? "Play" : "Pause") : (paused ? "تشغيل" : "إيقاف")}
         >
