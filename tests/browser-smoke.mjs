@@ -324,6 +324,20 @@ try {
     const carousel = desktopPage.locator(".hero-gallery");
     await desktopPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await desktopPage.mouse.move(0, 0);
+    const playbackDebug = await desktopPage.evaluate(() => {
+      const hero = document.querySelector(".hero-cinematic");
+      const rect = hero?.getBoundingClientRect();
+      return {
+        ready: document.querySelector(".presentation")?.getAttribute("data-cinema-ready"),
+        playing: document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing"),
+        heroRect: rect ? {top:rect.top,bottom:rect.bottom,height:rect.height}:null,
+        hidden:document.hidden,
+        reduced:matchMedia("(prefers-reduced-motion: reduce)").matches,
+        focus:document.activeElement?.getAttribute("class"),
+        hovered:!!document.querySelector(".hero-gallery__toolbar:hover"),
+      };
+    });
+    console.log("[BROWSER] hero playback diagnostic " + JSON.stringify(playbackDebug));
     await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
     const first = await carousel.getAttribute("data-hero-active");
     await desktopPage.waitForFunction(previous =>
