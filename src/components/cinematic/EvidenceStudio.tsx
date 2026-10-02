@@ -95,7 +95,7 @@ export function EvidenceStudio() {
                     <div><dt>{t("تاريخ الانتهاء المذكور")}</dt><dd dir="ltr">{certificate.expires}</dd></div>
                   </dl>
                 </div>
-                <p className="evidence-studio__disclaimer">{evidenceDisclaimers.iso}</p>
+                <p className="evidence-studio__disclaimer">{t(evidenceDisclaimers.iso)}</p>
               </div>
             )}
             {view === "permits" && (
@@ -119,7 +119,7 @@ export function EvidenceStudio() {
                     <div><dt>{t("الحالة بالمستند")}</dt><dd>{t(permit.documentStatus)}</dd></div>
                   </dl>
                 </div>
-                <p className="evidence-studio__disclaimer">{permit.note} {evidenceDisclaimers.permits}</p>
+                <p className="evidence-studio__disclaimer">{t(permit.note)} {t(evidenceDisclaimers.permits)}</p>
               </div>
             )}
             {view === "diligence" && (
@@ -138,7 +138,7 @@ export function EvidenceStudio() {
                   <h3>{t(item.title)}</h3>
                   <p>{t(item.detail)}</p>
                 </div>
-                <p className="evidence-studio__disclaimer">{evidenceDisclaimers.documents}</p>
+                <p className="evidence-studio__disclaimer">{t(evidenceDisclaimers.documents)}</p>
               </div>
             )}
           </div>
