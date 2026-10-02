@@ -78,7 +78,7 @@ export function FleetExperience() {
               <img
                 key={item.id}
                 src={images[index]}
-                alt={index === selected ? "مشهد توضيحي لفئة " + item.name + "، وليس صورة موثقة للموقع" : ""}
+                alt={index === selected ? t("مشهد توضيحي لفئة") + " " + t(item.name) + " — " + t("وليس صورة موثقة للموقع") : ""}
                 aria-hidden={index !== selected}
                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
@@ -112,7 +112,7 @@ export function FleetExperience() {
                     key={item.id}
                     type="button"
                     aria-pressed={selected === index}
-                    aria-label={"مشهد " + (index + 1) + " من " + sceneTotal + " — " + item.name}
+                    aria-label={t("مشهد") + " " + (index + 1) + " " + t("من") + " " + sceneTotal + " — " + t(item.name)}
                     className={"fleet-experience__selector" + (selected === index ? " is-selected" : "")}
                     onClick={() => chooseScene(index)}
                   >
@@ -128,14 +128,14 @@ export function FleetExperience() {
               <div key={current.id} className="fleet-experience__detail-inner">
                 <span className="fleet-experience__detail-eyebrow latin" dir="ltr">{current.eyebrow}</span>
                 <div className="fleet-experience__count" dir="rtl">
-                  <strong>{current.count.toLocaleString("ar-SA")}</strong><span>{t(current.unit)}</span>
+                  <strong>{current.count.toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</strong><span>{t(current.unit)}</span>
                 </div>
                 <p>{t(current.description)}</p>
                 <small>{t(current.supporting)}</small>
               </div>
             </div>
             <div className="fleet-experience__console-footer">
-              <span role="status" className="fleet-experience__counter">المشهد {selected + 1} من {sceneTotal}</span>
+              <span role="status" className="fleet-experience__counter">{t("المشهد")} {selected + 1} {t("من")} {sceneTotal}</span>
               <a href="#site-gallery-title" className="fleet-experience__next">
                 {t("شاهد مرافق الموقع")} <ArrowDownLeft size={17} aria-hidden="true" />
               </a>
