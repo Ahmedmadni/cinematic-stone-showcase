@@ -68,13 +68,15 @@ try {
       const box = await iconButton.boundingBox();
       assert.ok(box && box.width >= 44 && box.height >= 44, "icon control must be touch accessible");
     }
-    assert.equal(await desktopPage.locator(".hero-media__breaker img").count(), 1);
-    assert.equal(await desktopPage.locator(".hero-media__loading img").count(), 1);
-    assert.match(await desktopPage.locator(".hero-media__breaker img").getAttribute("src") ?? "", /excavators/);
-    assert.match(await desktopPage.locator(".hero-media__loading img").getAttribute("src") ?? "", /loaders-maintenance/);
+    const carousel = desktopPage.locator(".hero-gallery");
+    assert.equal(await carousel.count(), 1);
+    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
+    assert.equal(await desktopPage.locator(".hero-media__breaker").count(), 0);
+    assert.equal(await desktopPage.locator(".hero-media__loading").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
-    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /Illustrative operational composite/);
-    await desktopPage.screenshot({ path: output + "/desktop-hero-two-operations-english.png", animations: "disabled" });
+    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /illustrative/i);
+    await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
   });
 
 
@@ -243,8 +245,7 @@ try {
 
   await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
-    const hero = desktopPage.locator(".hero-media__breaker img");
-    const loader = desktopPage.locator(".hero-media__loading img");
+    const hero = desktopPage.locator(".hero-gallery__photo--active");
     await hero.waitFor({ state: "visible" });
     const heroState = await hero.evaluate((image) => ({
       loaded: image instanceof HTMLImageElement && image.complete && image.naturalWidth >= 1200,
@@ -252,13 +253,11 @@ try {
       objectFit: getComputedStyle(image).objectFit,
       visible: getComputedStyle(image).visibility,
     }));
-    assert.ok(heroState.loaded, "hero photograph must decode at its original sharp resolution: " + JSON.stringify(heroState));
+    assert.ok(heroState.loaded, "hero first scene should be a sharp, documented illustrative image: " + JSON.stringify(heroState));
     assert.equal(heroState.objectFit, "cover");
     assert.equal(heroState.visible, "visible");
-    const loaderSharp = await loader.evaluate((img) => img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 1200);
-    assert.ok(loaderSharp, "separate wheel loader/dump-truck image must be sharp");
-    const seam = await desktopPage.locator(".hero-media__loading").evaluate(element => getComputedStyle(element).maskImage);
-    assert.ok(seam.includes("gradient"), "composite photo join must be feathered");
+    assert.equal(await desktopPage.locator(".hero-gallery__photo--active").count(), 1);
+    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
 
     for (const spec of [
       { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
@@ -294,6 +293,52 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
   });
 
+  await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
+    await openWithRetry(desktopPage, baseURL);
+    const carousel = desktopPage.locator(".hero-gallery");
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true");
+    const first = await carousel.getAttribute("data-hero-active");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
+      first, { timeout: 10000 });
+    assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
+    const dots = desktopPage.locator(".hero-gallery__dots button");
+    assert.equal(await dots.count(), 10);
+    await dots.nth(7).click();
+    assert.equal(await carousel.getAttribute("data-hero-active"), "7");
+    assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
+    await desktopPage.getByRole("button", { name: "Play hero slideshow" }).click();
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true");
+    await desktopPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
+  });
+
+  await caseRun("all six subject galleries independently enable timed autoplay", async () => {
+    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+    assert.equal(await galleries.count(), 6);
+    for (let index = 0; index < 6; index++) {
+      const gallery = galleries.nth(index);
+      await gallery.scrollIntoViewIfNeeded();
+      await desktopPage.mouse.move(0, 0);
+      await desktopPage.waitForFunction(i => {
+        const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
+        return element?.getAttribute("data-gallery-autoplay") === "playing";
+      }, index, { timeout: 9000 });
+      assert.equal(await gallery.locator(".gallery-slide").count(), 2);
+      assert.equal(await gallery.getByRole("button", { name: /Pause.*slideshow|إيقاف عرض/ }).count(), 1);
+    }
+    const firstGallery = galleries.first();
+    await firstGallery.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
+    const initial = await firstGallery.getAttribute("data-gallery-active");
+    await desktopPage.waitForFunction(before =>
+      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-active") !== before,
+      initial, { timeout: 10500 });
+    await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
@@ -301,8 +346,13 @@ try {
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
-    await desktopPage.keyboard.press("ArrowLeft");
-    assert.match(await dialog.locator(".lightbox-toolbar").innerText(), /02\s*\/\s*02/);
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
+    const initial = await dialog.locator(".lightbox-toolbar .latin").innerText();
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
+      initial, { timeout: 10500 });
+    await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
     assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
