@@ -1,60 +1,87 @@
 import { useState } from "react";
-import { ArrowUpLeft, Compass, Layers3 } from "lucide-react";
+import { ArrowUpLeft, FileCheck2, MapPin, Mountain } from "lucide-react";
 import { quarrySites, totalQuarryArea } from "@/data/experience-data";
+import aerialOne from "@/assets/quarry-aerial.jpg";
+import aerialTwo from "@/assets/quarry-aerial-alt.jpg";
+import roads from "@/assets/site-roads.jpg";
+
+const images = [aerialOne, aerialTwo, roads] as const;
 
 /**
- * A deliberately non-geographic illustrated atlas: the source provides
- * independent permit coordinates, but not a verified unified survey map.
+ * Three document-supported quarry records, rendered against clearly
+ * illustrative aerial photography. These photos do not assert the actual
+ * location, shape or legal boundaries of any of the licensed parcels.
  */
 export function QuarryAtlas() {
-  const [active, setActive] = useState(0);
-  const site = quarrySites[active] ?? quarrySites[0];
+  const [selected, setSelected] = useState(0);
+  const current = quarrySites[selected] ?? quarrySites[0];
 
   return (
-    <div className="quarry-atlas">
-      <div className="quarry-atlas__topline">
-        <span><Layers3 size={17} aria-hidden="true" /> تصور بصري لمساحات المحاجر</span>
-        <span className="latin" dir="ltr">THREE QUARRIES / ONE OVERVIEW</span>
+    <div className="quarry-atlas quarry-cards" aria-label="المحاجر الثلاثة وملفات تراخيصها">
+      <div className="quarry-cards__heading">
+        <div>
+          <span className="latin" dir="ltr">THREE QUARRIES / LICENSE RECORDS</span>
+          <h3>ثلاثة محاجر. <em>ملفات واضحة.</em></h3>
+          <p>اختر محجرًا لتظهر مساحته ورقم رخصته والمرخص له، كما وردت في العرض الاستثماري.</p>
+        </div>
+        <div className="quarry-cards__total">
+          <span>إجمالي مساحات المحاجر المذكورة</span>
+          <strong>{totalQuarryArea.toLocaleString("ar-SA")}</strong>
+          <span>متر مربع</span>
+        </div>
       </div>
-      <div className="quarry-atlas__body">
-        <div className="quarry-atlas__field" role="group" aria-label="اختيار أحد المحاجر الثلاثة">
-          <div className="quarry-atlas__contours" aria-hidden="true" />
+
+      <div className="quarry-cards__layout">
+        <div className="quarry-cards__gallery" role="group" aria-label="اختيار أحد المحاجر">
           {quarrySites.map((entry, index) => (
             <button
               type="button"
               key={entry.id}
-              className={"quarry-atlas__tile quarry-atlas__tile--" + (index + 1) + (active === index ? " is-active" : "")}
-              onClick={() => setActive(index)}
-              aria-pressed={active === index}
+              onClick={() => setSelected(index)}
+              aria-pressed={selected === index}
+              aria-label={"عرض ملف " + entry.name}
+              className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
-              <span className="quarry-atlas__tile-number latin" dir="ltr">0{index + 1}</span>
-              <span className="quarry-atlas__tile-title">{entry.name}</span>
-              <span className="quarry-atlas__tile-size">{entry.area.toLocaleString("ar-SA")} <small>م²</small></span>
+              <img src={images[index]} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
+              <span className="quarry-cards__shade" aria-hidden="true" />
+              <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
+              <span className="quarry-cards__site-label">
+                <strong>{entry.name}</strong>
+                <span>{entry.area.toLocaleString("ar-SA")} م²</span>
+              </span>
+              <ArrowUpLeft className="quarry-cards__site-arrow" size={22} aria-hidden="true" />
             </button>
           ))}
-          <div className="quarry-atlas__annotation" aria-hidden="true">
-            <Compass size={26} strokeWidth={1.2} /><span className="latin" dir="ltr">ILLUSTRATIVE ATLAS</span>
-          </div>
         </div>
-        <div className="quarry-atlas__readout" aria-live="polite" aria-atomic="true">
-          <span className="quarry-atlas__mini-label">ملف المحجر المحدد</span>
-          <span className="latin quarry-atlas__record" dir="ltr">SITE 0{active + 1}</span>
-          <h3>{site.name}</h3>
-          <div className="quarry-atlas__metric">
-            <strong>{site.area.toLocaleString("ar-SA")}</strong><span>م²</span>
+
+        <div className="quarry-cards__information" aria-live="polite" aria-atomic="true">
+          <span className="quarry-cards__info-eyebrow">
+            <FileCheck2 size={18} aria-hidden="true" />
+            سجل ترخيص — بيانات تاريخية من المستند
+          </span>
+          <div className="quarry-cards__info-head" key={current.id}>
+            <span className="latin" dir="ltr">SITE 0{selected + 1} / 03</span>
+            <h4>{current.name}</h4>
+            <div className="quarry-cards__area">
+              <strong>{current.area.toLocaleString("ar-SA")}</strong>
+              <span>متر مربع</span>
+            </div>
           </div>
           <dl>
-            <div><dt>رقم الرخصة</dt><dd dir="ltr">{site.license}</dd></div>
-            <div><dt>المرخص له بالمستند</dt><dd>{site.permitHolder}</dd></div>
-            <div><dt>الحالة الواردة بالمستند</dt><dd>{site.documentStatus}</dd></div>
+            <div><dt>رقم الرخصة بالمستند</dt><dd dir="ltr">{current.license}</dd></div>
+            <div><dt>المرخص له</dt><dd>{current.permitHolder}</dd></div>
+            <div><dt>الحالة الواردة بالمستند</dt><dd>{current.documentStatus}</dd></div>
           </dl>
-          <p>{site.note}</p>
-          <a href="#التواصل">طلب معلومات محدثة عن الترخيص <ArrowUpLeft size={17} aria-hidden="true" /></a>
+          <p className="quarry-cards__caveat">{current.note}</p>
+          <a href="#التواصل">
+            طلب مستندات الترخيص الحديثة <ArrowUpLeft size={17} aria-hidden="true" />
+          </a>
         </div>
       </div>
-      <div className="quarry-atlas__footer">
-        <p>هذا رسم تجريدي للتفاعل فقط؛ مواضع الأشكال لا تمثل الحدود أو الاتجاهات أو المسافات الجغرافية. حالة التراخيص المذكورة من نسخة العرض وليست تحققًا آنيًا من الوزارة.</p>
-        <span>إجمالي المساحات الواردة: <strong>{totalQuarryArea.toLocaleString("ar-SA")} م²</strong></span>
+
+      <div className="quarry-cards__footer">
+        <span><Mountain size={17} aria-hidden="true"/> الصور الجوية توضيحية فقط، ولا تمثل صورًا أو حدودًا أو ترتيبًا جغرافيًا موثقًا لكل محجر.</span>
+        <a href="#location-title">مراجعة الموقع الاسترشادي في Google Maps <MapPin size={16} aria-hidden="true"/></a>
       </div>
     </div>
   );
