@@ -1,0 +1,261 @@
+/* AL SOMMAN — scroll-directed four-scene fleet (phase 06).
+   Uses the original native-scroll rAF driver; no pinned-wheel interception. */
+
+.presentation .fleet-experience__header {
+  margin-bottom: clamp(36px, 5vw, 65px);
+  align-items: end;
+}
+.presentation .fleet-experience__header h2 {
+  font-size: clamp(50px, 6vw, 94px);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.fleet-experience__introduction { display:flex; flex-direction:column; gap: 16px; }
+.fleet-experience__introduction p { margin:0; color:#344146; line-height:2; font-size:clamp(15px,1.3vw,19px);font-weight:500; }
+.fleet-experience__instruction {
+  display:inline-flex; align-items:center; gap:12px; width:fit-content;
+  color:#8d611e; font-size:12px; font-weight:700;
+}
+.fleet-experience__instruction svg { color:#a46c19; }
+
+/* Each of the four scroll chapters receives ~75% of a viewport scroll.
+   The sticky viewing chamber is not moved via JS and never hijacks wheel. */
+.fleet-experience__scroll {
+  --fleet-gold: #f2c877;
+  position: relative;
+  height: 400svh;
+  isolation: isolate;
+}
+.presentation .fleet-experience__scroll .fleet-experience__composition {
+  position: sticky;
+  top: 4svh;
+  height: 92svh;
+  max-height: none;
+  min-height: 0;
+  overflow: hidden;
+  grid-template-columns: minmax(0,1.4fr) minmax(315px,.6fr);
+  border-color: rgba(242,200,119,.42);
+  box-shadow: 0 22px 70px rgba(22,27,26,.17);
+}
+.presentation .fleet-experience__scroll .fleet-experience__stage {
+  min-height: 0;
+  height: 100%;
+  overflow: hidden;
+}
+.presentation .fleet-experience__scroll .fleet-experience__image {
+  clip-path: inset(0 100% 0 0);
+  opacity: 0;
+  visibility: hidden;
+  filter: saturate(.74) contrast(1.03);
+  transition: opacity .66s ease, filter .84s ease, clip-path .95s cubic-bezier(.19,.77,.22,1), visibility .66s;
+}
+.presentation .fleet-experience__scroll .fleet-experience__image.is-active {
+  clip-path: inset(0 0 0 0);
+  visibility: visible;
+  opacity: 1;
+  filter: saturate(.98) contrast(1.05);
+  transform: translate3d(var(--cinema-fleet-mouse-x),var(--cinema-fleet-mouse-y),0) scale(var(--cinema-fleet-scale,1.1));
+  transition: opacity .66s ease, filter .84s ease, clip-path .92s cubic-bezier(.19,.77,.22,1), transform .25s linear, visibility .66s;
+}
+.presentation .fleet-experience__scroll .fleet-experience__shade {
+  background:
+    linear-gradient(0deg,rgba(7,13,17,.97),rgba(7,13,17,.15) 50%,rgba(8,17,21,.37)),
+    linear-gradient(270deg,rgba(9,19,23,.39),transparent 65%);
+}
+.presentation .fleet-experience__scroll .fleet-experience__headline {
+  z-index: 3;
+  bottom: clamp(40px,6vw,92px);
+  right: clamp(26px,4vw,65px);
+}
+.presentation .fleet-experience__scroll .fleet-experience__headline strong {
+  font-size: clamp(57px,6vw,106px);
+  font-weight: 700;
+  line-height: 1.18;
+  color: #fff8eb;
+  text-shadow: 0 8px 34px rgba(0,0,0,.52);
+}
+.presentation .fleet-experience__scroll .fleet-experience__headline .latin { color: #ffd897; font-size: 15px; }
+.presentation .fleet-experience__scroll .fleet-experience__photo-note { z-index: 3; font-weight: 600; }
+.fleet-experience__stage-number {
+  position: absolute; left: clamp(24px,3vw,45px); top: 31px;
+  color:#fff8e7; font-size: 17px; z-index:3; letter-spacing:.12em;
+  text-shadow: 0 2px 16px rgba(0,0,0,.5);
+}
+.fleet-experience__image-progress {
+  position: absolute;
+  bottom:0;left:0;right:0;height:4px;
+  background:rgba(241,210,144,.22);z-index:5;
+}
+.fleet-experience__image-progress > span {
+  display:block;height:100%;width:100%;background:#f4c372;
+  transform:scaleX(var(--cinema-fleet-local-progress,0));
+  transform-origin:right center;
+}
+.presentation .fleet-experience__scroll .fleet-experience__console {
+  min-height: 0;
+  overflow:hidden;
+  border-right:1px solid rgba(255,255,255,.13);
+  padding:clamp(21px,2.8vw,44px);
+  background:linear-gradient(165deg,#1b272c,#121a1e);
+}
+.presentation .fleet-experience__scroll .fleet-experience__console-label {
+  color:#f1dcc0;font-weight:600;flex-wrap:wrap;
+}
+.presentation .fleet-experience__scroll .fleet-experience__console-label .latin {
+  color:#f2c877;
+}
+.presentation .fleet-experience__scroll .fleet-experience__selectors {
+  margin-top: clamp(17px,2vw,29px);
+}
+.presentation .fleet-experience__scroll .fleet-experience__selector {
+  position:relative;
+  overflow:hidden;
+  min-height: clamp(59px,7svh,85px);
+  color:#ebe4d8;
+  background:rgba(255,255,255,.016);
+  font-size:clamp(14px,1.15vw,17px);
+  border-bottom-color:rgba(244,222,177,.18);
+  font-weight:550;
+}
+.presentation .fleet-experience__scroll .fleet-experience__selector.is-selected {
+  color:#fff8e8;
+  background:linear-gradient(270deg,rgba(235,177,83,.17),rgba(235,177,83,.035));
+}
+.fleet-experience__selector-fill {
+  position:absolute;right:0;left:0;bottom:0;
+  height:2px;background:#f2c877;
+  transform-origin:right center;
+  transform:scaleX(0);
+  pointer-events:none;
+}
+/* Chapter bars finish in sequence; chapter four is complete at 100%. */
+.fleet-experience__selector:nth-child(1) .fleet-experience__selector-fill {
+  transform:scaleX(clamp(0,calc(var(--cinema-fleet-progress,0) * 4),1));
+}
+.fleet-experience__selector:nth-child(2) .fleet-experience__selector-fill {
+  transform:scaleX(clamp(0,calc((var(--cinema-fleet-progress,0) - .25) * 4),1));
+}
+.fleet-experience__selector:nth-child(3) .fleet-experience__selector-fill {
+  transform:scaleX(clamp(0,calc((var(--cinema-fleet-progress,0) - .5) * 4),1));
+}
+.fleet-experience__selector:nth-child(4) .fleet-experience__selector-fill {
+  transform:scaleX(clamp(0,calc((var(--cinema-fleet-progress,0) - .75) * 4),1));
+}
+.presentation .fleet-experience__scroll .fleet-experience__detail {
+  padding-top:clamp(14px,2vw,29px);
+  min-height:0;
+  flex:1;
+  display:flex;flex-direction:column;justify-content:flex-end;
+}
+.fleet-experience__detail-inner { animation:fleet-chapter-info .55s cubic-bezier(.2,.68,.18,1) both; }
+@keyframes fleet-chapter-info {
+  from { opacity:.12;transform:translateY(15px);clip-path:inset(0 0 17% 0); }
+  to { opacity:1;transform:translateY(0);clip-path:inset(0 0 0 0); }
+}
+.fleet-experience__detail-eyebrow { font-size:11px; color:#eac483; display:block; }
+.presentation .fleet-experience__scroll .fleet-experience__count strong {
+  font-size:clamp(56px,6.5vw,96px);
+  font-weight:600;
+  color:#f7c977;
+}
+.presentation .fleet-experience__scroll .fleet-experience__detail p {
+  color:#fff4e0; font-size:clamp(13px,1.05vw,16px);font-weight:500;
+  line-height:1.75;
+  margin:12px 0 8px;
+}
+.presentation .fleet-experience__scroll .fleet-experience__detail small {
+  color:#d6c6a7; font-size:11px; line-height:1.8;
+}
+.fleet-experience__console-footer {
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:8px 20px;margin-top:18px;
+}
+.fleet-experience__counter { color:#ded2b8;font-size:12px;font-weight:600; }
+.presentation .fleet-experience__scroll .fleet-experience__next { margin-top:0;white-space:nowrap; }
+
+/* Tablet: sticky horizontally balanced composition, without clipping copy. */
+@media (max-width:1050px) {
+  .presentation .fleet-experience__scroll .fleet-experience__composition {
+    grid-template-columns:minmax(0,1fr) minmax(300px,.85fr);
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__console {padding:clamp(20px,2.3vw,34px);}
+}
+
+/* Full-width touch storytelling: 4 swipes of *native document scrolling*
+   trigger the same chapters; selectors remain normal accessible buttons. */
+@media (max-width:760px) {
+  .presentation .fleet-experience__header { grid-template-columns:1fr;gap:14px;margin-bottom:22px; }
+  .presentation .fleet-experience__header h2 {font-size:clamp(42px,9vw,66px);}
+  .fleet-experience__introduction {gap:6px;}
+  .fleet-experience__introduction p {font-size:14px;}
+  .fleet-experience__instruction {font-size:11px;}
+  .fleet-experience__scroll { height:400svh; }
+  .presentation .fleet-experience__scroll .fleet-experience__composition {
+    grid-template-columns:1fr;
+    grid-template-rows:minmax(0,42svh) minmax(0,1fr);
+    top:0; height:100svh;
+    min-height:0;max-height:none;
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__stage {height:42svh;min-height:0;}
+  .presentation .fleet-experience__scroll .fleet-experience__headline {
+    bottom:25px;right:25px;
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__headline strong {font-size:clamp(42px,9.4vw,70px);}
+  .presentation .fleet-experience__scroll .fleet-experience__stage-number {top:16px;left:15px;font-size:11px;}
+  .presentation .fleet-experience__scroll .fleet-experience__photo-note {top:13px;right:13px;font-size:10px;padding:7px;}
+  .presentation .fleet-experience__scroll .fleet-experience__console {min-height:0;padding:clamp(14px,2.8vw,22px);overflow:hidden;}
+  .presentation .fleet-experience__scroll .fleet-experience__selectors {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:10px;}
+  .presentation .fleet-experience__scroll .fleet-experience__selector {
+    min-height:52px;font-size:13px;grid-template-columns:22px minmax(0,1fr);
+    padding:9px 7px;gap:7px;
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__selector .latin {display:none;}
+  .presentation .fleet-experience__scroll .fleet-experience__selector.is-selected {padding-inline:7px;}
+  .presentation .fleet-experience__scroll .fleet-experience__detail {padding-top:10px;justify-content:center;}
+  .presentation .fleet-experience__scroll .fleet-experience__count strong {font-size:clamp(46px,7.2vw,63px);}
+  .presentation .fleet-experience__scroll .fleet-experience__detail p {font-size:12px;line-height:1.65;margin:6px 0;}
+  .presentation .fleet-experience__scroll .fleet-experience__detail small {font-size:10px;line-height:1.5;}
+  .presentation .fleet-experience__scroll .fleet-experience__console-footer {margin-top:6px;gap:6px;}
+  .presentation .fleet-experience__scroll .fleet-experience__next {font-size:11px;padding-bottom:5px;}
+}
+@media (max-width:380px),(max-height:710px) and (max-width:760px) {
+  .presentation .fleet-experience__scroll .fleet-experience__composition {
+    grid-template-rows:minmax(0,37svh) minmax(0,1fr);
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__stage {height:37svh;}
+  .presentation .fleet-experience__scroll .fleet-experience__console {padding:12px;}
+  .presentation .fleet-experience__scroll .fleet-experience__selector {min-height:46px;}
+  .presentation .fleet-experience__scroll .fleet-experience__detail small {display:none;}
+}
+/* Reduced motion remains usable through manual chapter buttons; no forced
+   pinned scrolling or automatic scene changes. */
+@media (prefers-reduced-motion: reduce) {
+  .fleet-experience__scroll {height:auto!important;}
+  .presentation .fleet-experience__scroll .fleet-experience__composition {
+    position:relative;top:auto;height:auto;max-height:none;min-height:0;
+    grid-template-columns:minmax(0,1.4fr) minmax(300px,.6fr);
+    grid-template-rows:auto;
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__stage {height:auto;min-height:440px;}
+  .presentation .fleet-experience__scroll .fleet-experience__image,
+  .presentation .fleet-experience__scroll .fleet-experience__image.is-active {
+    transform:none!important;
+    clip-path:none;
+    transition:none;
+  }
+  .fleet-experience__detail-inner {animation:none;}
+  .fleet-experience__image-progress > span {transform:scaleX(1);}
+  .fleet-experience__selector-fill {transform:scaleX(0)!important;}
+  .fleet-experience__selector.is-selected .fleet-experience__selector-fill {transform:scaleX(1)!important;}
+  .fleet-experience__instruction {display:none;}
+}
+@media (max-width:760px) and (prefers-reduced-motion: reduce) {
+  .presentation .fleet-experience__scroll .fleet-experience__composition {
+    grid-template-columns:1fr;grid-template-rows:auto;
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__stage {
+    min-height:300px;height:clamp(300px,46svh,440px);
+  }
+  .presentation .fleet-experience__scroll .fleet-experience__console {min-height:360px;}
+  .presentation .fleet-experience__scroll .fleet-experience__detail small {display:block;}
+}
