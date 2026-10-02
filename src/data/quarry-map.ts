@@ -37,3 +37,21 @@ export const googleSatelliteEmbedUrl =
 export const googleMapsOpenUrl =
   "https://www.google.com/maps/search/?api=1&query=" +
   quarryReferenceCenter.latitude.toFixed(6) + "%2C" + quarryReferenceCenter.longitude.toFixed(6);
+
+/**
+ * Official Google Maps Embed API path when a domain-restricted PUBLIC key
+ * has been configured. The key must be an HTTP referrer-restricted browser
+ * key; never reuse a server/admin credential here.
+ */
+export function googleSatelliteEmbedSource(optionalPublicEmbedKey?: string): string {
+  const key = optionalPublicEmbedKey?.trim();
+  if (!key) return googleSatelliteEmbedUrl;
+  const query = new URLSearchParams({
+    key,
+    center: quarryReferenceCenter.latitude.toFixed(6) + "," + quarryReferenceCenter.longitude.toFixed(6),
+    zoom: "15",
+    maptype: "satellite",
+    language: "ar",
+  });
+  return "https://www.google.com/maps/embed/v1/view?" + query.toString();
+}
