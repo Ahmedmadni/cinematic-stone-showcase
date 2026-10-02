@@ -189,14 +189,20 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-photographic-quarries.png", animations: "disabled" });
   });
 
-  await caseRun("question suggestions are readable grouped actions", async () => {
-    const qa = desktopPage.locator(".assistant-panel");
-    await qa.scrollIntoViewIfNeeded();
+  await caseRun("question suggestions are readable in the floating assistant", async () => {
+    // The assistant used to be inline. It now starts in a closed drawer and
+    // keeps the conversation until a reload; reopen a fresh session for chips.
+    await desktopPage.reload({ waitUntil: "domcontentloaded" });
+    const open = desktopPage.getByRole("button", { name: "فتح مساعد الصمان" });
+    await open.click();
+    const qa = desktopPage.locator("#somman-assistant-drawer");
+    assert.ok(await qa.isVisible());
     const chips = qa.locator(".assistant-suggestions button");
     assert.equal(await chips.count(), 4);
     assert.ok(await chips.first().isVisible());
     assert.ok((await chips.first().boundingBox())?.height >= 45);
     await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
+    await qa.getByRole("button", { name: "أغلق المساعد" }).click();
   });
 
 
