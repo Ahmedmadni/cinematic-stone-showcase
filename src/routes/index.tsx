@@ -51,7 +51,7 @@ export const Route = createFileRoute("/")({
       { property: "og:locale:alternate", content: "ar_SA" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [{ rel: "canonical", href: "/" }],
+    links: [{ rel: "canonical", href: "/" }, { rel: "preload", as: "image", href: quarryAerial, fetchPriority: "high" }],
     scripts: [{ type: "application/ld+json", children: JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebPage",
