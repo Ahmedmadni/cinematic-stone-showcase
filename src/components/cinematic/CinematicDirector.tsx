@@ -25,6 +25,7 @@ export function CinematicDirector() {
     const bridge = document.getElementById("cinematic-bridge");
     const fleet = document.getElementById("equipment-experience");
     const fleetTrack = document.getElementById("fleet-scroll-track");
+    const materialTrack = document.getElementById("material-scroll-track");
     const atlas = document.querySelector<HTMLElement>(".quarry-atlas");
     const magneticLink = document.querySelector<HTMLElement>(".hero-discover");
     const evidence = document.querySelector<HTMLElement>(".evidence-studio__stage");
@@ -42,8 +43,10 @@ export function CinematicDirector() {
     let bridgeProgressCache = 0;
     let fleetProgressCache = 0;
     let lastFleetScene = -1;
+    let materialProgressCache = 0;
+    let lastMaterialScene = -1;
     const nearViewport = new Set<Element>();
-    const scenes = [hero, bridge, fleet, fleetTrack, atlas, evidence].filter((node): node is HTMLElement => node !== null);
+    const scenes = [hero, bridge, fleet, fleetTrack, materialTrack, atlas, evidence].filter((node): node is HTMLElement => node !== null);
     const shouldMeasure = (node: Element | null) => Boolean(node && (!observerReady || nearViewport.has(node)));
 
     const sceneEntry = (rect: DOMRect | undefined): number =>
@@ -61,6 +64,7 @@ export function CinematicDirector() {
       const bridgeRect = shouldMeasure(bridge) ? bridge.getBoundingClientRect() : undefined;
       const fleetRect = shouldMeasure(fleet) ? fleet?.getBoundingClientRect() : undefined;
       const fleetTrackRect = shouldMeasure(fleetTrack) ? fleetTrack?.getBoundingClientRect() : undefined;
+      const materialTrackRect = shouldMeasure(materialTrack) ? materialTrack?.getBoundingClientRect() : undefined;
       const atlasRect = shouldMeasure(atlas) ? atlas?.getBoundingClientRect() : undefined;
       const evidenceRect = shouldMeasure(evidence) ? evidence?.getBoundingClientRect() : undefined;
 
@@ -84,6 +88,22 @@ export function CinematicDirector() {
           window.dispatchEvent(new CustomEvent("somman:fleet-scene", { detail: { index: fleetScene, progress: fleetProgress } }));
         }
       }
+
+      const materialCount = 3;
+      const materialProgress = reduced ? 0 : materialTrackRect
+        ? pinnedProgress(materialTrackRect.top, materialTrackRect.height, window.innerHeight)
+        : materialProgressCache;
+      materialProgressCache = materialProgress;
+      const materialLocal = fleetLocalProgress(materialProgress, materialCount);
+      if (!reduced && materialTrackRect) {
+        const materialScene = fleetSceneIndex(materialProgress, materialCount);
+        if (materialScene !== lastMaterialScene) {
+          lastMaterialScene = materialScene;
+          root.dataset["cinemaMaterialScene"] = String(materialScene);
+          window.dispatchEvent(new CustomEvent("somman:material-scene", { detail: { index: materialScene } }));
+        }
+      }
+
       const portal = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.17, 0.83));
       const firstCaption = reduced ? 0 : 1 - smoothStep(segmentProgress(bridgeProgress, 0.08, 0.40));
       const secondCaption = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.57, 0.88));
@@ -119,6 +139,9 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-intro-caption", firstCaption.toFixed(4));
       root.style.setProperty("--cinema-outro-caption", secondCaption.toFixed(4));
       root.style.setProperty("--cinema-scroll-progress", clampUnit(window.scrollY / totalScroll).toFixed(4));
+      root.style.setProperty("--cinema-material-progress", materialProgress.toFixed(4));
+      root.style.setProperty("--cinema-material-local", materialLocal.toFixed(4));
+      root.style.setProperty("--cinema-material-scale", (reduced ? 1 : 1.10 - smoothStep(materialLocal) * .05).toFixed(4));
       root.style.setProperty("--cinema-fleet-progress", fleetProgress.toFixed(4));
       root.style.setProperty("--cinema-fleet-local-progress", fleetLocal.toFixed(4));
       root.style.setProperty("--cinema-fleet-scale", (reduced ? 1 : 1.12 - smoothStep(fleetLocal) * 0.055).toFixed(4));
@@ -205,6 +228,7 @@ export function CinematicDirector() {
       delete root.dataset["cinemaPointer"];
       delete root.dataset["cinemaBridgeVisible"];
       delete root.dataset["cinemaFleetScene"];
+      delete root.dataset["cinemaMaterialScene"];
     };
   }, []);
 
