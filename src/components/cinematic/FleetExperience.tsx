@@ -13,7 +13,7 @@ const icons = [Pickaxe, Truck, Gauge, Zap] as const;
 const sceneTotal = fleetFacts.length;
 
 type SceneUpdate = { index: number; progress: number };
-export const fleetSceneEvent = "somman:fleet-scene";
+const fleetSceneEvent = "somman:fleet-scene";
 
 /**
  * Native scroll controls the scenes via CinematicDirector. No scroll-jacking,
