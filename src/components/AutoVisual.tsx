@@ -45,6 +45,7 @@ export function AutoVisual({ images, className = "", interval = 7200, eager = fa
         aria-hidden={index !== active}
         loading={eager && index === 0 ? "eager" : "lazy"}
         fetchPriority={eager && index === 0 ? "high" : "auto"}
+        decoding="async"
         width={1536}
         height={1024}
         className={`auto-visual-frame ${index === active ? "active" : ""}`}

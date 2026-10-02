@@ -30,6 +30,48 @@ jobs:
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
         run: |
-          bunx eslint src/components/cinematic src/lib/cinematic-progress.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
+          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/lib/cinematic-progress.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
       - name: Production build
         run: bun run build
+
+
+  browser-smoke:
+    name: Chromium visual interaction smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install locked site dependencies
+        run: bun install --frozen-lockfile
+      - name: Install isolated browser QA runtime
+        run: |
+          npm install --prefix /tmp/somman-browser-qa --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          /tmp/somman-browser-qa/node_modules/.bin/playwright install chromium
+      - name: Start development site on localhost
+        run: |
+          bun run dev -- --host 127.0.0.1 --port 4173 > /tmp/somman-qa-server.log 2>&1 &
+          echo $! > /tmp/somman-qa-server.pid
+      - name: Read-only desktop, mobile and keyboard smoke tests
+        env:
+          BASE_URL: http://127.0.0.1:4173
+          PLAYWRIGHT_MODULE_PATH: /tmp/somman-browser-qa/node_modules/playwright/index.mjs
+          QA_OUTPUT_DIR: /tmp/somman-browser-artifacts
+        run: |
+          node tests/browser-smoke.mjs || (cat /tmp/somman-qa-server.log && exit 1)
+      - name: Upload screenshots and QA summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: somman-browser-qa
+          path: /tmp/somman-browser-artifacts
+          if-no-files-found: warn
+          retention-days: 7

@@ -1,0 +1,116 @@
+/* Phase 05 — quality, compositing budgets and accessible gallery. */
+
+/* The native dialog is placed in the browser top layer, rather than a visually
+   modal div. It automatically makes the rest of the page inert. */
+.gallery-lightbox--native {
+  width: 100vw;
+  height: 100dvh;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: clamp(16px, 2vw, 30px);
+  border: 0;
+  border-radius: 0;
+  color: var(--foreground);
+  background: var(--background);
+  overflow: hidden;
+}
+.gallery-lightbox--native:not([open]) { display: none; }
+.gallery-lightbox--native::backdrop { background: rgba(6, 12, 16, .9); }
+.gallery-lightbox--native .lightbox-toolbar button:focus-visible,
+.gallery-lightbox--native .lightbox-controls button:focus-visible {
+  outline: 3px solid #bb8332;
+  outline-offset: 3px;
+}
+/* Prefer the largest possible space for content at increased text sizes. */
+.gallery-lightbox--native .lightbox-content {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-bottom: 9px;
+}
+.gallery-lightbox--native .lightbox-content > img {
+  max-height: min(70dvh, 760px);
+}
+.gallery-lightbox--native .lightbox-caption {
+  flex-wrap: wrap;
+  align-items: start;
+}
+.gallery-lightbox--native .lightbox-caption h3 {
+  overflow-wrap: anywhere;
+}
+
+/* A six-gallery page used to eagerly composite invisible off-screen image
+   layers. Allow modern browsers to skip offscreen layout/paint work. */
+@supports (content-visibility: auto) {
+  .presentation .gallery-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
+}
+
+/* Only grant expensive compositor hints while the scroll-pinned bridge
+   approaches the viewport. The original image/transition fallback remains. */
+.presentation .hero-cinematic .hero-content,
+.presentation .cinematic-bridge__shot--quarry img,
+.presentation .cinematic-bridge__shot--production,
+.presentation .cinematic-bridge__shot--production img,
+.presentation .hero-discover[data-cinema-magnetic] {
+  will-change: auto;
+}
+@media (min-width: 960px) and (prefers-reduced-motion: no-preference) {
+  .presentation[data-cinema-bridge-visible="true"] .cinematic-bridge__shot--quarry img,
+  .presentation[data-cinema-bridge-visible="true"] .cinematic-bridge__shot--production img {
+    will-change: transform;
+  }
+  .presentation[data-cinema-bridge-visible="true"] .cinematic-bridge__shot--production {
+    will-change: clip-path;
+  }
+}
+
+/* Forms, document selectors and chapter navigation must stay visible with
+   keyboard focus even where local design rules only styled :hover. */
+.presentation :is(a, button, input, textarea):focus-visible {
+  outline: 3px solid #bb8332;
+  outline-offset: 3px;
+}
+.presentation .cinematic-bridge :is(a, button):focus-visible,
+.presentation .evidence-studio :is(a, button):focus-visible,
+.presentation .fleet-experience :is(a, button):focus-visible {
+  outline-color: #f2c573;
+}
+
+/* Reduce costly translucency, shifts and transitions on constrained devices.
+   This preserves content without sacrificing the cinema-style desktop view. */
+@media (max-width: 760px), (pointer: coarse) {
+  .presentation .gallery-lightbox--native { backdrop-filter: none; }
+  .presentation .cinema-atmosphere__haze { animation: none; }
+  .presentation .fleet-experience__image {
+    transition: opacity .4s ease, visibility .4s ease;
+  }
+  .presentation .cinematic-bridge__shot--production {
+    will-change: auto !important;
+  }
+}
+@media (max-width: 540px) {
+  .gallery-lightbox--native {
+    padding: 14px;
+  }
+  .gallery-lightbox--native .lightbox-content > img {
+    max-height: 57dvh;
+  }
+  .gallery-lightbox--native .lightbox-caption {
+    gap: 12px;
+  }
+  .gallery-lightbox--native .lightbox-caption h3 { font-size: 17px; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .cinema-atmosphere__haze,
+  .cinema-atmosphere__light { display: none; }
+  .presentation .cinematic-bridge__shadow {
+    background: rgba(6, 12, 16, .73);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .presentation .gallery-item { content-visibility: visible; }
+  .gallery-lightbox--native .lightbox-content > img { transform: none; }
+}

@@ -34,6 +34,12 @@ export function CinematicDirector() {
     let pointerX = 0;
     let pointerY = 0;
     let hasPointer = false;
+    let observerReady = false;
+    let heroProgressCache = 0;
+    let bridgeProgressCache = 0;
+    const nearViewport = new Set<Element>();
+    const scenes = [hero, bridge, fleet, atlas, evidence].filter((node): node is HTMLElement => node !== null);
+    const shouldMeasure = (node: Element | null) => Boolean(node && (!observerReady || nearViewport.has(node)));
 
     const sceneEntry = (rect: DOMRect | undefined): number =>
       rect
@@ -46,14 +52,16 @@ export function CinematicDirector() {
 
       const reduced = motion.matches;
       const pointerActive = !reduced && finePointer.matches && hasPointer;
-      const heroRect = hero.getBoundingClientRect();
-      const bridgeRect = bridge.getBoundingClientRect();
-      const fleetRect = fleet?.getBoundingClientRect();
-      const atlasRect = atlas?.getBoundingClientRect();
-      const evidenceRect = evidence?.getBoundingClientRect();
+      const heroRect = shouldMeasure(hero) ? hero.getBoundingClientRect() : undefined;
+      const bridgeRect = shouldMeasure(bridge) ? bridge.getBoundingClientRect() : undefined;
+      const fleetRect = shouldMeasure(fleet) ? fleet?.getBoundingClientRect() : undefined;
+      const atlasRect = shouldMeasure(atlas) ? atlas?.getBoundingClientRect() : undefined;
+      const evidenceRect = shouldMeasure(evidence) ? evidence?.getBoundingClientRect() : undefined;
 
-      const heroProgress = reduced ? 0 : clampUnit(-heroRect.top / Math.max(heroRect.height * 0.85, 1));
-      const bridgeProgress = reduced ? 0 : pinnedProgress(bridgeRect.top, bridgeRect.height, window.innerHeight);
+      const heroProgress = reduced ? 0 : heroRect ? clampUnit(-heroRect.top / Math.max(heroRect.height * 0.85, 1)) : heroProgressCache;
+      const bridgeProgress = reduced ? 0 : bridgeRect ? pinnedProgress(bridgeRect.top, bridgeRect.height, window.innerHeight) : bridgeProgressCache;
+      heroProgressCache = heroProgress;
+      bridgeProgressCache = bridgeProgress;
       const portal = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.17, 0.83));
       const firstCaption = reduced ? 0 : 1 - smoothStep(segmentProgress(bridgeProgress, 0.08, 0.40));
       const secondCaption = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.57, 0.88));
@@ -61,8 +69,8 @@ export function CinematicDirector() {
 
       const px = pointerActive ? signedPointer(pointerX, 0, window.innerWidth) : 0;
       const py = pointerActive ? signedPointer(pointerY, 0, window.innerHeight) : 0;
-      const heroX = pointerActive ? normalizedPointer(pointerX, heroRect.left, heroRect.width) * 100 : 55;
-      const heroY = pointerActive ? normalizedPointer(pointerY, heroRect.top, heroRect.height) * 100 : 47;
+      const heroX = pointerActive && heroRect ? normalizedPointer(pointerX, heroRect.left, heroRect.width) * 100 : 55;
+      const heroY = pointerActive && heroRect ? normalizedPointer(pointerY, heroRect.top, heroRect.height) * 100 : 47;
       const fleetX = pointerActive && fleetRect ? normalizedPointer(pointerX, fleetRect.left, fleetRect.width) * 100 : 50;
       const fleetY = pointerActive && fleetRect ? normalizedPointer(pointerY, fleetRect.top, fleetRect.height) * 100 : 50;
       const evidenceX = pointerActive && evidenceRect ? normalizedPointer(pointerX, evidenceRect.left, evidenceRect.width) * 100 : 58;
@@ -110,6 +118,7 @@ export function CinematicDirector() {
       root.dataset["cinemaReady"] = "true";
       root.dataset["cinemaMotion"] = reduced ? "reduced" : "full";
       root.dataset["cinemaPointer"] = pointerActive ? "active" : "off";
+      root.dataset["cinemaBridgeVisible"] = shouldMeasure(bridge) ? "true" : "false";
     }
 
     function schedule() {
@@ -119,6 +128,7 @@ export function CinematicDirector() {
 
     function onPointerMove(event: PointerEvent) {
       if (event.pointerType !== "mouse" || !finePointer.matches) return;
+      if (observerReady && ![hero, bridge, fleet, evidence].some((node) => node && nearViewport.has(node))) return;
       hasPointer = true;
       pointerX = event.clientX;
       pointerY = event.clientY;
@@ -133,6 +143,18 @@ export function CinematicDirector() {
     function onVisibilityChange() {
       if (!document.hidden) schedule();
     }
+
+    // Keep DOM geometry reads and compositor hints near the relevant scenes.
+    // Off-screen scenes retain their last completed progress value.
+    const sceneObserver = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) nearViewport.add(entry.target);
+        else nearViewport.delete(entry.target);
+      }
+      observerReady = true;
+      schedule();
+    }, { rootMargin: "240px 0px", threshold: 0 });
+    for (const scene of scenes) sceneObserver.observe(scene);
 
     window.addEventListener("scroll", schedule, { passive: true });
     window.addEventListener("resize", schedule, { passive: true });
@@ -152,10 +174,12 @@ export function CinematicDirector() {
       document.removeEventListener("visibilitychange", onVisibilityChange);
       motion.removeEventListener("change", schedule);
       finePointer.removeEventListener("change", schedule);
+      sceneObserver.disconnect();
       if (frame) window.cancelAnimationFrame(frame);
       delete root.dataset["cinemaReady"];
       delete root.dataset["cinemaMotion"];
       delete root.dataset["cinemaPointer"];
+      delete root.dataset["cinemaBridgeVisible"];
     };
   }, []);
 

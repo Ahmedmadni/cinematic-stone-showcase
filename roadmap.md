@@ -48,3 +48,16 @@
 - [x] Add content disclosure tests and expand scoped CI coverage.
 - [ ] Obtain authorized original certificates, current permit statuses, and publication approval.
 - [ ] Conduct actual mobile and desktop browser visual/performance review before merging.
+
+## Cinematic experience — phase 05 release quality
+- [x] Replace the gallery overlay with a native modal dialog, focus return and built-in keyboard trapping.
+- [x] Preserve the existing scrolling/slide semantics with left-right arrow and Escape control.
+- [x] Limit expensive scene geometry reads using a 240px near-viewport observer.
+- [x] Scope compositor hints to the visible bridge and offscreen gallery containment.
+- [x] Asynchronously decode illustrative images outside the priority hero.
+- [x] Add automated illustrative asset image-size budgets.
+- [x] Add real Chromium desktop/mobile reduced-motion, gallery, evidence and scroll tests and screenshot artifacts.
+- [ ] Confirm Chromium smoke workflow results and manually review screenshots.
+- [ ] Conduct cross-browser + throttled mobile Core Web Vitals / accessibility review.
+- [ ] Conduct private audit of tracked .env for potential secrets and remediate if necessary.
+- [ ] Verify source documents, permits, certificates and supply actual photography before publication.

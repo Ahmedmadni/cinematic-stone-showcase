@@ -56,7 +56,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
     <div className="gallery-slider" ref={frame} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
       <Button type="button" variant="ghost" className="gallery-image-button" aria-label={`عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
         <span className="image-window">
-          {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" width={1536} height={1024} alt={index === active ? `صورة تجريبية توضيحية: ${slide.label} — ${replacement}` : ""} aria-hidden={index !== active} className={`gallery-slide ${index === active ? "active" : ""}`} />)}
+          {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1536} height={1024} alt={index === active ? `صورة تجريبية توضيحية: ${slide.label} — ${replacement}` : ""} aria-hidden={index !== active} className={`gallery-slide ${index === active ? "active" : ""}`} />)}
           <span className="gallery-image-shade" /><span className="gallery-image-title">{title}</span>
           <span className="photo-placeholder">صورة تجريبية · {replacement}</span>
         </span>
