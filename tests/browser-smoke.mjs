@@ -84,6 +84,79 @@ try {
     assert.ok(sample > 0.15 && sample < 0.85, "bridge progress should be mid-transition: " + sample);
   });
 
+  await caseRun("three material journey photographs advance with real scroll", async () => {
+    const track = desktopPage.locator("#material-scroll-track");
+    const story = desktopPage.locator(".production-flow--story");
+    assert.equal(await track.count(), 1);
+    for (const scene of [0, 1, 2]) {
+      await desktopPage.evaluate((index) => {
+        const node = document.getElementById("material-scroll-track");
+        if (!node) throw new Error("Material track missing");
+        const rect = node.getBoundingClientRect();
+        const start = window.scrollY + rect.top;
+        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 3), behavior: "instant" });
+      }, scene);
+      await desktopPage.waitForFunction((index) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-material-scene") === String(index)
+        && document.querySelectorAll(".production-flow__step.is-active")[0] === document.querySelectorAll(".production-flow__step")[index],
+        scene, { timeout: 12000, polling: "raf" });
+      assert.equal(await story.locator(".production-flow__photo.is-active").count(), 1);
+      assert.equal(await story.locator(".production-flow__step").nth(scene).getAttribute("aria-pressed"), "true");
+    }
+    assert.equal(await story.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
+    await desktopPage.screenshot({ path: output + "/desktop-material-journey.png", animations: "disabled" });
+  });
+
+  await caseRun("all four fleet tabs advance with scrolling, not just clicks", async () => {
+    const fleet = desktopPage.locator("#equipment-experience");
+    const track = desktopPage.locator("#fleet-scroll-track");
+    assert.equal(await track.count(), 1);
+    for (const scene of [0, 1, 2, 3]) {
+      await desktopPage.evaluate((index) => {
+        const node = document.getElementById("fleet-scroll-track");
+        if (!node) throw new Error("Fleet track missing");
+        const rect = node.getBoundingClientRect();
+        const start = scrollY + rect.top;
+        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 4), behavior: "instant" });
+      }, scene);
+      await desktopPage.waitForFunction((index) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === String(index)
+        && document.querySelectorAll("#equipment-experience .fleet-experience__selector.is-selected")[0] === document.querySelectorAll("#equipment-experience .fleet-experience__selector")[index],
+        scene, { timeout: 12000, polling: "raf" });
+      assert.equal(await fleet.locator(".fleet-experience__image.is-active").count(), 1);
+      assert.equal(await fleet.locator(".fleet-experience__selector").nth(scene).getAttribute("aria-pressed"), "true");
+    }
+    await desktopPage.screenshot({ path: output + "/desktop-four-fleet-scroll.png", animations: "disabled" });
+    await fleet.locator(".fleet-experience__selector").nth(1).click();
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === "1",
+      null, { timeout: 15000, polling: "raf" });
+    assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
+  });
+
+  await caseRun("quarry permit photographic overview is no longer abstract tiles", async () => {
+    const gallery = desktopPage.locator(".quarry-cards");
+    await gallery.scrollIntoViewIfNeeded();
+    assert.equal(await gallery.locator(".quarry-cards__site img").count(), 3);
+    assert.equal(await gallery.locator(".quarry-atlas__tile").count(), 0);
+    const second = gallery.getByRole("button", { name: "عرض ملف محجر الأسطول ٢" });
+    await second.click();
+    assert.equal(await second.getAttribute("aria-pressed"), "true");
+    assert.match(await gallery.locator(".quarry-cards__information").innerText(), /14377125/);
+    assert.match(await gallery.locator(".quarry-cards__information").innerText(), /منتهية بحسب نسخة العرض/);
+    await desktopPage.screenshot({ path: output + "/desktop-photographic-quarries.png", animations: "disabled" });
+  });
+
+  await caseRun("question suggestions are readable grouped actions", async () => {
+    const qa = desktopPage.locator(".assistant-panel");
+    await qa.scrollIntoViewIfNeeded();
+    const chips = qa.locator(".assistant-suggestions button");
+    assert.equal(await chips.count(), 4);
+    assert.ok(await chips.first().isVisible());
+    assert.ok((await chips.first().boundingBox())?.height >= 45);
+    await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
@@ -182,6 +255,32 @@ try {
     await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).tap();
     assert.ok(await studio.locator(".evidence-studio__check-detail").isVisible());
     assert.equal(await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).getAttribute("aria-pressed"), "true");
+  });
+
+  await caseRun("mobile reduced motion keeps manual material/fleet and quarry choices", async () => {
+    const material = mobilePage.locator(".production-flow--story");
+    await material.scrollIntoViewIfNeeded();
+    assert.notEqual(await material.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
+    const lastMaterial = material.locator(".production-flow__step").last();
+    await lastMaterial.tap();
+    assert.equal(await lastMaterial.getAttribute("aria-pressed"), "true");
+    assert.equal(await material.locator(".production-flow__photo.is-active").count(), 1);
+
+    const fleet = mobilePage.locator("#equipment-experience");
+    await fleet.scrollIntoViewIfNeeded();
+    assert.notEqual(await fleet.locator(".fleet-experience__composition").evaluate((el) => getComputedStyle(el).position), "sticky");
+    const generators = fleet.locator(".fleet-experience__selector").last();
+    await generators.tap();
+    assert.equal(await generators.getAttribute("aria-pressed"), "true");
+
+    const quarry = mobilePage.locator(".quarry-cards");
+    await quarry.scrollIntoViewIfNeeded();
+    const birzeit = quarry.getByRole("button", { name: "عرض ملف محجر بير زيت" });
+    await birzeit.tap();
+    assert.equal(await birzeit.getAttribute("aria-pressed"), "true");
+    const width = await mobilePage.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(width <= 5, "page overflows narrow mobile viewport: " + width);
+    await mobilePage.screenshot({ path: output + "/mobile-storytelling-reduced-motion.png", animations: "disabled" });
   });
 
   await mobile.close();
