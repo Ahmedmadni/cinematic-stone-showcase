@@ -318,3 +318,53 @@
   .production-flow__navigation {min-height:270px;}
   .production-flow__chapter-intro h3 {font-size:27px;}
 }
+
+/* Usable scene escape in place of the former meaningless corner ornament. */
+.production-flow--story .production-flow__visual-marker {
+  position:absolute;z-index:4;top:77px;left:clamp(18px,3vw,44px);bottom:auto;
+  display:inline-flex;align-items:center;gap:11px;
+  padding:11px 14px;
+  border:1px solid rgba(248,214,155,.62);
+  background:rgba(14,26,30,.87);
+  color:#ffdf9b;text-decoration:none;
+  font-size:12px;font-weight:700;
+  backdrop-filter:blur(5px);
+  transition:background-color .2s,border-color .2s;
+}
+.production-flow--story .production-flow__visual-marker:hover {
+  background:#253b42;border-color:#ffe0a2;
+}
+@media (max-width:760px) {
+  .production-flow--story .production-flow__visual-marker {
+    display:inline-flex;top:51px;left:13px;
+    padding:8px 10px;font-size:11px;gap:6px;
+  }
+  /* Readable Arabic captions even on 320px phones. */
+  .production-flow__photo-info small {font-size:11px;line-height:1.6;}
+  .production-flow__chapter-intro .latin {font-size:10px;}
+  .production-flow--story .production-flow__step .latin {font-size:12px;}
+  .presentation .fleet-experience__scroll .fleet-experience__photo-note {font-size:11px;}
+  .presentation .fleet-experience__scroll .fleet-experience__detail small {font-size:11px;}
+}
+@media (max-width:380px),(max-height:710px) and (max-width:760px) {
+  .presentation .fleet-experience__scroll .fleet-experience__detail small {display:none;}
+}
+@media (prefers-contrast:more) {
+  .production-flow__photo-shade {
+    background:linear-gradient(0deg,rgba(0,0,0,.96),rgba(0,0,0,.34) 70%);
+  }
+  .production-flow__photo-info :is(h4,p,small),
+  .fleet-experience__headline strong {text-shadow:0 4px 8px #000;}
+  .assistant-suggestions button {border-color:#55472f;}
+  .production-flow--story .production-flow__visual-marker {
+    background:#0e1b1f;border-color:#fff3d0;color:#fff1d4;
+  }
+}
+@media (prefers-reduced-transparency:reduce) {
+  .production-flow--story .production-flow__visual-marker {
+    background:#13232b;backdrop-filter:none;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .production-flow--story .production-flow__visual-marker {transition:none;}
+}
