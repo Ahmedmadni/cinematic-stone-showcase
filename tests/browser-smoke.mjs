@@ -80,6 +80,50 @@ try {
   });
 
 
+  await caseRun("first hero image preloaded and outgoing scene stays until new image loads", async () => {
+    // Dedicated context avoids cached assets from prior scroll tests. Slow only
+    // the *second* scene; never globally throttle site hydration or vital CSS.
+    const context = await browser.newContext({
+      viewport: { width: 1240, height: 780 },
+      reducedMotion: "no-preference",
+    });
+    const page = await context.newPage();
+    try {
+      let deferredRoutes = 0;
+      await page.route("**/excavators.jpg*", async route => {
+        deferredRoutes += 1;
+        await new Promise(resolve => setTimeout(resolve, 2600));
+        await route.continue();
+      });
+      await openWithRetry(page, baseURL);
+      const preload = page.locator('link[rel="preload"][as="image"][href*="quarry-aerial"]');
+      assert.equal(await preload.count(), 1, "first hero photo must be discoverable as an image preload");
+      await page.waitForFunction(() =>
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
+        null, { timeout: 6500 });
+      await page.locator(".hero-gallery__dots button").nth(1).click();
+      await page.waitForFunction(() => 
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") === "1",
+        null, {timeout:4500});
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 1);
+      // While the new network image is pending, preserve previous decoded
+      // pixels under a transparent incoming layer.
+      if ((await page.locator(".hero-gallery").getAttribute("data-hero-image-ready")) === "false") {
+        assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
+      }
+      await page.waitForFunction(() =>
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
+        null, {timeout:10000});
+      assert.ok(deferredRoutes >= 1, "test must actually delay the second hero image");
+      await page.waitForTimeout(1450);
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 0);
+      assert.equal(await page.locator(".hero-gallery__photo--active").count(), 1);
+      await page.screenshot({path:output+"/hero-loaded-no-flash.png", animations:"disabled"});
+    } finally {
+      await context.close();
+    }
+  });
+
   await caseRun("floating language control translates the entire site and persists choice", async () => {
     const arabic = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
     assert.ok(await arabic.isVisible());
