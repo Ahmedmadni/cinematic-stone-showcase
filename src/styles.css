@@ -7,6 +7,8 @@
 @import "./styles/investor-evidence.css";
 @import "./styles/final-polish.css";
 @import "./styles/location-map.css";
+@import "./styles/fleet-scroll.css";
+@import "./styles/storytelling-refinement.css";
 
 @custom-variant dark (&:is(.dark *));
 

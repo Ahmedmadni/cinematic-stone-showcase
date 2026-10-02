@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 import {
   clampUnit,
+  fleetLocalProgress,
+  fleetSceneIndex,
   normalizedPointer,
   pinnedProgress,
   segmentProgress,
@@ -22,6 +24,8 @@ export function CinematicDirector() {
     const hero = document.getElementById("البداية");
     const bridge = document.getElementById("cinematic-bridge");
     const fleet = document.getElementById("equipment-experience");
+    const fleetTrack = document.getElementById("fleet-scroll-track");
+    const materialTrack = document.getElementById("material-scroll-track");
     const atlas = document.querySelector<HTMLElement>(".quarry-atlas");
     const magneticLink = document.querySelector<HTMLElement>(".hero-discover");
     const evidence = document.querySelector<HTMLElement>(".evidence-studio__stage");
@@ -37,8 +41,12 @@ export function CinematicDirector() {
     let observerReady = false;
     let heroProgressCache = 0;
     let bridgeProgressCache = 0;
+    let fleetProgressCache = 0;
+    let lastFleetScene = -1;
+    let materialProgressCache = 0;
+    let lastMaterialScene = -1;
     const nearViewport = new Set<Element>();
-    const scenes = [hero, bridge, fleet, atlas, evidence].filter((node): node is HTMLElement => node !== null);
+    const scenes = [hero, bridge, fleet, fleetTrack, materialTrack, atlas, evidence].filter((node): node is HTMLElement => node !== null);
     const shouldMeasure = (node: Element | null) => Boolean(node && (!observerReady || nearViewport.has(node)));
 
     const sceneEntry = (rect: DOMRect | undefined): number =>
@@ -55,6 +63,8 @@ export function CinematicDirector() {
       const heroRect = shouldMeasure(hero) ? hero.getBoundingClientRect() : undefined;
       const bridgeRect = shouldMeasure(bridge) ? bridge.getBoundingClientRect() : undefined;
       const fleetRect = shouldMeasure(fleet) ? fleet?.getBoundingClientRect() : undefined;
+      const fleetTrackRect = shouldMeasure(fleetTrack) ? fleetTrack?.getBoundingClientRect() : undefined;
+      const materialTrackRect = shouldMeasure(materialTrack) ? materialTrack?.getBoundingClientRect() : undefined;
       const atlasRect = shouldMeasure(atlas) ? atlas?.getBoundingClientRect() : undefined;
       const evidenceRect = shouldMeasure(evidence) ? evidence?.getBoundingClientRect() : undefined;
 
@@ -62,6 +72,38 @@ export function CinematicDirector() {
       const bridgeProgress = reduced ? 0 : bridgeRect ? pinnedProgress(bridgeRect.top, bridgeRect.height, window.innerHeight) : bridgeProgressCache;
       heroProgressCache = heroProgress;
       bridgeProgressCache = bridgeProgress;
+
+      const fleetCount = 4;
+      const fleetProgress = reduced ? 0 : fleetTrackRect
+        ? pinnedProgress(fleetTrackRect.top, fleetTrackRect.height, window.innerHeight)
+        : fleetProgressCache;
+      fleetProgressCache = fleetProgress;
+      const fleetLocal = fleetLocalProgress(fleetProgress, fleetCount);
+      // Only notify React on chapter boundaries: intermediate frames stay in CSS.
+      if (!reduced && fleetTrackRect) {
+        const fleetScene = fleetSceneIndex(fleetProgress, fleetCount);
+        if (fleetScene !== lastFleetScene) {
+          lastFleetScene = fleetScene;
+          root.dataset["cinemaFleetScene"] = String(fleetScene);
+          window.dispatchEvent(new CustomEvent("somman:fleet-scene", { detail: { index: fleetScene, progress: fleetProgress } }));
+        }
+      }
+
+      const materialCount = 3;
+      const materialProgress = reduced ? 0 : materialTrackRect
+        ? pinnedProgress(materialTrackRect.top, materialTrackRect.height, window.innerHeight)
+        : materialProgressCache;
+      materialProgressCache = materialProgress;
+      const materialLocal = fleetLocalProgress(materialProgress, materialCount);
+      if (!reduced && materialTrackRect) {
+        const materialScene = fleetSceneIndex(materialProgress, materialCount);
+        if (materialScene !== lastMaterialScene) {
+          lastMaterialScene = materialScene;
+          root.dataset["cinemaMaterialScene"] = String(materialScene);
+          window.dispatchEvent(new CustomEvent("somman:material-scene", { detail: { index: materialScene } }));
+        }
+      }
+
       const portal = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.17, 0.83));
       const firstCaption = reduced ? 0 : 1 - smoothStep(segmentProgress(bridgeProgress, 0.08, 0.40));
       const secondCaption = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.57, 0.88));
@@ -97,7 +139,12 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-intro-caption", firstCaption.toFixed(4));
       root.style.setProperty("--cinema-outro-caption", secondCaption.toFixed(4));
       root.style.setProperty("--cinema-scroll-progress", clampUnit(window.scrollY / totalScroll).toFixed(4));
-      root.style.setProperty("--cinema-fleet-scale", (reduced ? 1 : 1.085 - sceneEntry(fleetRect) * 0.075).toFixed(4));
+      root.style.setProperty("--cinema-material-progress", materialProgress.toFixed(4));
+      root.style.setProperty("--cinema-material-local", materialLocal.toFixed(4));
+      root.style.setProperty("--cinema-material-scale", (reduced ? 1 : 1.10 - smoothStep(materialLocal) * .05).toFixed(4));
+      root.style.setProperty("--cinema-fleet-progress", fleetProgress.toFixed(4));
+      root.style.setProperty("--cinema-fleet-local-progress", fleetLocal.toFixed(4));
+      root.style.setProperty("--cinema-fleet-scale", (reduced ? 1 : 1.12 - smoothStep(fleetLocal) * 0.055).toFixed(4));
       root.style.setProperty("--cinema-territory-scale", (reduced ? 1 : 1.075 - sceneEntry(atlasRect) * 0.065).toFixed(4));
       root.style.setProperty("--cinema-mask-x", bridgeMaskX.toFixed(2) + "%");
       root.style.setProperty("--cinema-fog-strength", (reduced ? 0 : 0.12 + smoothStep(segmentProgress(bridgeProgress, 0.12, 0.86)) * 0.2).toFixed(3));
@@ -180,6 +227,8 @@ export function CinematicDirector() {
       delete root.dataset["cinemaMotion"];
       delete root.dataset["cinemaPointer"];
       delete root.dataset["cinemaBridgeVisible"];
+      delete root.dataset["cinemaFleetScene"];
+      delete root.dataset["cinemaMaterialScene"];
     };
   }, []);
 

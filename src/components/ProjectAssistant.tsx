@@ -90,8 +90,15 @@ export function ProjectAssistant() {
       </div>
       <div className="assistant-log" aria-live="polite">
         {messages.length === 0 ? (
-          <div className="assistant-suggestions">
-            {suggestions.map((s) => <button type="button" key={s} onClick={() => void ask(s)}>{s}</button>)}
+          <div className="assistant-empty">
+            <p className="assistant-prompt-title">اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل</p>
+            <div className="assistant-suggestions" role="group" aria-label="الأسئلة المقترحة">
+              {suggestions.map((s) => (
+                <button type="button" key={s} onClick={() => void ask(s)}>
+                  <span>{s}</span><ArrowUpLeft size={17} strokeWidth={1.6} aria-hidden="true" />
+                </button>
+              ))}
+            </div>
           </div>
         ) : messages.map((m, i) => (
           <div key={i} className={`assistant-msg ${m.role}`}>

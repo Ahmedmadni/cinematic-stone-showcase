@@ -84,6 +84,84 @@ try {
     assert.ok(sample > 0.15 && sample < 0.85, "bridge progress should be mid-transition: " + sample);
   });
 
+  await caseRun("three material journey photographs advance with real scroll", async () => {
+    const track = desktopPage.locator("#material-scroll-track");
+    const story = desktopPage.locator(".production-flow--story");
+    assert.equal(await track.count(), 1);
+    for (const scene of [0, 1, 2]) {
+      await desktopPage.evaluate((index) => {
+        const node = document.getElementById("material-scroll-track");
+        if (!node) throw new Error("Material track missing");
+        const rect = node.getBoundingClientRect();
+        const start = window.scrollY + rect.top;
+        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 3), behavior: "instant" });
+      }, scene);
+      await desktopPage.waitForFunction((index) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-material-scene") === String(index)
+        && document.querySelectorAll(".production-flow__step.is-active")[0] === document.querySelectorAll(".production-flow__step")[index],
+        scene, { timeout: 12000, polling: "raf" });
+      assert.equal(await story.locator(".production-flow__photo.is-active").count(), 1);
+      assert.equal(await story.locator(".production-flow__step").nth(scene).getAttribute("aria-pressed"), "true");
+    }
+    assert.equal(await story.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
+    await desktopPage.screenshot({ path: output + "/desktop-material-journey.png", animations: "disabled" });
+    const jump = story.locator(".production-flow__visual-marker");
+    assert.equal(await jump.getAttribute("href"), "#equipment-title");
+    assert.ok(await jump.isVisible(), "material journey must provide an actionable exit");
+    await jump.click();
+    await desktopPage.waitForFunction(() => decodeURIComponent(location.hash) === "#equipment-title");
+  });
+
+  await caseRun("all four fleet tabs advance with scrolling, not just clicks", async () => {
+    const fleet = desktopPage.locator("#equipment-experience");
+    const track = desktopPage.locator("#fleet-scroll-track");
+    assert.equal(await track.count(), 1);
+    for (const scene of [0, 1, 2, 3]) {
+      await desktopPage.evaluate((index) => {
+        const node = document.getElementById("fleet-scroll-track");
+        if (!node) throw new Error("Fleet track missing");
+        const rect = node.getBoundingClientRect();
+        const start = scrollY + rect.top;
+        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 4), behavior: "instant" });
+      }, scene);
+      await desktopPage.waitForFunction((index) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === String(index)
+        && document.querySelectorAll("#equipment-experience .fleet-experience__selector.is-selected")[0] === document.querySelectorAll("#equipment-experience .fleet-experience__selector")[index],
+        scene, { timeout: 12000, polling: "raf" });
+      assert.equal(await fleet.locator(".fleet-experience__image.is-active").count(), 1);
+      assert.equal(await fleet.locator(".fleet-experience__selector").nth(scene).getAttribute("aria-pressed"), "true");
+    }
+    await desktopPage.screenshot({ path: output + "/desktop-four-fleet-scroll.png", animations: "disabled" });
+    await fleet.locator(".fleet-experience__selector").nth(1).click();
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === "1",
+      null, { timeout: 15000, polling: "raf" });
+    assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
+  });
+
+  await caseRun("quarry permit photographic overview is no longer abstract tiles", async () => {
+    const gallery = desktopPage.locator(".quarry-cards");
+    await gallery.scrollIntoViewIfNeeded();
+    assert.equal(await gallery.locator(".quarry-cards__site img").count(), 3);
+    assert.equal(await gallery.locator(".quarry-atlas__tile").count(), 0);
+    const second = gallery.getByRole("button", { name: "عرض ملف محجر الأسطول ٢" });
+    await second.click();
+    assert.equal(await second.getAttribute("aria-pressed"), "true");
+    assert.match(await gallery.locator(".quarry-cards__information").innerText(), /14377125/);
+    assert.match(await gallery.locator(".quarry-cards__information").innerText(), /منتهية بحسب نسخة العرض/);
+    await desktopPage.screenshot({ path: output + "/desktop-photographic-quarries.png", animations: "disabled" });
+  });
+
+  await caseRun("question suggestions are readable grouped actions", async () => {
+    const qa = desktopPage.locator(".assistant-panel");
+    await qa.scrollIntoViewIfNeeded();
+    const chips = qa.locator(".assistant-suggestions button");
+    assert.equal(await chips.count(), 4);
+    assert.ok(await chips.first().isVisible());
+    assert.ok((await chips.first().boundingBox())?.height >= 45);
+    await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
@@ -135,6 +213,39 @@ try {
 
   await desktop.close();
 
+  const fullMotionMobile = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "no-preference",
+    locale: "ar-SA",
+  });
+  const motionPage = await fullMotionMobile.newPage();
+  await caseRun("mobile touch scrolling actually advances material and equipment", async () => {
+    await openWithRetry(motionPage, baseURL);
+    for (const [id, count, data] of [
+      ["material-scroll-track", 3, "cinema-material-scene"],
+      ["fleet-scroll-track", 4, "cinema-fleet-scene"],
+    ]) {
+      for (const scene of [0, count - 1]) {
+        await motionPage.evaluate(({ id, count, scene }) => {
+          const el = document.getElementById(id);
+          if (!el) throw new Error("Scene missing: " + id);
+          const bounds = el.getBoundingClientRect();
+          const start = scrollY + bounds.top;
+          window.scrollTo({ top: start + Math.max(0, bounds.height - innerHeight) * ((scene + .5) / count), behavior: "instant" });
+        }, { id, count, scene });
+        await motionPage.waitForFunction(({ key, scene }) =>
+          document.querySelector(".presentation")?.getAttribute("data-" + key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())) === String(scene),
+          { key: data, scene }, { timeout: 12000, polling: "raf" });
+      }
+    }
+    assert.ok((await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5);
+    await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
+  });
+  await fullMotionMobile.close();
+
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
@@ -184,7 +295,82 @@ try {
     assert.equal(await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).getAttribute("aria-pressed"), "true");
   });
 
+  await caseRun("mobile reduced motion keeps manual material/fleet and quarry choices", async () => {
+    const material = mobilePage.locator(".production-flow--story");
+    await material.scrollIntoViewIfNeeded();
+    assert.notEqual(await material.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
+    const lastMaterial = material.locator(".production-flow__step").last();
+    await lastMaterial.tap();
+    assert.equal(await lastMaterial.getAttribute("aria-pressed"), "true");
+    assert.equal(await material.locator(".production-flow__photo.is-active").count(), 1);
+
+    const fleet = mobilePage.locator("#equipment-experience");
+    await fleet.scrollIntoViewIfNeeded();
+    assert.notEqual(await fleet.locator(".fleet-experience__composition").evaluate((el) => getComputedStyle(el).position), "sticky");
+    const generators = fleet.locator(".fleet-experience__selector").last();
+    await generators.tap();
+    assert.equal(await generators.getAttribute("aria-pressed"), "true");
+
+    const quarry = mobilePage.locator(".quarry-cards");
+    await quarry.scrollIntoViewIfNeeded();
+    const birzeit = quarry.getByRole("button", { name: "عرض ملف محجر بير زيت" });
+    await birzeit.tap();
+    assert.equal(await birzeit.getAttribute("aria-pressed"), "true");
+    const width = await mobilePage.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+    assert.ok(width <= 5, "page overflows narrow mobile viewport: " + width);
+    await mobilePage.screenshot({ path: output + "/mobile-storytelling-reduced-motion.png", animations: "disabled" });
+  });
+
   await mobile.close();
+
+  await caseRun("short smartphone and narrow zoom layout preserve scroll chapter controls", async () => {
+    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [680, 450]]) {
+      const context = await browser.newContext({
+        viewport: { width, height },
+        reducedMotion: "no-preference",
+        hasTouch: width < 400,
+        isMobile: width < 400,
+        deviceScaleFactor: 1,
+        locale: "ar-SA",
+      });
+      try {
+        const page = await context.newPage();
+        await openWithRetry(page, baseURL);
+        const measured = await page.evaluate(() => {
+          function item(selector) {
+            const element = document.querySelector(selector);
+            if (!element) throw new Error("Missing story element: " + selector);
+            return {
+              visible: element.getBoundingClientRect().width > 0,
+              client: element.clientHeight,
+              content: element.scrollHeight,
+              overflow: getComputedStyle(element).overflowY,
+            };
+          }
+          return {
+            htmlOverflow: document.documentElement.scrollWidth - innerWidth,
+            material: item(".production-flow__navigation"),
+            equipment: item(".fleet-experience__console"),
+          };
+        });
+        assert.ok(measured.htmlOverflow <= 5, width + "x" + height + " horizontal overflow: " + JSON.stringify(measured));
+        const skip = page.locator(".production-flow__visual-marker");
+        assert.ok(await skip.isVisible(), width + "x" + height + " material skip control hidden");
+        assert.equal(await skip.getAttribute("href"), "#equipment-title");
+        for (const [label, item] of [["material", measured.material], ["equipment", measured.equipment]]) {
+          assert.ok(item.visible && item.client > 0, width + "x" + height + " " + label + " missing");
+          assert.ok(item.content <= item.client + 4 || ["auto", "scroll"].includes(item.overflow), 
+            width + "x" + height + " " + label + " clipped (" + item.content + " > " + item.client + ", overflow=" + item.overflow + ")");
+        }
+        await page.screenshot({
+          path: output + "/layout-" + width + "x" + height + ".png",
+          animations: "disabled",
+        });
+      } finally {
+        await context.close();
+      }
+    }
+  });
 
   console.log("[BROWSER] " + results.length + " checks passed.");
   await writeFile(output + "/result.json", JSON.stringify({ baseURL, results }, null, 2));

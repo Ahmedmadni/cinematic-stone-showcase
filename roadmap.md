@@ -73,3 +73,15 @@
 - [ ] Independently confirm the actual quarry geometry and site photos; do not treat the indicative pin as surveying evidence.
 - [ ] Check Google iframe tile availability on deployed domain and across networks. If blocked, configure the official Maps Embed API with a restricted key or use external Maps link.
 - [ ] If genuine Google 3D terrain is required inside the page, provision supported Google Maps JavaScript/3D API and restricted billing/API key separately.
+
+## Visual storytelling refinement — feedback from 2 Oct screenshots
+- [x] Integrate PR #6's four native scroll equipment chapters into a new branch based on the latest main that already includes merged map PR #7.
+- [x] Replace ornamental Material Journey rings with three photo-backed chapters progressing on natural scroll and selectable directly.
+- [x] Remove nongeographic fake polygon tiles; provide three illustrative aerial-photo choices with accurate source-level area, permit number, permit-holder and historical status.
+- [x] Reduce oversized Q&A heading, give prompt suggestions proper actions, readable spacing and a distinct submit form.
+- [x] Preserve the MapExperience Google satellite iframe and licensing verification warnings.
+- [x] Extend chapter boundary tests and Playwright scroll checks for 3 material, 4 equipment, mobile full/reduced motion, descriptive quarry panels and Q&A usability.
+- [ ] Confirm browser CI and visually review actual screenshots (desktop and phone) before merge.
+- [ ] Physical Safari, Firefox and lower-end mobile performance audit before declaring production readiness.
+- [ ] Publish genuine authorised quarry/machinery photography when supplied; current imagery is labelled illustrative.
+- [ ] Do not merge superseded PR #6 after integrating its code here.
