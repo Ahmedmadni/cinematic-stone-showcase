@@ -30,7 +30,7 @@ const scenes = [
   { src: powerSite, en: "Site utilities", ar: "مرافق الموقع" },
 ] as const;
 
-export const HERO_SCENE_COUNT = scenes.length;
+const HERO_SCENE_COUNT = scenes.length;
 const HERO_INTERVAL_MS = 5800;
 const REVEAL_MS = 1300;
 
@@ -169,7 +169,7 @@ export function HeroGallery() {
           ))}
         </div>
         <button type="button" className="hero-gallery__nav" aria-label={language === "en" ? "Next hero photo" : "الصورة التالية للهيرو"} onClick={() => choose(active + 1)}><ArrowRight size={17} aria-hidden="true" /></button>
-        <span className="hero-gallery__counter latin" dir="ltr">{String(active + 1).padStart(2, "0")}/10</span>
+        <span className="hero-gallery__counter latin" dir="ltr">{String(active + 1).padStart(2, "0")}/{HERO_SCENE_COUNT}</span>
         <span className="hero-gallery__caption">{label}</span>
       </div>
     </>
