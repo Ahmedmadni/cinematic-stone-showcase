@@ -61,3 +61,14 @@
 - [ ] Conduct cross-browser + throttled mobile Core Web Vitals / accessibility review.
 - [ ] Conduct private audit of tracked .env for potential secrets and remediate if necessary.
 - [ ] Verify source documents, permits, certificates and supply actual photography before publication.
+
+## Phase 06 — scroll-driven immersive equipment storytelling
+- [x] Convert the static fleet selection room into a native-scroll 4-scene timeline with sticky storytelling.
+- [x] Keep the source-backed quantities (14 excavators, 6 loaders, 2 truck scales, 3 generators) and mark all images illustrative.
+- [x] Scrub photo depth and staged progression with the existing rAF director; emit a React state update only when a scene changes.
+- [x] Add direct chapter navigation through regular accessible buttons and native smooth scrolling.
+- [x] Provide touch-screen layouts with the same scroll progression and a non-pinned reduced-motion manual mode.
+- [x] Extend unit tests to validate chapter boundaries and target positions.
+- [x] Add Chromium desktop/mobile scroll/touch/keyboard visual regression checks.
+- [ ] Examine real deployed preview performance and actual Safari/Firefox interactions before merge.
+- [ ] Replace illustrative media with approved site photographs when available.
