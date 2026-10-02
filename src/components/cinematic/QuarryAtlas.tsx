@@ -69,7 +69,7 @@ export function QuarryAtlas() {
         </div>
       </div>
 
-      <div className="quarry-cards__autoplay-tools"><span className="latin" dir="ltr">01—03 / PHOTO RECORDS</span><button type="button" aria-pressed={!manuallyPaused} aria-label={manuallyPaused ? (language === "en" ? "Resume quarry photo gallery" : "تشغيل عرض صور المحاجر") : (language === "en" ? "Pause quarry photo gallery" : "إيقاف عرض صور المحاجر")} onClick={() => setManuallyPaused(previous => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</button></div>
+      <div className="quarry-cards__autoplay-tools"><span className="latin" dir="ltr">01—03 / PHOTO RECORDS</span><button type="button" disabled={!motionAllowed} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={manuallyPaused ? (language === "en" ? "Resume quarry photo gallery" : "تشغيل عرض صور المحاجر") : (language === "en" ? "Pause quarry photo gallery" : "إيقاف عرض صور المحاجر")} onClick={() => setManuallyPaused(previous => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</button></div>
       <div className="quarry-cards__layout">
         <div className="quarry-cards__gallery" role="group" aria-label={t("اختيار أحد المحاجر")}>
           {quarrySites.map((entry, index) => (
