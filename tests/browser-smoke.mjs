@@ -318,6 +318,52 @@ try {
 
   await mobile.close();
 
+  await caseRun("short smartphone and narrow zoom layout preserve scroll chapter controls", async () => {
+    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [680, 450]]) {
+      const context = await browser.newContext({
+        viewport: { width, height },
+        reducedMotion: "no-preference",
+        hasTouch: width < 400,
+        isMobile: width < 400,
+        deviceScaleFactor: 1,
+        locale: "ar-SA",
+      });
+      try {
+        const page = await context.newPage();
+        await openWithRetry(page, baseURL);
+        const measured = await page.evaluate(() => {
+          function item(selector) {
+            const element = document.querySelector(selector);
+            if (!element) throw new Error("Missing story element: " + selector);
+            return {
+              visible: element.getBoundingClientRect().width > 0,
+              client: element.clientHeight,
+              content: element.scrollHeight,
+              overflow: getComputedStyle(element).overflowY,
+            };
+          }
+          return {
+            htmlOverflow: document.documentElement.scrollWidth - innerWidth,
+            material: item(".production-flow__navigation"),
+            equipment: item(".fleet-experience__console"),
+          };
+        });
+        assert.ok(measured.htmlOverflow <= 5, width + "x" + height + " horizontal overflow: " + JSON.stringify(measured));
+        for (const [label, item] of [["material", measured.material], ["equipment", measured.equipment]]) {
+          assert.ok(item.visible && item.client > 0, width + "x" + height + " " + label + " missing");
+          assert.ok(item.content <= item.client + 4 || ["auto", "scroll"].includes(item.overflow), 
+            width + "x" + height + " " + label + " clipped (" + item.content + " > " + item.client + ", overflow=" + item.overflow + ")");
+        }
+        await page.screenshot({
+          path: output + "/layout-" + width + "x" + height + ".png",
+          animations: "disabled",
+        });
+      } finally {
+        await context.close();
+      }
+    }
+  });
+
   console.log("[BROWSER] " + results.length + " checks passed.");
   await writeFile(output + "/result.json", JSON.stringify({ baseURL, results }, null, 2));
 } catch (error) {
