@@ -262,7 +262,7 @@ function Index() {
             <Eyebrow number="02 / 06">{t("القدرة التشغيلية")}</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">{t("من الحجر الخام")}<br /><span>{t("إلى قيمة تُبنى.")}</span></h2><p>{t("خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.")}</p></div>
             <figure className="image-feature reveal">
-              <div className="image-window"><span className="photo-placeholder">{t("صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان")}</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" }, { image: crushingPlantAlt, alt: "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر" }]} /></div>
+              <div className="image-window"><span className="photo-placeholder">{t("صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان")}</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: t("صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر") }, { image: crushingPlantAlt, alt: t("صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر") }]} /></div>
               <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>{t("خطا الكسارات والفرز — مجمع كسارات الصمان")} <small>{t("صورة بديلة للتحديث")}</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>{t("خطان للإنتاج")}</h3></div><p>{t("كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.")}</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
@@ -331,7 +331,7 @@ function Index() {
                   <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">{t("الموقع الإلكتروني")}</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 </div>
                 {formError && <p className="form-error" role="alert">{formError}</p>}
-                <Button type="submit" disabled={submitting} className="contact-button">{submitting ? "جارٍ حفظ البيانات..." : "احفظ بياناتك واختر طريقة التواصل"} <ArrowLeft size={18} /></Button>
+                <Button type="submit" disabled={submitting} className="contact-button">{submitting ? t("جارٍ حفظ البيانات...") : t("احفظ بياناتك واختر طريقة التواصل")} <ArrowLeft size={18} /></Button>
                 <p className="form-privacy">{t("تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.")}</p>
               </form>}
             </div>
