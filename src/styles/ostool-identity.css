@@ -1,0 +1,196 @@
+/*
+ * Al Ostool Alaali visual alignment — preserve the supplied official logo.
+ * Identity palette: warm gold #F5B51B, graphite #444444, charcoal #252525,
+ * white #FFFFFF and silver #F3F3F3. No generated replacement trademarks.
+ */
+.presentation {
+  --ostool-gold: #F5B51B;
+  --ostool-gold-dark: #936119;
+  --ostool-charcoal: #252525;
+  --ostool-graphite: #444444;
+  --ostool-paper: #F3F3F3;
+  --ostool-white: #FFFFFF;
+  --primary: #94681c;
+  --foreground: #252525;
+  --background: #F3F3F3;
+  --cinema-accent: #F5B51B;
+  --gold-bright: #F5B51B;
+  font-family: "Noto Kufi Arabic", "Cairo", sans-serif;
+}
+.presentation h1,.presentation h2,.presentation h3,.presentation h4 {
+  font-family: "Cairo","Noto Kufi Arabic",sans-serif;
+  letter-spacing: -.025em;
+}
+.presentation .latin { font-family: "Manrope","Barlow Condensed",sans-serif; letter-spacing:.07em; }
+.presentation .site-header .brand-logo {
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  width:clamp(58px,5vw,78px);
+  height:clamp(68px,6vw,88px);
+  border:1px solid rgba(245,181,27,.25);
+  border-radius:4px;
+  background:rgba(255,255,255,.96);
+  padding:4px;
+  filter:none;
+}
+.presentation .site-header .brand-project {
+  font-size:clamp(13px,1.18vw,17px);
+  font-weight:750;
+  border-inline-start:2px solid var(--ostool-gold);
+  border-right:0;
+  padding-inline-start:12px;padding-right:0;
+  text-shadow:0 3px 15px rgba(0,0,0,.5);
+}
+.presentation .cinema-reading-progress span,
+.presentation .production-flow__stage-progress span,
+.presentation .fleet-experience__image-progress > span { background:var(--ostool-gold); }
+.presentation .cinematic-bridge__line,
+.presentation .cinematic-bridge__edge::before,
+.presentation .cinematic-bridge__edge::after { border-color:var(--ostool-gold); }
+.presentation .production-flow--story,
+.presentation .production-flow--story .production-flow__top {background:#272727;}
+.presentation .production-flow--story .production-flow__navigation {
+  background:linear-gradient(145deg,#393939,#252525);
+}
+.presentation .fleet-experience__scroll .fleet-experience__console {
+  background:linear-gradient(150deg,#363636,#232323);
+  border-color:rgba(245,181,27,.26);
+}
+.presentation .quarry-cards__heading,
+.presentation .somman-location-experience__topline {background:#292929;}
+.presentation .quarry-cards__information {background:#ece8df;}
+.presentation .assistant-chapter {background:linear-gradient(145deg,#f4f3ef,#eceae4);}
+.presentation :is(.fleet-experience__selector.is-selected,.production-flow__step.is-active) {
+  border-color:var(--ostool-gold);
+}
+.presentation :is(.hero-discover,.contact-button):focus-visible {
+  outline:3px solid var(--ostool-gold);outline-offset:5px;
+}
+.presentation[data-language="en"] {
+  font-family:"Manrope",Arial,sans-serif;
+  text-align:left;
+}
+.presentation[data-language="en"] :is(h1,h2,h3,h4) {
+  font-family:"Manrope",Arial,sans-serif;
+  letter-spacing:-.045em;
+  line-height:1.21;
+}
+.presentation[data-language="en"] :is(p,small,button,input,textarea,label,dt,dd) {
+  letter-spacing:0;
+}
+.presentation[data-language="en"] .hero-content,
+.presentation[data-language="en"] .cinematic-bridge__story,
+.presentation[data-language="en"] .production-flow__navigation,
+.presentation[data-language="en"] .fleet-experience__console,
+.presentation[data-language="en"] .quarry-cards__information,
+.presentation[data-language="en"] .assistant-panel,
+.presentation[data-language="en"] .contact-content,
+.presentation[data-language="en"] .inquiry-panel {text-align:left;}
+.presentation[data-language="en"] .assistant-form textarea {direction:ltr;text-align:left;}
+.presentation[data-language="en"] .quarry-cards__site {text-align:left;}
+.presentation[data-language="en"] .quarry-cards__site-index,
+.presentation[data-language="en"] .quarry-cards__site-label {right:auto;left:26px;}
+.presentation[data-language="en"] .quarry-cards__site-arrow {left:auto;right:22px;}
+.presentation[data-language="en"] .production-flow__photo-info {text-align:left;}
+.presentation[data-language="en"] .site-header .brand-project {text-shadow:0 2px 12px rgba(0,0,0,.42);}
+.presentation[data-language="en"] .assistant-msg {direction:ltr;text-align:left;}
+
+/* Floating utility dock always visible but never blocks the presentation. */
+.somman-floating-tools {
+  position:fixed;z-index:200;
+  left:clamp(12px,2.4vw,32px);
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  display:flex;flex-direction:column;align-items:flex-start;gap:10px;
+  pointer-events:none;
+}
+.somman-tool {
+  display:inline-flex;align-items:center;justify-content:center;gap:10px;
+  pointer-events:auto;cursor:pointer;
+  min-height:50px;padding:11px 16px;
+  border:1px solid rgba(245,181,27,.74);border-radius:999px;
+  background:rgba(37,37,37,.97);color:#fff9e8;
+  box-shadow:0 10px 34px rgba(16,16,16,.3);
+  backdrop-filter:blur(10px);
+  font-size:12px;font-weight:800;white-space:nowrap;
+  transition:background-color .2s,transform .2s,border-color .2s;
+}
+.somman-tool svg {color:#F5B51B;flex-shrink:0;}
+.somman-tool--language {min-width:72px;background:rgba(247,245,239,.97);color:#252525;border-color:#967329;}
+.somman-tool--assistant {min-width:125px;}
+.somman-tool:hover {transform:translateY(-2px);background:#454545;color:#fff9e8;}
+.somman-tool--language:hover {background:#F5B51B;color:#252525;}
+.somman-tool:focus-visible,.somman-assistant-close:focus-visible {
+  outline:3px solid #F5B51B;outline-offset:4px;
+}
+.somman-assistant-drawer {
+  position:fixed;z-index:210;
+  left:clamp(12px,2.4vw,32px);
+  bottom:calc(140px + env(safe-area-inset-bottom));
+  width:min(440px,calc(100vw - 26px));
+  max-height:min(75svh,690px);
+  display:flex;flex-direction:column;
+  background:#f9f7f1;border:1px solid rgba(245,181,27,.77);
+  border-radius:18px;overflow:hidden;
+  box-shadow:0 20px 100px rgba(21,21,21,.34);
+  color:#252525;
+  text-align:start;
+}
+.somman-assistant-drawer[hidden] {display:none!important;}
+.somman-assistant-drawer .assistant-panel {
+  border:0;box-shadow:none;padding:18px;
+  display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;
+  background:#f9f7f1;
+}
+.somman-assistant-drawer .assistant-head {padding-right:36px;padding-inline-end:42px;}
+.somman-assistant-drawer .assistant-log {
+  flex:1;max-height:none;min-height:120px;
+  padding-block:14px;overflow-y:auto;
+}
+.somman-assistant-drawer .assistant-suggestions {gap:8px;}
+.somman-assistant-drawer .assistant-suggestions button {
+  min-height:50px;padding:10px 12px;font-size:12px;
+}
+.somman-assistant-drawer .assistant-form textarea {min-height:52px;font-size:14px;}
+.somman-assistant-drawer .assistant-note {font-size:11px;line-height:1.7;}
+.somman-assistant-close {
+  position:absolute;top:15px;right:15px;z-index:3;
+  display:grid;place-items:center;
+  width:35px;height:35px;border-radius:50%;
+  background:#343434;color:#F5B51B;cursor:pointer;border:1px solid rgba(245,181,27,.3);
+}
+.somman-assistant-drawer[dir="rtl"] .somman-assistant-close {right:auto;left:15px;}
+.somman-assistant-drawer[dir="rtl"] .assistant-head {padding-inline-end:42px;padding-right:0;}
+.presentation .assistant-inline-cta {
+  display:flex;flex-direction:column;gap:20px;align-items:flex-start;justify-content:center;
+  padding:clamp(25px,4vw,52px);
+  border:1px solid rgba(134,93,24,.25);
+  background:linear-gradient(140deg,#FFFDF8,#F1EBDD);
+  box-shadow:0 16px 48px rgba(35,35,35,.09);min-height:240px;
+}
+.assistant-inline-cta > svg {color:#9B711F;}
+.assistant-inline-cta p {font-size:clamp(14px,1.35vw,18px);line-height:1.8;color:#434343;font-weight:600;margin:0;}
+.assistant-inline-cta button {
+  display:inline-flex;align-items:center;justify-content:space-between;gap:20px;
+  padding:14px 23px;background:#252525;color:#F5B51B;
+  border:1px solid #F5B51B;cursor:pointer;font-weight:800;
+}
+.assistant-inline-cta button:hover {background:#444444;}
+.assistant-inline-cta button:focus-visible {outline:3px solid #9C6817;outline-offset:3px;}
+@media(max-width:760px) {
+  .presentation .site-header .brand-logo {width:58px;height:66px;}
+  .somman-floating-tools {bottom:calc(10px + env(safe-area-inset-bottom));gap:8px;}
+  .somman-tool {padding:10px 12px;min-height:46px;font-size:11px;}
+  .somman-assistant-drawer {bottom:calc(117px + env(safe-area-inset-bottom));max-height:min(71svh,610px);}
+  .presentation .assistant-inline-cta {min-height:180px;}
+}
+@media(max-width:390px) {
+  .somman-tool--assistant {min-width:0;}
+  .somman-tool--assistant span {display:none;}
+  .somman-assistant-drawer .assistant-suggestions {grid-template-columns:1fr 1fr;}
+  .somman-assistant-drawer .assistant-suggestions button {font-size:11px;}
+}
+@media(prefers-reduced-motion:reduce) {
+  .somman-tool {transition:none;backdrop-filter:none;}
+  .somman-tool:hover {transform:none;}
+}
