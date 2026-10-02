@@ -106,3 +106,18 @@
 - [ ] Review desktop/mobile Chromium screenshot artifacts and confirm no motion regressions.
 - [ ] Check Safari, Firefox, real touch devices and restricted network on production before public release.
 - [ ] Replace all illustrative media with authorized real site and equipment footage when available, with updated attribution/captions.
+
+
+## Mobile swipe & accessibility follow-up — 2 October 2026
+- [x] Add passive, horizontal-only, direction-aware (LTR/RTL) swipe navigation for the ten-scene hero on touch phones; preserve native vertical scrolling.
+- [x] Add mobile swipe navigation to the native gallery lightbox; selecting a photo by touch pauses autoplay so visitors can read it.
+- [x] Match keyboard left/right lightbox navigation to page direction without mirroring or altering photographs.
+- [x] Increase tappable hero-dot areas from tiny decorative circles to at least 24px wide, keeping visually small 6–19px indicators.
+- [x] Arrange mobile hero controls into a responsive two-row layout and keep play/next/previous controls at least 44px.
+- [x] Pause hero autoplay while controls receive keyboard focus, but honor an explicit Play click immediately and then pause on the next focus interaction.
+- [x] Keep motion disabled when \`prefers-reduced-motion: reduce\` is active, with accessible manual navigation.
+- [x] Add pure LTR/RTL swipe threshold tests and Chromium browser assertions for actual synthetic mobile touch events, scroll safety, active frame, modal pause and small screens.
+- [x] Latest completed baseline verification: 23/23 Chromium checks; unit/TypeScript/scoped ESLint/production build successful.
+- [ ] Reverify latest clean head in CI after removing diagnostic instrumentation.
+- [ ] Manually verify gestures/visual styling on real iOS Safari, Android Chrome and Firefox before public sign-off.
+- [ ] Replace all illustrative quarry photographs with approved authentic site images before claiming real-site provenance.
