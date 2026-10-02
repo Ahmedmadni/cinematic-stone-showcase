@@ -39,38 +39,38 @@
   transform: scale(var(--cinema-material-scale, 1.05));
 }
 /* 01: diagonal descent from lower right, with a stepped strata-like boundary. */
-.presentation .fleet-experience__image--0.is-active,
+.presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
 .production-flow__photo--0.is-active {
   clip-path: polygon(100% 100%, calc(105% - var(--chapter-wipe) * 130%) 100%, calc(117% - var(--chapter-wipe) * 130%) 77%, calc(112% - var(--chapter-wipe) * 130%) 73%, calc(131% - var(--chapter-wipe) * 130%) 47%, calc(125% - var(--chapter-wipe) * 130%) 43%, calc(146% - var(--chapter-wipe) * 160%) 0, 100% 0);
 }
 /* Keep scene 01's entry mask: it was accidentally cancelled by a reset. */
 /* 02: a stepped central aperture expands outwards. */
-.presentation .fleet-experience__image--1.is-active,
+.presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
 .production-flow__photo--1.is-active {
   clip-path: polygon(calc(50% - var(--chapter-wipe) * 62%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(44% + var(--chapter-wipe) * 20%), calc(50% - var(--chapter-wipe) * 58%) calc(44% + var(--chapter-wipe) * 20%));
 }
 /* 03: upper-left entry in staggered diagonal bands. */
-.presentation .fleet-experience__image--2.is-active,
+.presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
 .production-flow__photo--2.is-active {
   clip-path: polygon(0 0, calc(var(--chapter-wipe) * 155%) 0, calc(var(--chapter-wipe) * 140% - 19%) 26%, calc(var(--chapter-wipe) * 140% - 14%) 30%, calc(var(--chapter-wipe) * 140% - 35%) 57%, calc(var(--chapter-wipe) * 140% - 29%) 61%, calc(var(--chapter-wipe) * 155% - 49%) 100%, 0 100%);
 }
 /* 04: a fractured right-middle seam, stepping toward both corners. */
-.presentation .fleet-experience__image--3.is-active {
+.presentation .fleet-experience__scroll .fleet-experience__image--3.is-active {
   clip-path: polygon(100% 0, calc(109% - var(--chapter-wipe) * 135%) 0, calc(118% - var(--chapter-wipe) * 135%) 30%, calc(110% - var(--chapter-wipe) * 135%) 34%, calc(112% - var(--chapter-wipe) * 135%) 54%, calc(103% - var(--chapter-wipe) * 135%) 58%, calc(118% - var(--chapter-wipe) * 145%) 100%, 100% 100%);
 }
 /* Feather the seam lightly without blurring entire photos; clip-path still works without masks. */
 @supports (mask-image: linear-gradient(#000, transparent)) {
-  .presentation .fleet-experience__image--3.is-active,
+  .presentation .fleet-experience__scroll .fleet-experience__image--3.is-active,
   .production-flow__photo--0.is-active:not(:first-child) {
     -webkit-mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
     mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
   }
-  .presentation .fleet-experience__image--2.is-active,
+  .presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
   .production-flow__photo--2.is-active {
     -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
     mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
   }
-  .presentation .fleet-experience__image--1.is-active,
+  .presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
   .production-flow__photo--1.is-active {
     -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
     mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
@@ -133,7 +133,7 @@
 }
 /* Provide a subtle soft leading edge along chapter 01's stepped diagonal. */
 @supports (mask-image: linear-gradient(#000,transparent)) {
-  .presentation .fleet-experience__image--0.is-active,
+  .presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
   .production-flow--story .production-flow__photo--0.is-active {
     -webkit-mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
     mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
