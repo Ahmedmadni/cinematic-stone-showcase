@@ -92,7 +92,7 @@ export function ProductionFlow() {
                 key={step.id}
                 alt={active === index ? "تصوير توضيحي لمرحلة " + step.title + " وليس صورة من الموقع" : ""}
                 aria-hidden={active !== index}
-                className={"production-flow__photo production-flow__photo--" + index + (index === active ? " is-active" : "")}
+                className={"production-flow__photo production-flow__photo--" + index + (index === active ? " is-active" : index === active - 1 ? " is-underlay" : "")}
                 loading="lazy"
                 decoding="async"
                 width={1536}
