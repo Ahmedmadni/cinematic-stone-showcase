@@ -91,3 +91,18 @@
 - [x] Give the four equipment and three material chapters distinct scroll-progress zigzag/center reveals and reduced-motion fallbacks.
 - [x] Place three restrained geological and production blueprint motifs in light sections.
 - [ ] Check physical Safari and lower-end devices for mask compositing and performance before publication.
+
+
+## 2 October — cinematic autoplay gallery audit
+- [x] Replace the formerly stitched two-photo hero with **ten separate** full-bleed illustrative quarry photos, one image per frame. Use 10 existing locally sourced project assets, not invented licensed-site photos.
+- [x] Enable automatic hero sequence every 5.8 seconds, staggered editorial reveals, manual next/previous/10-dot navigation and an accessible play/pause control.
+- [x] Lazy-prefetch only the next hero photo for performance; the first LCP scene remains eager. Pause when off-screen, in a hidden browser tab or under reduced-motion settings.
+- [x] Ensure all six subject galleries have independent automatic timers and visible progress, plus manual controls and pause/play. Pause if hovered, keyboard focused, hidden, zoomed into a lightbox or reduced-motion.
+- [x] Let expanded GalleryLightbox automatically advance unless manually paused, hidden or reduced-motion.
+- [x] Confirm production-feature and fixed-background AutoVisual retain independent viewport-sensitive autoplay with explicit QA state.
+- [x] Add gentle 11.5-second automatic photo rotation for the three illustrative quarry cards, but freeze historic permit info immediately after visitor interaction.
+- [x] Refine gold/charcoal overlays, feathered borders, selective contrast, animation depth and the opacity of fixed ambience without drowning out the hero typography.
+- [x] Preserve scroll-driven four equipment and three production stages (not timed); auto-play must never hijack native scrolling.
+- [ ] Review desktop/mobile Chromium screenshot artifacts and confirm no motion regressions.
+- [ ] Check Safari, Firefox, real touch devices and restricted network on production before public release.
+- [ ] Replace all illustrative media with authorized real site and equipment footage when available, with updated attribution/captions.
