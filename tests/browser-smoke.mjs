@@ -364,30 +364,38 @@ try {
   });
 
   await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
-    await openWithRetry(desktopPage, baseURL);
-    const carousel = desktopPage.locator(".hero-gallery");
-    await desktopPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-    await desktopPage.mouse.move(0, 0);
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
+    // Use a clean page instead of inheriting several scroll chapters, focus
+    // targets and browser history changes from preceding visual tests.
+    const isolatedHeroContext = await browser.newContext({ viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference" });
+    const heroPage = await isolatedHeroContext.newPage();
+    try {
+    await openWithRetry(heroPage, baseURL);
+    const carousel = heroPage.locator(".hero-gallery");
+    await heroPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await heroPage.mouse.move(0, 0);
+    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
     const first = await carousel.getAttribute("data-hero-active");
-    await desktopPage.waitForFunction(previous =>
+    await heroPage.waitForFunction(previous =>
       document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
       first, { timeout: 10000 });
     assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
-    const dots = desktopPage.locator(".hero-gallery__dots button");
+    const dots = heroPage.locator(".hero-gallery__dots button");
     assert.equal(await dots.count(), 10);
     await dots.nth(7).click();
     assert.equal(await carousel.getAttribute("data-hero-active"), "7");
     assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
-    await desktopPage.locator(".hero-gallery__motion-toggle").click();
-    await desktopPage.mouse.move(0, 0);
-    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
+    await heroPage.locator(".hero-gallery__motion-toggle").click();
+    await heroPage.mouse.move(0, 0);
+    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
     await dots.nth(3).focus();
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "false", null, { timeout: 5000 });
-    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 5000 });
-    await desktopPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
+    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "false", null, { timeout: 5000 });
+    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 5000 });
+    await heroPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
+    } finally {
+      await isolatedHeroContext.close();
+    }
   });
 
   await caseRun("all six subject galleries independently enable timed autoplay", async () => {
