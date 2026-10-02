@@ -1,0 +1,132 @@
+/* Somman mobile interaction and accessible cinematic carousel follow-up.
+   Only the affordances grow; visual dots stay intentionally small. */
+.presentation .hero-gallery__dots { gap: 0; }
+.presentation .hero-gallery__dots .hero-gallery__dot,
+.presentation .hero-gallery__dots .hero-gallery__dot.is-active {
+  position: relative;
+  flex: 0 0 28px;
+  width: 28px;
+  min-width: 28px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  transition: none;
+}
+.presentation .hero-gallery__dots .hero-gallery__dot::after {
+  content: "";
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, .58);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .13);
+  transition: background-color .25s, width .25s;
+}
+.presentation .hero-gallery__dots .hero-gallery__dot.is-active::after {
+  width: 19px;
+  background: #f5b51b;
+}
+.presentation .hero-gallery__dots .hero-gallery__dot:hover::after {
+  background: #f5b51b;
+}
+.presentation .hero-gallery__dots .hero-gallery__dot:focus-visible {
+  outline: 3px solid #f5b51b;
+  outline-offset: -2px;
+}
+.presentation .hero-gallery__toolbar .hero-gallery__motion-toggle,
+.presentation .hero-gallery__toolbar .hero-gallery__nav {
+  min-width: 44px;
+  min-height: 44px;
+}
+/* Touch listeners are passive: deliberate horizontal gestures select a scene,
+   while the browser always remains free to scroll vertically. */
+.presentation .hero-cinematic { touch-action: pan-y; }
+.gallery-lightbox--native .lightbox-content {
+  touch-action: pan-y;
+  overscroll-behavior-y: contain;
+}
+/* The active photo remains crisp without globally expensive blur filters. */
+.presentation .hero-gallery__photo--active {
+  image-rendering: auto;
+}
+@media (max-width: 640px) {
+  .presentation .hero-gallery__toolbar {
+    display: grid;
+    grid-template-columns: repeat(3, 44px) minmax(48px, 1fr);
+    align-items: center;
+    justify-items: center;
+    width: min(340px, calc(100% - 26px));
+    max-width: calc(100vw - 26px);
+    bottom: calc(66px + env(safe-area-inset-bottom));
+    right: 13px;
+    left: auto;
+    gap: 3px 7px;
+    padding: 7px 10px;
+    border-radius: 13px;
+  }
+  .presentation[dir="rtl"] .hero-gallery__toolbar {
+    right: 13px;
+    left: auto;
+  }
+  .presentation .hero-gallery__toolbar .hero-gallery__motion-toggle {
+    grid-column: 1;
+    grid-row: 1;
+  }
+  .presentation .hero-gallery__toolbar .hero-gallery__nav--previous {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .presentation .hero-gallery__toolbar .hero-gallery__nav--next {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .presentation .hero-gallery__toolbar .hero-gallery__counter {
+    grid-column: 4;
+    grid-row: 1;
+    justify-self: end;
+    font-size: 12px;
+  }
+  .presentation .hero-gallery__toolbar .hero-gallery__dots {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: 32px;
+  }
+  .presentation .hero-gallery__dots .hero-gallery__dot,
+  .presentation .hero-gallery__dots .hero-gallery__dot.is-active {
+    flex: 0 0 26px;
+    width: 26px;
+    min-width: 26px;
+    height: 32px;
+    min-height: 32px;
+  }
+  .presentation .hero-gallery__dots .hero-gallery__dot::after {
+    width: 6px;
+    height: 6px;
+  }
+  .presentation .hero-gallery__dots .hero-gallery__dot.is-active::after { width: 15px; }
+}
+@media (max-width: 360px) {
+  .presentation .hero-gallery__toolbar {
+    width: calc(100% - 24px);
+    grid-template-columns: repeat(3, 44px) minmax(42px, 1fr);
+    padding: 7px 8px;
+  }
+  .presentation .hero-gallery__dots .hero-gallery__dot,
+  .presentation .hero-gallery__dots .hero-gallery__dot.is-active {
+    flex-basis: 24px;
+    width: 24px;
+    min-width: 24px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .presentation .hero-gallery__dots .hero-gallery__dot::after { transition: none; }
+}

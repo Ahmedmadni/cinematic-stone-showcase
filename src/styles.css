@@ -12,6 +12,8 @@
 @import "./styles/editorial-rebuild.css";
 @import "./styles/ostool-identity.css";
 @import "./styles/hero-process-polish.css";
+@import "./styles/gallery-motion.css";
+@import "./styles/gallery-mobile-accessibility.css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -91,3 +91,33 @@
 - [x] Give the four equipment and three material chapters distinct scroll-progress zigzag/center reveals and reduced-motion fallbacks.
 - [x] Place three restrained geological and production blueprint motifs in light sections.
 - [ ] Check physical Safari and lower-end devices for mask compositing and performance before publication.
+
+
+## 2 October — cinematic autoplay gallery audit
+- [x] Replace the formerly stitched two-photo hero with **ten separate** full-bleed illustrative quarry photos, one image per frame. Use 10 existing locally sourced project assets, not invented licensed-site photos.
+- [x] Enable automatic hero sequence every 5.8 seconds, staggered editorial reveals, manual next/previous/10-dot navigation and an accessible play/pause control.
+- [x] Lazy-prefetch only the next hero photo for performance; the first LCP scene remains eager. Pause when off-screen, in a hidden browser tab or under reduced-motion settings.
+- [x] Ensure all six subject galleries have independent automatic timers and visible progress, plus manual controls and pause/play. Pause if hovered, keyboard focused, hidden, zoomed into a lightbox or reduced-motion.
+- [x] Let expanded GalleryLightbox automatically advance unless manually paused, hidden or reduced-motion.
+- [x] Confirm production-feature and fixed-background AutoVisual retain independent viewport-sensitive autoplay with explicit QA state.
+- [x] Add gentle 11.5-second automatic photo rotation for the three illustrative quarry cards, but freeze historic permit info immediately after visitor interaction.
+- [x] Refine gold/charcoal overlays, feathered borders, selective contrast, animation depth and the opacity of fixed ambience without drowning out the hero typography.
+- [x] Preserve scroll-driven four equipment and three production stages (not timed); auto-play must never hijack native scrolling.
+- [ ] Review desktop/mobile Chromium screenshot artifacts and confirm no motion regressions.
+- [ ] Check Safari, Firefox, real touch devices and restricted network on production before public release.
+- [ ] Replace all illustrative media with authorized real site and equipment footage when available, with updated attribution/captions.
+
+
+## Mobile swipe & accessibility follow-up — 2 October 2026
+- [x] Add passive, horizontal-only, direction-aware (LTR/RTL) swipe navigation for the ten-scene hero on touch phones; preserve native vertical scrolling.
+- [x] Add mobile swipe navigation to the native gallery lightbox; selecting a photo by touch pauses autoplay so visitors can read it.
+- [x] Match keyboard left/right lightbox navigation to page direction without mirroring or altering photographs.
+- [x] Increase tappable hero-dot areas from tiny decorative circles to at least 24px wide, keeping visually small 6–19px indicators.
+- [x] Arrange mobile hero controls into a responsive two-row layout and keep play/next/previous controls at least 44px.
+- [x] Pause hero autoplay while controls receive keyboard focus, but honor an explicit Play click immediately and then pause on the next focus interaction.
+- [x] Keep motion disabled when \`prefers-reduced-motion: reduce\` is active, with accessible manual navigation.
+- [x] Add pure LTR/RTL swipe threshold tests and Chromium browser assertions for actual synthetic mobile touch events, scroll safety, active frame, modal pause and small screens.
+- [x] Latest completed baseline verification: 23/23 Chromium checks; unit/TypeScript/scoped ESLint/production build successful.
+- [ ] Reverify latest clean head in CI after removing diagnostic instrumentation.
+- [ ] Manually verify gestures/visual styling on real iOS Safari, Android Chrome and Firefox before public sign-off.
+- [ ] Replace all illustrative quarry photographs with approved authentic site images before claiming real-site provenance.

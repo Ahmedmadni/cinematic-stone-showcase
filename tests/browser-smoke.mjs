@@ -68,13 +68,15 @@ try {
       const box = await iconButton.boundingBox();
       assert.ok(box && box.width >= 44 && box.height >= 44, "icon control must be touch accessible");
     }
-    assert.equal(await desktopPage.locator(".hero-media__breaker img").count(), 1);
-    assert.equal(await desktopPage.locator(".hero-media__loading img").count(), 1);
-    assert.match(await desktopPage.locator(".hero-media__breaker img").getAttribute("src") ?? "", /excavators/);
-    assert.match(await desktopPage.locator(".hero-media__loading img").getAttribute("src") ?? "", /loaders-maintenance/);
+    const carousel = desktopPage.locator(".hero-gallery");
+    assert.equal(await carousel.count(), 1);
+    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
+    assert.equal(await desktopPage.locator(".hero-media__breaker").count(), 0);
+    assert.equal(await desktopPage.locator(".hero-media__loading").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
-    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /Illustrative operational composite/);
-    await desktopPage.screenshot({ path: output + "/desktop-hero-two-operations-english.png", animations: "disabled" });
+    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /illustrative/i);
+    await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
   });
 
 
@@ -211,6 +213,32 @@ try {
     assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
   });
 
+  await caseRun("source photo backgrounds and quarry record gallery rotate only when visible", async () => {
+    const production = desktopPage.locator(".image-feature .auto-visual");
+    await production.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-playing") === "playing",
+      null, { timeout: 8000 });
+    const first = await production.getAttribute("data-auto-active");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-active") !== previous,
+      first, { timeout: 10200 });
+
+    const quarry = desktopPage.locator(".quarry-cards");
+    await quarry.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".quarry-cards")?.getAttribute("data-quarry-gallery-autoplay") === "playing",
+      null, { timeout: 8000 });
+    const initial = await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".quarry-cards__site.is-selected")?.getAttribute("aria-label") !== previous,
+      initial, { timeout: 14900 });
+    await quarry.locator(".quarry-cards__site").nth(1).click();
+    assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
+  });
+
   await caseRun("quarry permit photographic overview is no longer abstract tiles", async () => {
     const gallery = desktopPage.locator(".quarry-cards");
     await gallery.scrollIntoViewIfNeeded();
@@ -243,8 +271,7 @@ try {
 
   await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
-    const hero = desktopPage.locator(".hero-media__breaker img");
-    const loader = desktopPage.locator(".hero-media__loading img");
+    const hero = desktopPage.locator(".hero-gallery__photo--active");
     await hero.waitFor({ state: "visible" });
     const heroState = await hero.evaluate((image) => ({
       loaded: image instanceof HTMLImageElement && image.complete && image.naturalWidth >= 1200,
@@ -252,13 +279,11 @@ try {
       objectFit: getComputedStyle(image).objectFit,
       visible: getComputedStyle(image).visibility,
     }));
-    assert.ok(heroState.loaded, "hero photograph must decode at its original sharp resolution: " + JSON.stringify(heroState));
+    assert.ok(heroState.loaded, "hero first scene should be a sharp, documented illustrative image: " + JSON.stringify(heroState));
     assert.equal(heroState.objectFit, "cover");
     assert.equal(heroState.visible, "visible");
-    const loaderSharp = await loader.evaluate((img) => img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 1200);
-    assert.ok(loaderSharp, "separate wheel loader/dump-truck image must be sharp");
-    const seam = await desktopPage.locator(".hero-media__loading").evaluate(element => getComputedStyle(element).maskImage);
-    assert.ok(seam.includes("gradient"), "composite photo join must be feathered");
+    assert.equal(await desktopPage.locator(".hero-gallery__photo--active").count(), 1);
+    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
 
     for (const spec of [
       { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
@@ -294,6 +319,59 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
   });
 
+  await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
+    await openWithRetry(desktopPage, baseURL);
+    const carousel = desktopPage.locator(".hero-gallery");
+    await desktopPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
+    const first = await carousel.getAttribute("data-hero-active");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
+      first, { timeout: 10000 });
+    assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
+    const dots = desktopPage.locator(".hero-gallery__dots button");
+    assert.equal(await dots.count(), 10);
+    await dots.nth(7).click();
+    assert.equal(await carousel.getAttribute("data-hero-active"), "7");
+    assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
+    await desktopPage.locator(".hero-gallery__motion-toggle").click();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
+    await dots.nth(3).focus();
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "false", null, { timeout: 5000 });
+    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 5000 });
+    await desktopPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
+  });
+
+  await caseRun("all six subject galleries independently enable timed autoplay", async () => {
+    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+    assert.equal(await galleries.count(), 6);
+    for (let index = 0; index < 6; index++) {
+      const gallery = galleries.nth(index);
+      await gallery.scrollIntoViewIfNeeded();
+      await desktopPage.mouse.move(0, 0);
+      await desktopPage.waitForFunction(i => {
+        const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
+        return element?.getAttribute("data-gallery-autoplay") === "playing";
+      }, index, { timeout: 9000 });
+      assert.equal(await gallery.locator(".gallery-slide").count(), 2);
+      assert.equal(await gallery.getByRole("button", { name: /Pause.*slideshow|إيقاف عرض/ }).count(), 1);
+    }
+    const firstGallery = galleries.first();
+    await firstGallery.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
+    const initial = await firstGallery.getAttribute("data-gallery-active");
+    await desktopPage.waitForFunction(before =>
+      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-active") !== before,
+      initial, { timeout: 10500 });
+    await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
@@ -301,8 +379,13 @@ try {
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
-    await desktopPage.keyboard.press("ArrowLeft");
-    assert.match(await dialog.locator(".lightbox-toolbar").innerText(), /02\s*\/\s*02/);
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
+    const initial = await dialog.locator(".lightbox-toolbar .latin").innerText();
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
+      initial, { timeout: 10500 });
+    await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
     assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
@@ -376,6 +459,62 @@ try {
     assert.ok((await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5);
     await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
   });
+
+  await caseRun("real browser mobile swipe handlers preserve vertical page scroll", async () => {
+    await openWithRetry(motionPage, baseURL);
+    await motionPage.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    const hero = motionPage.locator(".hero-gallery");
+    const dots = motionPage.locator(".hero-gallery__dots .hero-gallery__dot");
+    assert.equal(await dots.count(), 10);
+    const dot = await dots.first().boundingBox();
+    assert.ok(dot && dot.width >= 24 && dot.height >= 30, "10 dots need substantial touch hit regions on a phone");
+    const start = Number(await hero.getAttribute("data-hero-active"));
+
+    async function dispatchSwipe(selector, fromX, toX, fromY, toY) {
+      await motionPage.evaluate(({selector,fromX,toX,fromY,toY}) => {
+        const element = document.querySelector(selector);
+        if (!element) throw new Error("Swipe target missing: " + selector);
+        function touchAt(x,y) {
+          return new Touch({ identifier: 1, target: element, clientX: x, clientY: y, pageX: x + scrollX, pageY: y + scrollY });
+        }
+        const start = touchAt(fromX, fromY), end = touchAt(toX, toY);
+        element.dispatchEvent(new TouchEvent("touchstart", {
+          bubbles: true, cancelable: true,
+          touches: [start], targetTouches: [start], changedTouches: [start],
+        }));
+        element.dispatchEvent(new TouchEvent("touchend", {
+          bubbles: true, cancelable: true,
+          touches: [], targetTouches: [], changedTouches: [end],
+        }));
+      }, { selector, fromX, toX, fromY, toY });
+    }
+
+    await dispatchSwipe(".hero-cinematic", 300, 110, 330, 340);
+    await motionPage.waitForFunction(previous =>
+      Number(document.querySelector(".hero-gallery")?.getAttribute("data-hero-active")) === ((previous + 1) % 10),
+      start, {timeout: 4500});
+    assert.equal(await hero.getAttribute("data-hero-playing"), "false", "manual swipe should pause autoplay");
+    const afterHorizontal = await hero.getAttribute("data-hero-active");
+    await dispatchSwipe(".hero-cinematic", 260, 246, 250, 400);
+    assert.equal(await hero.getAttribute("data-hero-active"), afterHorizontal, "vertical gestures must never change images");
+
+    // Inspect the enlarged gallery in the same touch-enabled browser.
+    const thumbnail = motionPage.locator(".gallery-image-button").first();
+    await thumbnail.scrollIntoViewIfNeeded();
+    await thumbnail.tap();
+    const dialog = motionPage.locator("dialog.gallery-lightbox--native");
+    await dialog.waitFor({state:"visible", timeout:9000});
+    const firstLabel = await dialog.locator(".lightbox-toolbar .latin").innerText();
+    await dispatchSwipe("dialog.gallery-lightbox .lightbox-content", 290, 110, 280, 290);
+    await motionPage.waitForFunction(previous => 
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
+      firstLabel, {timeout:4000});
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused", "manual lightbox swipe pauses playback");
+    await dialog.getByRole("button", {name:"Close image"}).click();
+    await dialog.waitFor({state:"hidden", timeout:4500});
+    await motionPage.screenshot({path: output + "/mobile-swipe-controls.png",animations:"disabled"});
+  });
+
   await fullMotionMobile.close();
 
   const mobile = await browser.newContext({
@@ -401,6 +540,19 @@ try {
     assert.equal(state.fogDisplay, "none");
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
+    assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
+    await mobilePage.locator(".hero-gallery__dots button").nth(5).tap();
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active"), "5");
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
+    await firstGallery.scrollIntoViewIfNeeded();
+    assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
+    const quarries = mobilePage.locator(".quarry-cards");
+    await quarries.scrollIntoViewIfNeeded();
+    assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");
+
     // All remaining reduced-motion map / permit checks intentionally exercise
     // the persisted Arabic alternative after checking new English default.
     await mobilePage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" }).click();
