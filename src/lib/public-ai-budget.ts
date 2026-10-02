@@ -27,7 +27,7 @@ export function createPublicAiBudget({
 
   function acquire(): Admission {
     const time = now();
-    while (acceptedAt.length && acceptedAt[0] <= time - WINDOW_MS) {
+    while (acceptedAt.length > 0 && (acceptedAt[0] ?? Number.POSITIVE_INFINITY) <= time - WINDOW_MS) {
       acceptedAt.shift();
     }
     if (active >= maxConcurrent) {
