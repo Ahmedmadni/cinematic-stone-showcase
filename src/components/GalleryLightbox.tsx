@@ -123,7 +123,7 @@ export function GalleryLightbox({
         <span className="latin" dir="ltr">
           {String(position).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </span>
-        <Button type="button" variant="ghost" aria-pressed={!manuallyPaused} aria-label={manuallyPaused ? (language === "en" ? "Resume gallery slideshow" : "تشغيل معرض الصور") : (language === "en" ? "Pause gallery slideshow" : "إيقاف معرض الصور")} onClick={() => setManuallyPaused(current => !current)}>{manuallyPaused ? <Play size={20} aria-hidden="true"/> : <Pause size={20} aria-hidden="true"/>}</Button>
+        <Button type="button" variant="ghost" disabled={!motionAllowed || total < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={manuallyPaused ? (language === "en" ? "Resume gallery slideshow" : "تشغيل معرض الصور") : (language === "en" ? "Pause gallery slideshow" : "إيقاف معرض الصور")} onClick={() => setManuallyPaused(current => !current)}>{manuallyPaused ? <Play size={20} aria-hidden="true"/> : <Pause size={20} aria-hidden="true"/>}</Button>
         <Button
           ref={closeRef}
           type="button"
