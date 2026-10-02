@@ -70,7 +70,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
         <div className="gallery-slide-arrows">
           <Button type="button" variant="ghost" aria-label={`${t("الصورة السابقة")}: ${title}`} onClick={() => choose(active - 1)}><ArrowRight size={19} /></Button>
           <Button type="button" variant="ghost" aria-label={`${t("الصورة التالية")}: ${title}`} onClick={() => choose(active + 1)}><ArrowLeft size={19} /></Button>
-          <Button type="button" variant="ghost" aria-pressed={!manuallyPaused} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
+          <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
         </div>
         <span className="gallery-slide-count latin" dir="ltr">{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
       </div>
