@@ -46,7 +46,6 @@ export function HeroGallery() {
   const [pageVisible, setPageVisible] = useState(true);
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [paused, setPaused] = useState(false);
-  const [controlsHovered, setControlsHovered] = useState(false);
   const [controlsFocused, setControlsFocused] = useState(false);
 
   useEffect(() => {
@@ -73,7 +72,7 @@ export function HeroGallery() {
     };
   }, []);
 
-  const playing = inView && pageVisible && motionAllowed && !paused && !controlsHovered && !controlsFocused;
+  const playing = inView && pageVisible && motionAllowed && !paused && !controlsFocused;
 
   useEffect(() => {
     if (!playing) return;
@@ -196,8 +195,6 @@ export function HeroGallery() {
         className="hero-gallery__toolbar"
         role="group"
         aria-label={language === "en" ? "Hero photo slideshow" : "عرض صور الهيرو"}
-        onMouseEnter={() => setControlsHovered(true)}
-        onMouseLeave={() => setControlsHovered(false)}
         onFocusCapture={() => setControlsFocused(true)}
         onBlurCapture={event => {
           if (!event.currentTarget.contains(event.relatedTarget)) setControlsFocused(false);
@@ -211,7 +208,6 @@ export function HeroGallery() {
             // Moving focus to a different gallery control pauses it again.
             setPaused(current => !current);
             setControlsFocused(false);
-            setControlsHovered(false);
           }}
           aria-label={isMotionPaused ? (language === "en" ? "Play hero slideshow" : "تشغيل صور الهيرو") : (language === "en" ? "Pause hero slideshow" : "إيقاف صور الهيرو")}
           aria-pressed={!paused && motionAllowed}
