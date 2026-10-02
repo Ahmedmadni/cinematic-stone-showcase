@@ -213,6 +213,32 @@ try {
     assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
   });
 
+  await caseRun("source photo backgrounds and quarry record gallery rotate only when visible", async () => {
+    const production = desktopPage.locator(".image-feature .auto-visual");
+    await production.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-playing") === "playing",
+      null, { timeout: 8000 });
+    const first = await production.getAttribute("data-auto-active");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-active") !== previous,
+      first, { timeout: 10200 });
+
+    const quarry = desktopPage.locator(".quarry-cards");
+    await quarry.scrollIntoViewIfNeeded();
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".quarry-cards")?.getAttribute("data-quarry-gallery-autoplay") === "playing",
+      null, { timeout: 8000 });
+    const initial = await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector(".quarry-cards__site.is-selected")?.getAttribute("aria-label") !== previous,
+      initial, { timeout: 14900 });
+    await quarry.locator(".quarry-cards__site").nth(1).click();
+    assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
+  });
+
   await caseRun("quarry permit photographic overview is no longer abstract tiles", async () => {
     const gallery = desktopPage.locator(".quarry-cards");
     await gallery.scrollIntoViewIfNeeded();
@@ -451,6 +477,19 @@ try {
     assert.equal(state.fogDisplay, "none");
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
+    assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
+    await mobilePage.locator(".hero-gallery__dots button").nth(5).tap();
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active"), "5");
+    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
+    await firstGallery.scrollIntoViewIfNeeded();
+    assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
+    const quarries = mobilePage.locator(".quarry-cards");
+    await quarries.scrollIntoViewIfNeeded();
+    assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");
+
     // All remaining reduced-motion map / permit checks intentionally exercise
     // the persisted Arabic alternative after checking new English default.
     await mobilePage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" }).click();
