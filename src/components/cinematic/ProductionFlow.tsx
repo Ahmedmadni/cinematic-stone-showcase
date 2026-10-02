@@ -18,7 +18,7 @@ const motionEvent = "somman:material-scene";
  * shared CinematicDirector; buttons work without motion or on touch screens.
  */
 export function ProductionFlow() {
-  const { t, language } = useSiteLanguage();
+  const { t } = useSiteLanguage();
   const [active, setActive] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const current = productionSteps[active] ?? productionSteps[0];
@@ -71,7 +71,7 @@ export function ProductionFlow() {
                   <button
                     key={step.id}
                     type="button"
-                    aria-label={"المرحلة " + step.number + " — " + step.title}
+                    aria-label={t("المرحلة") + " " + step.number + " — " + t(step.title)}
                     aria-pressed={active === index}
                     className={"production-flow__step" + (index === active ? " is-active" : "")}
                     onClick={() => chooseStep(index)}
@@ -92,7 +92,7 @@ export function ProductionFlow() {
               <img
                 src={stepPhotos[index]}
                 key={step.id}
-                alt={active === index ? "تصوير توضيحي لمرحلة " + step.title + " وليس صورة من الموقع" : ""}
+                alt={active === index ? t("تصوير توضيحي لمرحلة") + " " + t(step.title) + " — " + t("وليس صورة من الموقع") : ""}
                 aria-hidden={active !== index}
                 className={"production-flow__photo production-flow__photo--" + index + (index === active ? " is-active" : index === active - 1 ? " is-underlay" : "")}
                 loading="lazy"
