@@ -16,3 +16,16 @@
     animation: none !important;
   }
 }
+
+/* Disabled controls explicitly indicate why autoplay cannot be used.
+   Manual previous/next controls stay operational. */
+.presentation :is(
+  .hero-gallery__motion-toggle,
+  .gallery-slide-arrows button,
+  .quarry-cards__autoplay-tools button
+):disabled,
+.gallery-lightbox--native .lightbox-toolbar button:disabled {
+  opacity: .46;
+  cursor: not-allowed;
+  box-shadow: none;
+}
