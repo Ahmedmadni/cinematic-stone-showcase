@@ -38,6 +38,7 @@ const REVEAL_MS = 1300;
 export function HeroGallery() {
   const { language } = useSiteLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
+  const activeImageRef = useRef<HTMLImageElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const [active, setActive] = useState(0);
   const [outgoing, setOutgoing] = useState<number | null>(null);
@@ -89,6 +90,21 @@ export function HeroGallery() {
 
   const currentSrc = (scenes[active] ?? scenes[0]).src;
   const imageReady = loadedScene === currentSrc;
+
+  useEffect(() => {
+    // React 19 may stream/high-priority preload the first image before the
+    // client mounts. Its native load event is then already in the past.
+    // Read the intrinsic image state after hydration, not just onLoad.
+    const image = activeImageRef.current;
+    if (!image?.complete) return;
+    if (image.naturalWidth > 0) {
+      setLoadedScene(currentSrc);
+    } else if (active !== 0) {
+      setActive(0);
+      setOutgoing(null);
+      setPaused(true);
+    }
+  }, [active, currentSrc]);
 
   useEffect(() => {
     // Never remove the last valid frame before the incoming image finishes.
@@ -197,6 +213,7 @@ export function HeroGallery() {
         )}
         <img
           key={"current-" + active + "-" + sequence}
+          ref={activeImageRef}
           className={"hero-gallery__photo hero-gallery__photo--active" + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
           data-reveal={["lower-right", "centre", "upper-left", "soft-wipe"][active % 4]}
           src={current.src}
