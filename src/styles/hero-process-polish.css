@@ -1,0 +1,133 @@
+/*
+ * Al Somman – operationally accurate hero / icon-only utilities.
+ *
+ * The previous single hero image incorrectly pictured an excavator dumping
+ * directly into a wheel loader. Two distinct existing, labelled illustrative
+ * photographs now make the work sequence unambiguous:
+ * 1. hydraulic breaker loosens rock  2. loader fills a haul truck.
+ * This is a visual composite, not a photo of one actual Saudi job site.
+ */
+
+/* Keep the known-good high-res source images, but present independent scenes.
+   The feathered join avoids two hard-edged rectangular frames. */
+.presentation .hero-cinematic .hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+  background: #2d322e;
+}
+.presentation .hero-cinematic .hero-media__breaker,
+.presentation .hero-cinematic .hero-media__loading {
+  position: absolute;
+  inset-block: 0;
+  pointer-events: none;
+}
+.presentation .hero-cinematic .hero-media__breaker {
+  inset-inline: 0;
+  z-index: 0;
+}
+.presentation .hero-cinematic .hero-media__loading {
+  inset-inline-start: 45%;
+  inset-inline-end: 0;
+  z-index: 1;
+  -webkit-mask-image: linear-gradient(to right,transparent 0%,rgba(0,0,0,.16) 10%,rgba(0,0,0,.72) 23%,black 39%);
+  mask-image: linear-gradient(to right,transparent 0%,rgba(0,0,0,.16) 10%,rgba(0,0,0,.72) 23%,black 39%);
+}
+.presentation .hero-cinematic .hero-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 22% 54%;
+  filter: saturate(1.07) contrast(1.09) brightness(1.055);
+  transform: scale(1.015);
+}
+.presentation .hero-cinematic .hero-media__loading img {
+  object-position: 66% 52%;
+  transform: scale(1.01);
+}
+.presentation .hero-cinematic .hero-media__soft-joint {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 43%;
+  width: 10%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(to right,transparent,rgba(241,206,141,.035) 53%,transparent);
+}
+/* Text-local contrast, significantly less global photographic haze. */
+.presentation[data-language="en"] .hero-cinematic::before {
+  background:
+    linear-gradient(90deg,rgba(11,17,18,.81) 0%,rgba(11,17,18,.61) 31%,rgba(11,17,18,.16) 57%,transparent 84%),
+    linear-gradient(0deg,rgba(12,16,18,.56),transparent 22%,transparent 81%,rgba(12,16,18,.12));
+}
+.presentation[data-language="ar"] .hero-cinematic::before {
+  background:
+    linear-gradient(270deg,rgba(11,17,18,.81) 0%,rgba(11,17,18,.61) 31%,rgba(11,17,18,.16) 57%,transparent 84%),
+    linear-gradient(0deg,rgba(12,16,18,.56),transparent 22%,transparent 81%,rgba(12,16,18,.12));
+}
+/* Less mist over the site-wide, parallax quarry backdrop (only a small change
+   to avoid making the light foreground sections difficult to read). */
+.presentation .scene-shade {
+  background:
+    linear-gradient(90deg,rgba(244,240,230,.32) 0%,rgba(244,240,230,.71) 87%),
+    linear-gradient(0deg,rgba(244,240,230,.84),transparent 43%,rgba(244,240,230,.23));
+}
+.presentation .scene-visual .auto-visual-frame {
+  filter: saturate(.97) contrast(1.07);
+}
+
+/* Language and assistant: accessible, round, icon-only by design. */
+.somman-floating-tools {
+  align-items:center;
+  gap:11px;
+}
+.somman-floating-tools .somman-tool,
+.somman-floating-tools .somman-tool--assistant,
+.somman-floating-tools .somman-tool--language {
+  width:52px;
+  height:52px;
+  min-width:52px;
+  min-height:52px;
+  padding:0;
+  display:grid;
+  place-items:center;
+  gap:0;
+  border-radius:50%;
+  aspect-ratio:1;
+}
+.somman-floating-tools .somman-tool svg {width:23px;height:23px;}
+.somman-floating-tools .somman-tool:hover {
+  box-shadow:0 9px 32px rgba(18,19,18,.33),0 0 0 3px rgba(245,181,27,.14);
+}
+.somman-floating-tools .somman-tool:active {transform:scale(.96);}
+.somman-assistant-drawer .assistant-head,
+.somman-assistant-drawer .assistant-suggestions {color:#252525;}
+
+@media(max-width:760px) {
+  .presentation .hero-cinematic .hero-media__loading {
+    inset-inline-start: 46%;
+    -webkit-mask-image:linear-gradient(to right,transparent,rgba(0,0,0,.7) 25%,#000 48%);
+    mask-image:linear-gradient(to right,transparent,rgba(0,0,0,.7) 25%,#000 48%);
+  }
+  .presentation .hero-cinematic .hero-media__breaker img {object-position:17% 52%;}
+  .presentation .hero-cinematic .hero-media__loading img {object-position:66% 52%;}
+  .presentation[data-language="en"] .hero-cinematic::before {
+    background:linear-gradient(0deg,rgba(11,17,18,.86) 0%,rgba(11,17,18,.56) 43%,rgba(11,17,18,.06) 100%);
+  }
+  .presentation[data-language="ar"] .hero-cinematic::before {
+    background:linear-gradient(0deg,rgba(11,17,18,.86) 0%,rgba(11,17,18,.56) 43%,rgba(11,17,18,.06) 100%);
+  }
+  .somman-floating-tools .somman-tool,
+  .somman-floating-tools .somman-tool--assistant,
+  .somman-floating-tools .somman-tool--language {
+    width:46px;height:46px;min-width:46px;min-height:46px;
+  }
+}
+@media(prefers-reduced-motion:reduce) {
+  .presentation .hero-cinematic .hero-media img {transform:none!important;}
+  .somman-floating-tools .somman-tool:active {transform:none;}
+}
