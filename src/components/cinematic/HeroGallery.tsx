@@ -206,7 +206,13 @@ export function HeroGallery() {
         <button
           type="button"
           className="hero-gallery__motion-toggle"
-          onClick={() => setPaused(p => !p)}
+          onClick={() => {
+            // Explicit Play should work even while focus remains on this button.
+            // Moving focus to a different gallery control pauses it again.
+            setPaused(current => !current);
+            setControlsFocused(false);
+            setControlsHovered(false);
+          }}
           aria-label={isMotionPaused ? (language === "en" ? "Play hero slideshow" : "تشغيل صور الهيرو") : (language === "en" ? "Pause hero slideshow" : "إيقاف صور الهيرو")}
           aria-pressed={!paused && motionAllowed}
           title={language === "en" ? (paused ? "Play" : "Pause") : (paused ? "تشغيل" : "إيقاف")}
