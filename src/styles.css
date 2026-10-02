@@ -14,6 +14,7 @@
 @import "./styles/hero-process-polish.css";
 @import "./styles/gallery-motion.css";
 @import "./styles/gallery-mobile-accessibility.css";
+@import "./styles/hero-loading-safety.css";
 
 @custom-variant dark (&:is(.dark *));
 
