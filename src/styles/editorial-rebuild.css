@@ -43,8 +43,7 @@
 .production-flow__photo--0.is-active {
   clip-path: polygon(100% 100%, calc(105% - var(--chapter-wipe) * 130%) 100%, calc(117% - var(--chapter-wipe) * 130%) 77%, calc(112% - var(--chapter-wipe) * 130%) 73%, calc(131% - var(--chapter-wipe) * 130%) 47%, calc(125% - var(--chapter-wipe) * 130%) 43%, calc(146% - var(--chapter-wipe) * 160%) 0, 100% 0);
 }
-.presentation .fleet-experience__image--0.is-active,
-.production-flow__photo--0.is-active { clip-path: none; }
+/* Keep scene 01's entry mask: it was accidentally cancelled by a reset. */
 /* 02: a stepped central aperture expands outwards. */
 .presentation .fleet-experience__image--1.is-active,
 .production-flow__photo--1.is-active {
@@ -104,4 +103,43 @@
   .production-flow--story .production-flow__photo.is-active { clip-path: none !important; -webkit-mask-image: none !important; mask-image: none !important; transform: none !important; }
   .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
   .production-flow--story .production-flow__photo.is-underlay { opacity: 0; visibility: hidden; }
+}
+
+/* Layer audit: isolate both stage canvases so the masks never render behind
+   an ancestor background. Explicit nonnegative image layers also keep
+   Chrome, Safari and Firefox stacking behavior consistent. */
+.presentation .fleet-experience__scroll .fleet-experience__stage,
+.production-flow--story .production-flow__visual { isolation: isolate; }
+.presentation .fleet-experience__scroll .fleet-experience__image,
+.production-flow--story .production-flow__photo { z-index: 0; }
+.presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
+.production-flow--story .production-flow__photo.is-underlay { z-index: 0; }
+.presentation .fleet-experience__scroll .fleet-experience__image.is-active,
+.production-flow--story .production-flow__photo.is-active { z-index: 1; }
+.presentation .fleet-experience__scroll .fleet-experience__shade,
+.production-flow--story .production-flow__photo-shade { z-index: 2; }
+.presentation .fleet-experience__scroll .cinema-atmosphere--fleet { z-index: 2; }
+.presentation .fleet-experience__scroll :is(.fleet-experience__headline, .fleet-experience__photo-note, .fleet-experience__corners, .fleet-experience__stage-number),
+.production-flow--story :is(.production-flow__photo-header, .production-flow__photo-info) { z-index: 3; }
+.production-flow--story :is(.production-flow__stage-progress, .production-flow__visual-marker) { z-index: 5; }
+
+/* During the first 15% of the first scroll chapter an oblique opening photo
+   emerges over a low-contrast quarry overview rather than a blank black card. */
+.presentation .fleet-experience__scroll .fleet-experience__stage {
+  background: linear-gradient(rgba(13, 23, 27, .63), rgba(13, 23, 27, .63)), url("../assets/quarry-aerial.jpg") center / cover #162225;
+}
+.production-flow--story .production-flow__visual {
+  background: linear-gradient(rgba(16, 27, 28, .67), rgba(16, 27, 28, .67)), url("../assets/quarry-aerial-alt.jpg") center / cover #18232a;
+}
+/* Provide a subtle soft leading edge along chapter 01's stepped diagonal. */
+@supports (mask-image: linear-gradient(#000,transparent)) {
+  .presentation .fleet-experience__image--0.is-active,
+  .production-flow--story .production-flow__photo--0.is-active {
+    -webkit-mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
+    mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .production-flow--story .production-flow__photo.is-active,
+  .presentation .fleet-experience__scroll .fleet-experience__image.is-active { clip-path:none !important; -webkit-mask-image:none !important; mask-image:none !important; }
 }
