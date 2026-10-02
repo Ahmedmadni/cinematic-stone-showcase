@@ -84,7 +84,7 @@ export function MapExperience() {
         <div className="somman-location-experience__google">
           <div className="somman-location-experience__panel-title">
             <div><span className="latin" dir="ltr">01 / GOOGLE MAPS</span><h3>{t("خريطة القمر الصناعي")}</h3></div>
-            <button type="button" onClick={() => setMapAllowed((enabled) => !enabled)} aria-pressed={mapAllowed} className="somman-location-experience__privacy-toggle">{mapAllowed ? "إخفاء الخريطة" : "إظهار الخريطة"}</button>
+            <button type="button" onClick={() => setMapAllowed((enabled) => !enabled)} aria-pressed={mapAllowed} className="somman-location-experience__privacy-toggle">{mapAllowed ? t("إخفاء الخريطة") : t("إظهار الخريطة")}</button>
             <a href={googleMapsOpenUrl} target="_blank" rel="noopener noreferrer" aria-label={t("فتح موقع المحجر الاسترشادي في خرائط Google بنافذة جديدة")}>
               {t("فتح الخريطة")} <ExternalLink size={16} aria-hidden="true"/>
             </a>
