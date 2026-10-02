@@ -1,4 +1,5 @@
 import { useRef, useState, type FormEvent } from "react";
+import { useSiteLanguage } from "@/lib/site-language";
 import { ArrowUpLeft, Pickaxe, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -8,6 +9,7 @@ type Message = { role: "user" | "assistant"; content: string };
 const suggestions = ["كم عدد المحاجر ومساحاتها؟", "ما المعدات المتوفرة في الموقع؟", "ما الشهادات التي يحملها المشروع؟", "أين يقع المحجر بالتحديد؟"];
 
 export function ProjectAssistant() {
+  const { language, t } = useSiteLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,7 +30,7 @@ export function ProjectAssistant() {
       const res = await fetch("/api/public/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, history }),
+        body: JSON.stringify({ question: q, history, language }),
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
@@ -86,36 +88,36 @@ export function ProjectAssistant() {
     <div className="assistant-panel">
       <div className="assistant-head">
         <span className="assistant-mark" aria-hidden="true"><Pickaxe size={20} strokeWidth={1.5} /></span>
-        <div><strong>مساعد الصمان</strong><small>يجيب من معلومات المشروع المعتمدة فقط</small></div>
+        <div><strong>{t("مساعد الصمان")}</strong><small>{t("يجيب من معلومات المشروع المعتمدة فقط")}</small></div>
       </div>
       <div className="assistant-log" aria-live="polite">
         {messages.length === 0 ? (
           <div className="assistant-empty">
-            <p className="assistant-prompt-title">اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل</p>
-            <div className="assistant-suggestions" role="group" aria-label="الأسئلة المقترحة">
+            <p className="assistant-prompt-title">{t("اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل")}</p>
+            <div className="assistant-suggestions" role="group" aria-label={t("الأسئلة المقترحة")}>
               {suggestions.map((s) => (
-                <button type="button" key={s} onClick={() => void ask(s)}>
-                  <span>{s}</span><ArrowUpLeft size={17} strokeWidth={1.6} aria-hidden="true" />
+                <button type="button" key={s} onClick={() => void ask(t(s))}>
+                  <span>{t(s)}</span><ArrowUpLeft size={17} strokeWidth={1.6} aria-hidden="true" />
                 </button>
               ))}
             </div>
           </div>
         ) : messages.map((m, i) => (
           <div key={i} className={`assistant-msg ${m.role}`}>
-            {m.content || (loading && i === messages.length - 1 ? <span className="assistant-typing">جارٍ إعداد الإجابة…</span> : null)}
+            {m.content || (loading && i === messages.length - 1 ? <span className="assistant-typing">{t("جارٍ إعداد الإجابة…")}</span> : null)}
           </div>
         ))}
       </div>
       {error && <p className="assistant-error" role="alert">{error}</p>}
       <form className="assistant-form" onSubmit={onSubmit}>
-        <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={500} rows={2} placeholder="اكتب سؤالك عن المحجر أو الكسارة…" aria-label="سؤالك عن المشروع" onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(question); } }} />
+        <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={500} rows={2} placeholder={t("اكتب سؤالك عن المحجر أو الكسارة…")} aria-label={t("سؤالك عن المشروع")} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(question); } }} />
         {loading ? (
-          <Button type="button" variant="outline" size="icon" aria-label="إيقاف" onClick={() => abortRef.current?.abort()}><Square size={16} /></Button>
+          <Button type="button" variant="outline" size="icon" aria-label={t("إيقاف")} onClick={() => abortRef.current?.abort()}><Square size={16} /></Button>
         ) : (
-          <Button type="submit" size="icon" aria-label="إرسال السؤال" disabled={question.trim().length < 3}><ArrowUpLeft size={18} /></Button>
+          <Button type="submit" size="icon" aria-label={t("إرسال السؤال")} disabled={question.trim().length < 3}><ArrowUpLeft size={18} /></Button>
         )}
       </form>
-      <p className="assistant-note">إجابات آلية للاسترشاد. التفاصيل المالية تُناقش مباشرة مع مسؤول الاستثمار.</p>
+      <p className="assistant-note">{t("إجابات آلية للاسترشاد. التفاصيل المالية تُناقش مباشرة مع مسؤول الاستثمار.")}</p>
     </div>
   );
 }
