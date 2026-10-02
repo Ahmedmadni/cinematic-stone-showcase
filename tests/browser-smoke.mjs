@@ -192,7 +192,7 @@ try {
   await caseRun("question suggestions are readable in the floating assistant", async () => {
     // The assistant used to be inline. It now starts in a closed drawer and
     // keeps the conversation until a reload; reopen a fresh session for chips.
-    await desktopPage.reload({ waitUntil: "domcontentloaded" });
+    await openWithRetry(desktopPage, baseURL);
     const open = desktopPage.getByRole("button", { name: "فتح مساعد الصمان" });
     await open.click();
     const qa = desktopPage.locator("#somman-assistant-drawer");
