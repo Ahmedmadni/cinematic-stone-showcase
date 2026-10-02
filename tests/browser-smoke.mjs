@@ -84,6 +84,53 @@ try {
     assert.ok(sample > 0.15 && sample < 0.85, "bridge progress should be mid-transition: " + sample);
   });
 
+
+  await caseRun("four fleet chapters scrub on native desktop scroll", async () => {
+    const track = desktopPage.locator("#fleet-scroll-track");
+    const stage = desktopPage.locator("#equipment-experience");
+    assert.ok(await track.count() === 1);
+    for (let index = 0; index < 4; index++) {
+      await desktopPage.evaluate((scene) => {
+        const node = document.getElementById("fleet-scroll-track");
+        if (!node) throw new Error("Fleet scroll track is missing");
+        const rect = node.getBoundingClientRect();
+        const start = window.scrollY + rect.top;
+        const travel = rect.height - window.innerHeight;
+        window.scrollTo({ top: start + travel * ((scene + .5) / 4), behavior: "instant" });
+      }, index);
+      await desktopPage.waitForFunction((scene) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === String(scene)
+        && document.querySelectorAll("#equipment-experience .fleet-experience__selector.is-selected")[0]
+          === document.querySelectorAll("#equipment-experience .fleet-experience__selector")[scene],
+        index, { timeout: 12000, polling: "raf" });
+      assert.equal(await stage.locator(".fleet-experience__image.is-active").count(), 1);
+      assert.equal(await stage.locator(".fleet-experience__selector").nth(index).getAttribute("aria-pressed"), "true");
+      assert.match(await stage.locator(".fleet-experience__counter").innerText(), new RegExp("المشهد " + (index + 1) + " من 4"));
+      if (index === 1 || index === 3) {
+        await desktopPage.screenshot({
+          path: output + "/desktop-fleet-scene-" + (index + 1) + ".png",
+          animations: "disabled",
+        });
+      }
+    }
+    assert.equal(await stage.locator(".fleet-experience__composition").evaluate(
+      (element) => getComputedStyle(element).position
+    ), "sticky");
+  });
+
+  await caseRun("fleet chapter buttons navigate back without hijacking scroll", async () => {
+    const first = desktopPage.locator("#equipment-experience .fleet-experience__selector").first();
+    await first.click();
+    await desktopPage.waitForFunction(() =>
+      document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === "0"
+      && document.querySelector("#equipment-experience .fleet-experience__selector")?.getAttribute("aria-pressed") === "true",
+      null, { timeout: 13000, polling: "raf" });
+    const p = await desktopPage.locator(".presentation").evaluate((root) =>
+      Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-fleet-progress"))
+    );
+    assert.ok(p >= 0 && p < .25, "manual navigation should land inside first scene, got " + p);
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
@@ -116,6 +163,43 @@ try {
 
   await desktop.close();
 
+
+  const touchMotion = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+    deviceScaleFactor: 1,
+    isMobile: true,
+    hasTouch: true,
+    reducedMotion: "no-preference",
+    locale: "ar-SA",
+  });
+  const touchMotionPage = await touchMotion.newPage();
+  await caseRun("mobile touch scroll changes equipment chapters", async () => {
+    await openWithRetry(touchMotionPage, baseURL);
+    for (const index of [1, 3]) {
+      await touchMotionPage.evaluate((scene) => {
+        const track = document.getElementById("fleet-scroll-track");
+        if (!track) throw new Error("Mobile fleet track missing");
+        const r = track.getBoundingClientRect();
+        const start = window.scrollY + r.top;
+        const travel = r.height - window.innerHeight;
+        window.scrollTo({ top: start + travel * ((scene + .5) / 4), behavior: "instant" });
+      }, index);
+      await touchMotionPage.waitForFunction((scene) =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === String(scene)
+        && document.querySelectorAll(".fleet-experience__selector.is-selected")[0]
+          === document.querySelectorAll(".fleet-experience__selector")[scene],
+        index, { timeout: 12000, polling: "raf" });
+    }
+    const state = await touchMotionPage.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+      sticky: getComputedStyle(document.querySelector(".fleet-experience__composition")).position,
+    }));
+    assert.ok(state.overflow <= 5, "mobile fleet introduced horizontal overflow " + state.overflow);
+    assert.equal(state.sticky, "sticky");
+    await touchMotionPage.screenshot({ path: output + "/mobile-fleet-scroll.png", animations: "disabled" });
+  });
+  await touchMotion.close();
+
   const mobile = await browser.newContext({
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
@@ -147,6 +231,20 @@ try {
     await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).tap();
     assert.ok(await studio.locator(".evidence-studio__check-detail").isVisible());
     assert.equal(await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).getAttribute("aria-pressed"), "true");
+  });
+
+
+  await caseRun("reduced-motion equipment remains manually selectable without pinning", async () => {
+    const section = mobilePage.locator("#equipment-experience");
+    await section.scrollIntoViewIfNeeded();
+    assert.notEqual(await section.locator(".fleet-experience__composition").evaluate(
+      (element) => getComputedStyle(element).position
+    ), "sticky");
+    const last = section.locator(".fleet-experience__selector").nth(3);
+    await last.tap();
+    assert.equal(await last.getAttribute("aria-pressed"), "true");
+    assert.match(await section.locator(".fleet-experience__detail").innerText(), /مولدات/);
+    assert.equal(await section.locator(".fleet-experience__image.is-active").count(), 1);
   });
 
   await mobile.close();
