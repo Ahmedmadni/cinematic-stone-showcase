@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle } from "lucide-react";
-import { useEffect, useState, type FormEvent } from "react";
+import { ArrowDownLeft, ArrowLeft, ArrowUpLeft, Mail, MapPin, Phone, MoveDownRight, MessageCircle, Languages, Bot, X } from "lucide-react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { SiteLanguageContext, translateSite, type SiteLanguage } from "@/lib/site-language";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -110,6 +111,11 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 }
 
 function Index() {
+  const [language, setLanguage] = useState<SiteLanguage>("ar");
+  const [assistantOpen, setAssistantOpen] = useState(false);
+  const assistantTrigger = useRef<HTMLButtonElement>(null);
+  const assistantClose = useRef<HTMLButtonElement>(null);
+  const t = (value: string) => translateSite(value, language);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [readyInquiry, setReadyInquiry] = useState<InquiryInput | null>(null);
@@ -159,12 +165,38 @@ function Index() {
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    try { if (localStorage.getItem("somman:language") === "en") setLanguage("en"); }
+    catch { /* Storage is optional. */ }
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.title = language === "en" ? "Al Somman Quarry | Investment Opportunity — Al Ostool Alaali" : "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي";
+    try { localStorage.setItem("somman:language", language); } catch { /* optional */ }
+  }, [language]);
+
+  useEffect(() => {
+    if (assistantOpen) assistantClose.current?.focus();
+  }, [assistantOpen]);
+
+  useEffect(() => {
+    if (!assistantOpen) return;
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setAssistantOpen(false); assistantTrigger.current?.focus(); }
+    };
+    window.addEventListener("keydown", handleKey);
+    return () => window.removeEventListener("keydown", handleKey);
+  }, [assistantOpen]);
+
   const links = readyInquiry ? contactLinks(readyInquiry) : null;
   const selectedGallery = selectedImage ? siteGallery[selectedImage.item] : undefined;
   const selectedSlide = selectedImage ? selectedGallery?.slides[selectedImage.slide] : undefined;
 
   return (
-    <div className="presentation" dir="rtl">
+    <SiteLanguageContext.Provider value={{ language, t }}>
+    <div className="presentation" dir={language === "ar" ? "rtl" : "ltr"} data-language={language}>
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
         <AutoVisual className="scene-visual" interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
@@ -172,10 +204,10 @@ function Index() {
       </div>
 
       <header className="site-header">
-        <a href="#البداية" className="brand" aria-label="العودة إلى بداية العرض">
-          <img className="brand-logo" src={logoAsset.url} width={1804} height={2338} alt="شعار شركة الأسطول الآلي" /><span className="brand-project">محجر الصمان</span>
+        <a href="#البداية" className="brand" aria-label={t("العودة إلى بداية العرض")}>
+          <img className="brand-logo" src={logoAsset.url} width={1804} height={2338} alt={t("شعار شركة الأسطول الآلي")} /><span className="brand-project">{t("محجر الصمان")}</span>
         </a>
-        <a className="header-contact" href="#التواصل">تواصل للاستفسار <ArrowUpLeft size={17} strokeWidth={1.5} /></a>
+        <a className="header-contact" href="#التواصل">{t("تواصل للاستفسار")} <ArrowUpLeft size={17} strokeWidth={1.5} /></a>
       </header>
 
       <main>
@@ -186,27 +218,27 @@ function Index() {
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
-            <span className="photo-placeholder hero-photo-label">صورة تجريبية · منظر عام لمحجر الصمان</span>
-            <div className="hero-kicker"><span className="kicker-dot" /> أصل صناعي في قلب الصمان <span className="kicker-rule" /></div>
-            <h1 id="hero-title"><span className="cinema-title-line">محجر <em>الصمان</em></span><span className="hero-title-second cinema-title-line">قوّةٌ من الأرض.</span></h1>
-            <p className="hero-lead">فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.</p>
-            <a className="hero-discover" data-cinema-magnetic="true" href="#الفرصة"><span className="discover-icon"><MoveDownRight size={21} strokeWidth={1.4} /></span><span>استكشف الفرصة</span></a>
+            <span className="photo-placeholder hero-photo-label">{t("صورة تجريبية · منظر عام لمحجر الصمان")}</span>
+            <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
+            <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em>{t("الصمان")}</em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
+            <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
+            <a className="hero-discover" data-cinema-magnetic="true" href="#الفرصة"><span className="discover-icon"><MoveDownRight size={21} strokeWidth={1.4} /></span><span>{t("استكشف الفرصة")}</span></a>
           </div>
-          <div className="hero-bottom"><span>شركة الأسطول الآلي <span className="hero-bottom-divider">/</span> شركة مساهمة مقفلة</span><span className="latin" dir="ltr">25°30′ N — 48°21′ E</span></div>
+          <div className="hero-bottom"><span>{t("شركة الأسطول الآلي")} <span className="hero-bottom-divider">/</span> {t("شركة مساهمة مقفلة")}</span><span className="latin" dir="ltr">25°30′ N — 48°21′ E</span></div>
         </section>
 
         <section className="overview section-pad" id="الفرصة">
           <div className="section-inner">
-            <Eyebrow number="01 / 06">الفرصة</Eyebrow>
+            <Eyebrow number="01 / 06">{t("الفرصة")}</Eyebrow>
             <div className="overview-grid">
-              <h2 className="section-heading reveal">ليست مجرد كسارة.<br /><span>إنها منظومة إنتاج.</span></h2>
+              <h2 className="section-heading reveal">{t("ليست مجرد كسارة.")}<br /><span>{t("إنها منظومة إنتاج.")}</span></h2>
               <div className="overview-copy reveal">
-                <p>في منطقة الصمان، يتكامل الاستخراج والتكسير والفرز والتحميل ضمن أصل تشغيلي واحد لإنتاج البحص بمختلف أحجامه، بما يخدم مشاريع الطرق والإنشاءات.</p>
-                <p>ثلاثة محاجر وخطا كسارات، تدعمهما معدات ثقيلة ومرافق تشغيلية على أرض الموقع.</p>
+                <p>{t("في منطقة الصمان، يتكامل الاستخراج والتكسير والفرز والتحميل ضمن أصل تشغيلي واحد لإنتاج البحص بمختلف أحجامه، بما يخدم مشاريع الطرق والإنشاءات.")}</p>
+                <p>{t("ثلاثة محاجر وخطا كسارات، تدعمهما معدات ثقيلة ومرافق تشغيلية على أرض الموقع.")}</p>
               </div>
             </div>
             <div className="facts-grid">
-              {facts.map((fact) => <div className="fact reveal" key={fact.label}><div className="fact-number"><b>{fact.number}</b><span>{fact.unit}</span></div><p>{fact.label}</p></div>)}
+              {facts.map((fact) => <div className="fact reveal" key={t(fact.label)}><div className="fact-number"><b>{fact.number}</b><span>{t(fact.unit)}</span></div><p>{t(fact.label)}</p></div>)}
             </div>
           </div>
         </section>
@@ -215,13 +247,13 @@ function Index() {
 
         <section className="visual-chapter section-pad production-cinematic" aria-labelledby="production-title">
           <div className="section-inner">
-            <Eyebrow number="02 / 06">القدرة التشغيلية</Eyebrow>
-            <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">من الحجر الخام<br /><span>إلى قيمة تُبنى.</span></h2><p>خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.</p></div>
+            <Eyebrow number="02 / 06">{t("القدرة التشغيلية")}</Eyebrow>
+            <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">{t("من الحجر الخام")}<br /><span>{t("إلى قيمة تُبنى.")}</span></h2><p>{t("خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.")}</p></div>
             <figure className="image-feature reveal">
-              <div className="image-window"><span className="photo-placeholder">صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" }, { image: crushingPlantAlt, alt: "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر" }]} /></div>
-              <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>خطا الكسارات والفرز — مجمع كسارات الصمان <small>صورة بديلة للتحديث</small></span></figcaption>
+              <div className="image-window"><span className="photo-placeholder">{t("صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان")}</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر" }, { image: crushingPlantAlt, alt: "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر" }]} /></div>
+              <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>{t("خطا الكسارات والفرز — مجمع كسارات الصمان")} <small>{t("صورة بديلة للتحديث")}</small></span></figcaption>
             </figure>
-            <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>خطان للإنتاج</h3></div><p>كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
+            <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>{t("خطان للإنتاج")}</h3></div><p>{t("كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.")}</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
             <ProductionFlow />
           </div>
         </section>
@@ -232,12 +264,12 @@ function Index() {
 
         <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
           <div className="section-inner">
-            <Eyebrow number="04 / 06">مشاهد من المنظومة</Eyebrow>
-            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">ما وراء خطوط الإنتاج.<br /><span>موقعٌ متكامل.</span></h2><p>معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.</p></div>
+            <Eyebrow number="04 / 06">{t("مشاهد من المنظومة")}</Eyebrow>
+            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">{t("ما وراء خطوط الإنتاج.")}<br /><span>{t("موقعٌ متكامل.")}</span></h2><p>{t("معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.")}</p></div>
             <div className="site-gallery">
               {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
-                <GallerySlides slides={item.slides} title={item.title} replacement={item.replacement} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
-                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{item.title}</h3><p>{item.description}</p></div><small>تُستبدل بصورة: {item.replacement}</small></figcaption>
+                <GallerySlides slides={item.slides.map(slide => ({ ...slide, label: t(slide.label) }))} title={t(item.title)} replacement={t(item.replacement)} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>تُستبدل بصورة: {t(item.replacement)}</small></figcaption>
               </figure>)}
             </div>
           </div>
@@ -245,11 +277,11 @@ function Index() {
 
         <section className="location-chapter section-pad" aria-labelledby="location-title">
           <div className="section-inner">
-            <Eyebrow number="05 / 06">الموقع والمحاجر</Eyebrow>
-            <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">الصمان،<br /><span>حيث تبدأ الحكاية.</span></h2><p>مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
+            <Eyebrow number="05 / 06">{t("الموقع والمحاجر")}</Eyebrow>
+            <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">{t("الصمان،")}<br /><span>{t("حيث تبدأ الحكاية.")}</span></h2><p>{t("مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.")}</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
             <MapExperience />
             <QuarryAtlas />
-            <p className="license-note reveal">المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.</p>
+            <p className="license-note reveal">{t("المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.")}</p>
           </div>
         </section>
 
@@ -259,8 +291,8 @@ function Index() {
 
         <section className="assistant-chapter section-pad" id="اسأل" aria-labelledby="assistant-title">
           <div className="section-inner assistant-layout reveal">
-            <div><Eyebrow number="Q / A">اسأل عن المشروع</Eyebrow><h2 className="section-heading" id="assistant-title">لديك سؤال؟<br /><span>اسأل مباشرة.</span></h2><p className="assistant-intro">اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.</p></div>
-            <ProjectAssistant />
+            <div><Eyebrow number="Q / A">{t("اسأل عن المشروع")}</Eyebrow><h2 className="section-heading" id="assistant-title">{t("لديك سؤال؟")}<br /><span>{t("اسأل مباشرة.")}</span></h2><p className="assistant-intro">{t("اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.")}</p></div>
+            <div className="assistant-inline-cta"><Bot size={34} strokeWidth={1.4} aria-hidden="true" /><p>{t("مساعد الصمان")} — {t("يجيب من معلومات المشروع المعتمدة فقط")}</p><button type="button" onClick={() => setAssistantOpen(true)}>{t("اسأل مساعد الصمان")} <ArrowUpLeft size={18} aria-hidden="true" /></button></div>
           </div>
         </section>
 
@@ -270,25 +302,25 @@ function Index() {
         <section className="contact-chapter section-pad" id="التواصل" aria-labelledby="contact-title">
           <div className="section-inner contact-layout reveal">
             <div className="contact-content">
-              <div className="contact-kicker"><span className="kicker-dot" /> الخطوة التالية</div>
-              <h2 id="contact-title">لنبدأ <em>الحديث.</em></h2>
-              <p>مهتم بفرصة محجر الصمان؟ اترك بياناتك، ثم اختر التواصل مع مسؤول الاستثمار عبر البريد الإلكتروني أو واتساب.</p>
+              <div className="contact-kicker"><span className="kicker-dot" /> {t("الخطوة التالية")}</div>
+              <h2 id="contact-title">{t("لنبدأ")} <em>{t("الحديث.")}</em></h2>
+              <p>{t("مهتم بفرصة محجر الصمان؟ اترك بياناتك، ثم اختر التواصل مع مسؤول الاستثمار عبر البريد الإلكتروني أو واتساب.")}</p>
               <div className="contact-direct"><a href="mailto:info@alostool.com.sa?subject=استفسار%20عن%20فرصة%20محجر%20الصمان"><Mail size={17} /> info@alostool.com.sa</a><a href="tel:920026556" dir="ltr"><Phone size={17} /> 920026556</a></div>
             </div>
             <div className="inquiry-panel">
-              {submitted && links ? <div className="inquiry-success" role="status"><span>تم حفظ بيانات اهتمامك</span><h3>اختر طريقة التواصل.</h3><p>رسالتك جاهزة ببياناتك. اختر البريد الإلكتروني أو واتساب، ثم اضغط إرسال في التطبيق الذي يُفتح.</p><div className="inquiry-channels"><Button asChild className="contact-button"><a href={links.email}><Mail size={19} aria-hidden="true" /> التواصل عبر البريد الإلكتروني <ArrowUpLeft size={17} aria-hidden="true" /></a></Button><Button asChild variant="outline" className="contact-button"><a href={links.whatsApp} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true" /> التواصل عبر واتساب <ArrowUpLeft size={17} aria-hidden="true" /></a></Button></div><p className="channel-note">لن تُرسل الرسالة تلقائياً؛ يمكنك مراجعتها قبل الإرسال.</p></div> : <form onSubmit={handleSubmit} noValidate>
-                <div className="form-title"><span className="latin" dir="ltr">INVESTMENT INQUIRY</span><h3>سجّل اهتمامك</h3></div>
+              {submitted && links ? <div className="inquiry-success" role="status"><span>{t("تم حفظ بيانات اهتمامك")}</span><h3>{t("اختر طريقة التواصل.")}</h3><p>{t("رسالتك جاهزة ببياناتك. اختر البريد الإلكتروني أو واتساب، ثم اضغط إرسال في التطبيق الذي يُفتح.")}</p><div className="inquiry-channels"><Button asChild className="contact-button"><a href={links.email}><Mail size={19} aria-hidden="true" /> {t("التواصل عبر البريد الإلكتروني")} <ArrowUpLeft size={17} aria-hidden="true" /></a></Button><Button asChild variant="outline" className="contact-button"><a href={links.whatsApp} target="_blank" rel="noopener noreferrer"><MessageCircle size={19} aria-hidden="true" /> {t("التواصل عبر واتساب")} <ArrowUpLeft size={17} aria-hidden="true" /></a></Button></div><p className="channel-note">{t("لن تُرسل الرسالة تلقائياً؛ يمكنك مراجعتها قبل الإرسال.")}</p></div> : <form onSubmit={handleSubmit} noValidate>
+                <div className="form-title"><span className="latin" dir="ltr">INVESTMENT INQUIRY</span><h3>{t("سجّل اهتمامك")}</h3></div>
                 <div className="form-fields">
-                  <div className="form-field"><Label htmlFor="inquiry-name">الاسم الكامل <span>*</span></Label><Input id="inquiry-name" name="name" autoComplete="name" value={fields.name} onChange={(e) => updateField("name", e.target.value)} maxLength={100} aria-invalid={!!fieldErrors["name"]} aria-describedby={fieldErrors["name"] ? "name-error" : undefined} placeholder="الاسم الكامل" /><small id="name-error">{fieldErrors["name"]}</small></div>
-                  <div className="form-field"><Label htmlFor="inquiry-email">البريد الإلكتروني <span>*</span></Label><Input id="inquiry-email" name="email" type="email" dir="ltr" autoComplete="email" value={fields.email} onChange={(e) => updateField("email", e.target.value)} maxLength={255} aria-invalid={!!fieldErrors["email"]} aria-describedby={fieldErrors["email"] ? "email-error" : undefined} placeholder="name@example.com" /><small id="email-error">{fieldErrors["email"]}</small></div>
-                  <div className="form-field"><Label htmlFor="inquiry-phone">رقم الهاتف</Label><Input id="inquiry-phone" name="phone" type="tel" dir="ltr" autoComplete="tel" value={fields.phone} onChange={(e) => updateField("phone", e.target.value)} maxLength={30} aria-invalid={!!fieldErrors["phone"]} aria-describedby={fieldErrors["phone"] ? "phone-error" : undefined} placeholder="+966" /><small id="phone-error">{fieldErrors["phone"]}</small></div>
-                  <div className="form-field"><Label htmlFor="inquiry-company">الجهة / الشركة</Label><Input id="inquiry-company" name="company" autoComplete="organization" value={fields.company} onChange={(e) => updateField("company", e.target.value)} maxLength={120} placeholder="اسم الجهة" /></div>
-                  <div className="form-field form-field-wide"><Label htmlFor="inquiry-message">رسالتك <span className="optional-label">اختياري</span></Label><Textarea id="inquiry-message" name="message" value={fields.message} onChange={(e) => updateField("message", e.target.value)} maxLength={1000} placeholder="ما الذي تود معرفته عن الفرصة؟" /></div>
-                  <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">الموقع الإلكتروني</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
+                  <div className="form-field"><Label htmlFor="inquiry-name">{t("الاسم الكامل")} <span>*</span></Label><Input id="inquiry-name" name="name" autoComplete="name" value={fields.name} onChange={(e) => updateField("name", e.target.value)} maxLength={100} aria-invalid={!!fieldErrors["name"]} aria-describedby={fieldErrors["name"] ? "name-error" : undefined} placeholder={t("الاسم الكامل")} /><small id="name-error">{fieldErrors["name"]}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-email">{t("البريد الإلكتروني")} <span>*</span></Label><Input id="inquiry-email" name="email" type="email" dir="ltr" autoComplete="email" value={fields.email} onChange={(e) => updateField("email", e.target.value)} maxLength={255} aria-invalid={!!fieldErrors["email"]} aria-describedby={fieldErrors["email"] ? "email-error" : undefined} placeholder="name@example.com" /><small id="email-error">{fieldErrors["email"]}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-phone">{t("رقم الهاتف")}</Label><Input id="inquiry-phone" name="phone" type="tel" dir="ltr" autoComplete="tel" value={fields.phone} onChange={(e) => updateField("phone", e.target.value)} maxLength={30} aria-invalid={!!fieldErrors["phone"]} aria-describedby={fieldErrors["phone"] ? "phone-error" : undefined} placeholder="+966" /><small id="phone-error">{fieldErrors["phone"]}</small></div>
+                  <div className="form-field"><Label htmlFor="inquiry-company">{t("الجهة / الشركة")}</Label><Input id="inquiry-company" name="company" autoComplete="organization" value={fields.company} onChange={(e) => updateField("company", e.target.value)} maxLength={120} placeholder={t("اسم الجهة")} /></div>
+                  <div className="form-field form-field-wide"><Label htmlFor="inquiry-message">{t("رسالتك")} <span className="optional-label">{t("اختياري")}</span></Label><Textarea id="inquiry-message" name="message" value={fields.message} onChange={(e) => updateField("message", e.target.value)} maxLength={1000} placeholder={t("ما الذي تود معرفته عن الفرصة؟")} /></div>
+                  <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">{t("الموقع الإلكتروني")}</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 </div>
                 {formError && <p className="form-error" role="alert">{formError}</p>}
                 <Button type="submit" disabled={submitting} className="contact-button">{submitting ? "جارٍ حفظ البيانات..." : "احفظ بياناتك واختر طريقة التواصل"} <ArrowLeft size={18} /></Button>
-                <p className="form-privacy">تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.</p>
+                <p className="form-privacy">{t("تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.")}</p>
               </form>}
             </div>
           </div>
@@ -296,10 +328,10 @@ function Index() {
       </main>
       {selectedImage !== null && selectedGallery && selectedSlide && (
         <GalleryLightbox
-          title={selectedGallery.title}
-          replacement={selectedGallery.replacement}
+          title={t(selectedGallery.title)}
+          replacement={t(selectedGallery.replacement)}
           image={selectedSlide.image}
-          label={selectedSlide.label}
+          label={t(selectedSlide.label)}
           position={selectedImage.slide + 1}
           total={selectedGallery.slides.length}
           onNext={() => setSelectedImage((current) => moveGallerySelection(current, 1))}
@@ -307,7 +339,20 @@ function Index() {
           onRequestClose={() => setSelectedImage(null)}
         />
       )}
-      <footer className="site-footer"><span>© شركة الأسطول الآلي</span><span>الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.</span><a href="#البداية">العودة للأعلى ↑</a></footer>
+      <div className="somman-floating-tools" role="group" aria-label={language === "ar" ? "أدوات الموقع" : "Site tools"}>
+        <button type="button" className="somman-tool somman-tool--language" aria-label={language === "ar" ? "Switch website to English" : "تغيير لغة الموقع إلى العربية"} title={language === "ar" ? "English" : "العربية"} onClick={() => setLanguage(prev => prev === "ar" ? "en" : "ar")}>
+          <Languages size={21} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "EN" : "عربي"}</span>
+        </button>
+        <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" onClick={() => setAssistantOpen(open => !open)}>
+          <Bot size={23} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "اسأل الصمان" : "Ask Somman"}</span>
+        </button>
+      </div>
+      <aside id="somman-assistant-drawer" hidden={!assistantOpen} className="somman-assistant-drawer" role="region" aria-label={t("مساعد الصمان")} dir={language === "ar" ? "rtl" : "ltr"}>
+        <button type="button" className="somman-assistant-close" ref={assistantClose} aria-label={t("أغلق المساعد")} onClick={() => { setAssistantOpen(false); assistantTrigger.current?.focus(); }}><X size={20} aria-hidden="true"/></button>
+        <ProjectAssistant />
+      </aside>
+      <footer className="site-footer"><span>{t("© شركة الأسطول الآلي")}</span><span>{t("الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.")}</span><a href="#البداية">{t("العودة للأعلى ↑")}</a></footer>
     </div>
+    </SiteLanguageContext.Provider>
   );
 }
