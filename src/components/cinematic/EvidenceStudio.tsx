@@ -115,7 +115,7 @@ export function EvidenceStudio() {
                   <strong className="latin" dir="ltr">{permit.license}</strong>
                   <dl>
                     <div><dt>{t("المرخص له")}</dt><dd>{t(permit.permitHolder)}</dd></div>
-                    <div><dt>{t("المساحة المذكورة")}</dt><dd>{permit.area.toLocaleString("ar-SA")} م²</dd></div>
+                    <div><dt>{t("المساحة المذكورة")}</dt><dd>{permit.area.toLocaleString(language === "ar" ? "ar-SA" : "en-US")} m²</dd></div>
                     <div><dt>{t("الحالة بالمستند")}</dt><dd>{t(permit.documentStatus)}</dd></div>
                   </dl>
                 </div>
@@ -151,7 +151,7 @@ export function EvidenceStudio() {
 
 /** A simple investor narrative that uses the original inquiry workflow. */
 export function InvestorJourney() {
-  const { t, language } = useSiteLanguage();
+  const { t } = useSiteLanguage();
   return (
     <section className="investor-journey section-pad" aria-labelledby="investor-journey-heading">
       <div className="section-inner">
