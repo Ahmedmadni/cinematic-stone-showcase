@@ -39,7 +39,7 @@ export function MapExperience() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const [focus, setFocus] = useState<(typeof landmarks)[number]["id"]>("production");
-  const [mapAllowed, setMapAllowed] = useState(false);
+  const [mapAllowed, setMapAllowed] = useState(true);
   const active = landmarks.find((item) => item.id === focus) ?? landmarks[1];
 
   useEffect(() => {
@@ -82,6 +82,7 @@ export function MapExperience() {
         <div className="somman-location-experience__google">
           <div className="somman-location-experience__panel-title">
             <div><span className="latin" dir="ltr">01 / GOOGLE MAPS</span><h3>خريطة القمر الصناعي</h3></div>
+            <button type="button" onClick={() => setMapAllowed((enabled) => !enabled)} aria-pressed={mapAllowed} className="somman-location-experience__privacy-toggle">{mapAllowed ? "إخفاء الخريطة" : "إظهار الخريطة"}</button>
             <a href={googleMapsOpenUrl} target="_blank" rel="noopener noreferrer" aria-label="فتح موقع المحجر الاسترشادي في خرائط Google بنافذة جديدة">
               فتح الخريطة <ExternalLink size={16} aria-hidden="true"/>
             </a>
