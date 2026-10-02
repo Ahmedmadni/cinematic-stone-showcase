@@ -594,6 +594,7 @@ try {
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
     assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    assert.ok(await mobilePage.locator(".hero-gallery__motion-toggle").isDisabled(), "no ineffective Play button under reduced motion");
     const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
     assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
     await mobilePage.locator(".hero-gallery__dots button").nth(5).tap();
@@ -602,9 +603,11 @@ try {
     const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
     await firstGallery.scrollIntoViewIfNeeded();
     assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
+    assert.ok(await firstGallery.locator(".gallery-slide-arrows button").last().isDisabled(), "gallery autoplay is disabled when motion is reduced");
     const quarries = mobilePage.locator(".quarry-cards");
     await quarries.scrollIntoViewIfNeeded();
     assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");
+    assert.ok(await quarries.locator(".quarry-cards__autoplay-tools button").isDisabled(), "quarry autoplay disabled under reduced motion");
 
     // All remaining reduced-motion map / permit checks intentionally exercise
     // the persisted Arabic alternative after checking new English default.
