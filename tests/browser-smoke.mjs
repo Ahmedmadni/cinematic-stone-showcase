@@ -105,6 +105,11 @@ try {
     }
     assert.equal(await story.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
     await desktopPage.screenshot({ path: output + "/desktop-material-journey.png", animations: "disabled" });
+    const jump = story.locator(".production-flow__visual-marker");
+    assert.equal(await jump.getAttribute("href"), "#equipment-title");
+    assert.ok(await jump.isVisible(), "material journey must provide an actionable exit");
+    await jump.click();
+    await desktopPage.waitForFunction(() => decodeURIComponent(location.hash) === "#equipment-title");
   });
 
   await caseRun("all four fleet tabs advance with scrolling, not just clicks", async () => {
@@ -349,6 +354,9 @@ try {
           };
         });
         assert.ok(measured.htmlOverflow <= 5, width + "x" + height + " horizontal overflow: " + JSON.stringify(measured));
+        const skip = page.locator(".production-flow__visual-marker");
+        assert.ok(await skip.isVisible(), width + "x" + height + " material skip control hidden");
+        assert.equal(await skip.getAttribute("href"), "#equipment-title");
         for (const [label, item] of [["material", measured.material], ["equipment", measured.equipment]]) {
           assert.ok(item.visible && item.client > 0, width + "x" + height + " " + label + " missing");
           assert.ok(item.content <= item.client + 4 || ["auto", "scroll"].includes(item.overflow), 
