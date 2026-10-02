@@ -283,3 +283,45 @@
   .presentation .hero-gallery__toolbar,
   .presentation .gallery-slide-controls {backdrop-filter:none;background:#253033;}
 }
+
+/* Historical quarry photo records: autoplay is slower than decorative cards.
+   When someone chooses a licence, the selected record remains stable. */
+.presentation .quarry-cards__autoplay-tools {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px clamp(18px,3vw,38px);gap:16px;
+  color:#efd3a0;background:#303335;border-top:1px solid rgba(245,181,27,.18);
+}
+.presentation .quarry-cards__autoplay-tools span {
+  font-size:11px;color:#f5cb82;letter-spacing:.09em;
+}
+.presentation .quarry-cards__autoplay-tools button {
+  display:grid;place-items:center;width:39px;height:39px;
+  border-radius:50%;border:1px solid rgba(245,181,27,.48);
+  color:#f7ca78;background:rgba(255,255,255,.07);
+  cursor:pointer;
+}
+.presentation .quarry-cards__autoplay-tools button:hover {
+  color:#252525;background:#f5b51b;
+}
+.presentation .quarry-cards__autoplay-tools button:focus-visible {
+  outline:3px solid #f5b51b;outline-offset:3px;
+}
+.presentation .quarry-cards__site.is-selected::after {
+  content:"";position:absolute;z-index:4;pointer-events:none;inset:0;
+  border-right:4px solid #f5b51b;
+  box-shadow:inset 0 0 33px rgba(10,15,19,.13);
+}
+.presentation .quarry-cards__site:not(.is-selected) img {
+  filter:contrast(1.08) saturate(.72);
+}
+.presentation .quarry-cards__site.is-selected img {
+  filter:contrast(1.13) saturate(1.05);
+  animation:quarry-site-focus 1.1s ease-out both;
+}
+@keyframes quarry-site-focus {
+  from{opacity:.72;transform:scale(1.035);}
+  to{opacity:1;transform:scale(1.07);}
+}
+@media(prefers-reduced-motion:reduce) {
+  .presentation .quarry-cards__site.is-selected img {animation:none!important;}
+}
