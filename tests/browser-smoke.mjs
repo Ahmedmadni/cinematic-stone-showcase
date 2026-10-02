@@ -164,7 +164,7 @@ try {
 
 
   await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
-    await desktopPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    await openWithRetry(desktopPage, baseURL);
     const hero = desktopPage.locator(".hero-media img");
     await hero.waitFor({ state: "visible" });
     const heroState = await hero.evaluate((image) => ({
