@@ -74,7 +74,7 @@ try {
     assert.match(await desktopPage.locator(".fleet-experience__header").innerText(), /Four chapters/);
     assert.match(await desktopPage.locator(".quarry-cards__heading").innerText(), /Three quarries/);
     assert.match(await desktopPage.locator(".evidence-studio__header").innerText(), /Evidence/i);
-    await desktopPage.reload({ waitUntil: "networkidle" });
+    await desktopPage.reload({ waitUntil: "domcontentloaded" });
     await desktopPage.waitForFunction(() => document.documentElement.lang === "en");
     assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
     await desktopPage.screenshot({ path: output + "/desktop-english-identity.png", animations: "disabled" });
