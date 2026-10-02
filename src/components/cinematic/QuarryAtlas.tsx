@@ -28,7 +28,7 @@ export function QuarryAtlas() {
         </div>
         <div className="quarry-cards__total">
           <span>{t("إجمالي مساحات المحاجر المذكورة")}</span>
-          <strong>{totalQuarryArea.toLocaleString("ar-SA")}</strong>
+          <strong>{totalQuarryArea.toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</strong>
           <span>{t("متر مربع")}</span>
         </div>
       </div>
@@ -41,7 +41,7 @@ export function QuarryAtlas() {
               key={entry.id}
               onClick={() => setSelected(index)}
               aria-pressed={selected === index}
-              aria-label={"عرض ملف " + entry.name}
+              aria-label={t("عرض ملف") + " " + t(entry.name)}
               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
               <img src={images[index]} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
@@ -49,7 +49,7 @@ export function QuarryAtlas() {
               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
               <span className="quarry-cards__site-label">
                 <strong>{t(entry.name)}</strong>
-                <span>{entry.area.toLocaleString("ar-SA")} م²</span>
+                <span>{entry.area.toLocaleString(language === "ar" ? "ar-SA" : "en-US")} m²</span>
               </span>
               <ArrowUpLeft className="quarry-cards__site-arrow" size={22} aria-hidden="true" />
             </button>
@@ -65,7 +65,7 @@ export function QuarryAtlas() {
             <span className="latin" dir="ltr">SITE 0{selected + 1} / 03</span>
             <h4>{t(current.name)}</h4>
             <div className="quarry-cards__area">
-              <strong>{current.area.toLocaleString("ar-SA")}</strong>
+              <strong>{current.area.toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</strong>
               <span>{t("متر مربع")}</span>
             </div>
           </div>
