@@ -41,3 +41,29 @@ export function normalizedPointer(position: number, start: number, extent: numbe
 export function signedPointer(position: number, start: number, extent: number): number {
   return normalizedPointer(position, start, extent) * 2 - 1;
 }
+
+/**
+ * Each fleet chapter owns one equal scroll interval. The last chapter remains
+ * selected at progress=1 (instead of producing an out-of-range index).
+ */
+export function fleetSceneIndex(progress: number, count: number): number {
+  if (!Number.isFinite(count) || count < 1) return 0;
+  const length = Math.floor(count);
+  return Math.min(length - 1, Math.floor(clampUnit(progress) * length));
+}
+
+/** Progress inside the currently selected chapter, for scrubbed camera depth. */
+export function fleetLocalProgress(progress: number, count: number): number {
+  if (!Number.isFinite(count) || count < 1) return 0;
+  const length = Math.floor(count);
+  const index = fleetSceneIndex(progress, length);
+  return clampUnit(clampUnit(progress) * length - index);
+}
+
+/** Scroll-to-scene target (midpoint avoids transition-boundary jitter). */
+export function fleetSceneTarget(index: number, count: number): number {
+  if (!Number.isFinite(count) || count < 1) return 0;
+  const length = Math.floor(count);
+  if (!Number.isFinite(index)) return 0;
+  return (Math.min(length - 1, Math.max(0, Math.floor(index))) + 0.5) / length;
+}
