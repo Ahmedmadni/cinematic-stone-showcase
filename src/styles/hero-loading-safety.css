@@ -1,0 +1,18 @@
+/* Keep a verified image on screen while an incoming photo downloads.
+   This prevents empty hero flashes on throttled or flaky connections. */
+.presentation .hero-cinematic .hero-gallery__photo--waiting {
+  opacity: 0 !important;
+  animation: none !important;
+  visibility: hidden;
+}
+.presentation .hero-cinematic .hero-gallery__photo--outgoing {
+  opacity: 1;
+  visibility: visible;
+}
+/* Image frame transitions remain compositor-only wherever supported. */
+@media (prefers-reduced-motion: reduce) {
+  .presentation .hero-cinematic .hero-gallery__photo--waiting {
+    transition: none !important;
+    animation: none !important;
+  }
+}
