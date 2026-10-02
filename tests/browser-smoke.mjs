@@ -308,7 +308,7 @@ try {
     await dots.nth(7).click();
     assert.equal(await carousel.getAttribute("data-hero-active"), "7");
     assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
-    await desktopPage.getByRole("button", { name: "Play hero slideshow" }).click();
+    await desktopPage.locator(".hero-gallery__motion-toggle").click();
     await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true");
     await desktopPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
   });
