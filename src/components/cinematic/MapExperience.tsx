@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { ArrowUpLeft, Compass, ExternalLink, Layers3, MapPinned, MoveUpRight } from "lucide-react";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
-import { googleMapsOpenUrl, googleSatelliteEmbedUrl, quarryReferenceCenter } from "@/data/quarry-map";
+import { googleMapsOpenUrl, googleSatelliteEmbedSource, quarryReferenceCenter } from "@/data/quarry-map";
 
 const landmarks = [
   {
@@ -91,7 +91,7 @@ export function MapExperience() {
             {mapAllowed ? (
               <iframe
                 title="Google Maps — مركز استرشادي لإحداثيات رخصة محجر الصمان"
-                src={googleSatelliteEmbedUrl}
+                src={googleSatelliteEmbedSource(import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY)}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
