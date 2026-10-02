@@ -61,3 +61,15 @@
 - [ ] Conduct cross-browser + throttled mobile Core Web Vitals / accessibility review.
 - [ ] Conduct private audit of tracked .env for potential secrets and remediate if necessary.
 - [ ] Verify source documents, permits, certificates and supply actual photography before publication.
+
+## Phase 07 — Google Maps satellite and simulated aerial location experience
+- [x] Derive an indicative pin from the four corners printed on page 5 of the supplied investment presentation.
+- [x] Place a keyless Google satellite iframe and official Google Maps external fallback link in the location chapter.
+- [x] Keep the aerial quarry interpretation visibly separate from Google's map and label it as artistic, not real/drone/survey.
+- [x] Add lightweight pointer tilt and three clickable fictional operational hotspots to the 3D-style scene.
+- [x] Provide optional pause/unload of the third-party iframe, responsive layouts and reduced-motion fallback.
+- [x] Preserve existing non-geographic three-quarry licence atlas, permit caveats and financial confidentiality.
+- [x] Add source-coordinate, external URL integrity and Chromium layout/touch tests.
+- [ ] Independently confirm the actual quarry geometry and site photos; do not treat the indicative pin as surveying evidence.
+- [ ] Check Google iframe tile availability on deployed domain and across networks. If blocked, configure the official Maps Embed API with a restricted key or use external Maps link.
+- [ ] If genuine Google 3D terrain is required inside the page, provision supported Google Maps JavaScript/3D API and restricted billing/API key separately.
