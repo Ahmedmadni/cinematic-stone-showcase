@@ -4,6 +4,7 @@ import {
   dmsToDecimal,
   documentedCornerCoordinates,
   googleMapsOpenUrl,
+  googleSatelliteEmbedSource,
   googleSatelliteEmbedUrl,
   quarryReferenceCenter,
 } from "../src/data/quarry-map.ts";
@@ -34,4 +35,17 @@ test("DMS helper rejects malformed coordinates", () => {
   assert.throws(() => dmsToDecimal({ degrees: 25, minutes: 20, seconds: 60 }), /Invalid/);
   assert.throws(() => dmsToDecimal({ degrees: Number.NaN, minutes: 1, seconds: 2 }), /Invalid/);
   assert.equal(dmsToDecimal({ degrees: -25, minutes: 30, seconds: 0 }), -25.5);
+});
+
+
+test("optional public embed key uses Google's documented satellite view API", () => {
+  assert.equal(googleSatelliteEmbedSource(), googleSatelliteEmbedUrl);
+  assert.equal(googleSatelliteEmbedSource(""), googleSatelliteEmbedUrl);
+  const official = new URL(googleSatelliteEmbedSource("public-restricted-test-key"));
+  assert.equal(official.origin, "https://www.google.com");
+  assert.equal(official.pathname, "/maps/embed/v1/view");
+  assert.equal(official.searchParams.get("key"), "public-restricted-test-key");
+  assert.equal(official.searchParams.get("center"), "25.515292,48.362458");
+  assert.equal(official.searchParams.get("zoom"), "15");
+  assert.equal(official.searchParams.get("maptype"), "satellite");
 });
