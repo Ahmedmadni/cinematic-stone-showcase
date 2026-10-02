@@ -74,6 +74,21 @@ try {
     assert.match(await desktopPage.locator(".fleet-experience__header").innerText(), /Four chapters/);
     assert.match(await desktopPage.locator(".quarry-cards__heading").innerText(), /Three quarries/);
     assert.match(await desktopPage.locator(".evidence-studio__header").innerText(), /Evidence/i);
+
+    const untranslated = await desktopPage.evaluate(() => {
+      const main = document.querySelector("main");
+      if (!main) return ["missing main"];
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      const leftovers = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        const value = node.textContent?.trim() ?? "";
+        if (/[\u0621-\u064a]/.test(value)) leftovers.push(value.slice(0, 115));
+      }
+      return [...new Set(leftovers)].slice(0, 15);
+    });
+    assert.deepEqual(untranslated, [], "English view contains unlocalized Arabic copy: " + JSON.stringify(untranslated));
+
     await desktopPage.reload({ waitUntil: "domcontentloaded" });
     await desktopPage.waitForFunction(() => document.documentElement.lang === "en");
     assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
