@@ -43,6 +43,8 @@
 .production-flow__photo--0.is-active {
   clip-path: polygon(100% 100%, calc(105% - var(--chapter-wipe) * 130%) 100%, calc(117% - var(--chapter-wipe) * 130%) 77%, calc(112% - var(--chapter-wipe) * 130%) 73%, calc(131% - var(--chapter-wipe) * 130%) 47%, calc(125% - var(--chapter-wipe) * 130%) 43%, calc(146% - var(--chapter-wipe) * 160%) 0, 100% 0);
 }
+.presentation .fleet-experience__image--0.is-active,
+.production-flow__photo--0.is-active { clip-path: none; }
 /* 02: a stepped central aperture expands outwards. */
 .presentation .fleet-experience__image--1.is-active,
 .production-flow__photo--1.is-active {
@@ -51,7 +53,7 @@
 /* 03: upper-left entry in staggered diagonal bands. */
 .presentation .fleet-experience__image--2.is-active,
 .production-flow__photo--2.is-active {
-  clip-path: polygon(0 0, calc(var(--chapter-wipe) * 145%) 0, calc(var(--chapter-wipe) * 130% - 19%) 26%, calc(var(--chapter-wipe) * 130% - 14%) 30%, calc(var(--chapter-wipe) * 130% - 35%) 57%, calc(var(--chapter-wipe) * 130% - 29%) 61%, calc(var(--chapter-wipe) * 145% - 49%) 100%, 0 100%);
+  clip-path: polygon(0 0, calc(var(--chapter-wipe) * 155%) 0, calc(var(--chapter-wipe) * 140% - 19%) 26%, calc(var(--chapter-wipe) * 140% - 14%) 30%, calc(var(--chapter-wipe) * 140% - 35%) 57%, calc(var(--chapter-wipe) * 140% - 29%) 61%, calc(var(--chapter-wipe) * 155% - 49%) 100%, 0 100%);
 }
 /* 04: a fractured right-middle seam, stepping toward both corners. */
 .presentation .fleet-experience__image--3.is-active {
@@ -59,9 +61,8 @@
 }
 /* Feather the seam lightly without blurring entire photos; clip-path still works without masks. */
 @supports (mask-image: linear-gradient(#000, transparent)) {
-  .presentation .fleet-experience__image--0.is-active,
   .presentation .fleet-experience__image--3.is-active,
-  .production-flow__photo--0.is-active {
+  .production-flow__photo--0.is-active:not(:first-child) {
     -webkit-mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
     mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
   }

@@ -21,6 +21,7 @@ import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
+import equipment from "@/assets/equipment.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
 import excavators from "@/assets/excavators.jpg";
