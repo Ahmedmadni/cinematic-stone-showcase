@@ -109,7 +109,7 @@ export function GalleryLightbox({
         </Button>
       </div>
       <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
-        <img src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
+        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
         <div className="lightbox-caption">
           <div>
             <span>{t("صورة تجريبية ·")} {replacement}</span>
