@@ -104,7 +104,7 @@ export function ProductionFlow() {
             <div className="production-flow__photo-shade" aria-hidden="true" />
             <div className="production-flow__photo-header">
               <span className="latin" dir="ltr">{current.number} / 03</span>
-              <span>{t(noteLabels[active])}</span>
+              <span>{t(noteLabels[active] ?? noteLabels[0])}</span>
             </div>
             <div className="production-flow__photo-info" key={current.id}>
               <span className="production-flow__indicator">{t(current.indicator)}</span>
