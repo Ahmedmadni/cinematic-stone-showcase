@@ -307,7 +307,6 @@ const english: Record<string, string> = {
   "سكن العمال والملعب": "Staff housing and recreation field",
   "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.": "Staff accommodation and recreation amenities referenced in the presentation.",
   "سكن العمال والملعب الترفيهي": "Staff housing and recreation facilities",
-  "تُستبدل بصورة:": "To be replaced with:",
   "استعرض": "View",
   "في المشهد التصوري": "in the conceptual view",
   "عرض ملف": "View file",
