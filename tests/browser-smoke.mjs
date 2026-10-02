@@ -98,6 +98,25 @@ try {
     assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
   });
 
+  await caseRun("live Google satellite link and independent simulated 3D view", async () => {
+    const location = desktopPage.locator(".somman-location-experience");
+    await location.scrollIntoViewIfNeeded();
+    assert.ok(await location.getByRole("heading", { name: "خريطة القمر الصناعي" }).isVisible());
+    assert.ok(await location.getByRole("heading", { name: "منظور مجسّم تصوري" }).isVisible());
+    const iframe = location.locator('iframe[title*="Google Maps"]');
+    assert.ok(await iframe.count() === 1);
+    const src = await iframe.getAttribute("src");
+    assert.ok(src?.includes("maps.google.com/maps?"));
+    assert.match(src ?? "", /25\.515292%2C48\.362458/);
+    const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
+    assert.match(await externalLink.getAttribute("href") ?? "", /^https:\/\/www\.google\.com\/maps\/search\//);
+    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في المشهد التصوري" });
+    await hotspot.click();
+    assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
+    assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
+    await desktopPage.screenshot({ path: output + "/desktop-google-map-and-concept.png", animations: "disabled" });
+  });
+
   await caseRun("investor evidence buttons remain interactive", async () => {
     const studio = desktopPage.locator(".evidence-studio");
     await studio.scrollIntoViewIfNeeded();
@@ -139,6 +158,22 @@ try {
     assert.equal(state.fogDisplay, "none");
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
+  });
+
+  await caseRun("mobile reference map and 3D hotspots remain usable with reduced motion", async () => {
+    const location = mobilePage.locator(".somman-location-experience");
+    await location.scrollIntoViewIfNeeded();
+    const iframe = location.locator('iframe[title*="Google Maps"]');
+    assert.equal(await iframe.count(), 1);
+    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في المشهد التصوري" });
+    await hotspot.tap();
+    assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
+    const state = await mobilePage.evaluate(() => ({
+      overflow: document.documentElement.scrollWidth - window.innerWidth,
+      tilt: getComputedStyle(document.querySelector(".somman-location-experience__scene-camera")).transform,
+    }));
+    assert.ok(state.overflow <= 5, "mobile map panel added unexpected horizontal overflow " + state.overflow);
+    await mobilePage.screenshot({ path: output + "/mobile-google-map-and-concept.png", animations: "disabled" });
   });
 
   await caseRun("mobile investor documents can be selected by touch", async () => {

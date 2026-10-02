@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "test:cinematic": "node --experimental-strip-types --test tests/cinematic-progress.test.mjs tests/experience-data.test.mjs tests/investor-evidence.test.mjs tests/asset-budget.test.mjs",
+    "test:cinematic": "node --experimental-strip-types --test tests/cinematic-progress.test.mjs tests/experience-data.test.mjs tests/investor-evidence.test.mjs tests/asset-budget.test.mjs tests/quarry-map.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

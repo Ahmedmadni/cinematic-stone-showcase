@@ -15,6 +15,7 @@ import { QuarryTransition } from "@/components/cinematic/QuarryTransition";
 import { ProductionFlow } from "@/components/cinematic/ProductionFlow";
 import { FleetExperience } from "@/components/cinematic/FleetExperience";
 import { QuarryAtlas } from "@/components/cinematic/QuarryAtlas";
+import { MapExperience } from "@/components/cinematic/MapExperience";
 import { EvidenceStudio, InvestorJourney } from "@/components/cinematic/EvidenceStudio";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
@@ -243,6 +244,7 @@ function Index() {
           <div className="section-inner">
             <Eyebrow number="05 / 06">الموقع والمحاجر</Eyebrow>
             <div className="location-heading reveal"><div><h2 className="section-heading" id="location-title">الصمان،<br /><span>حيث تبدأ الحكاية.</span></h2><p>مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.</p></div><div className="coordinate"><MapPin size={20} strokeWidth={1.2} /><span className="latin" dir="ltr">25° 31′ 03″ N<br />48° 21′ 54″ E</span></div></div>
+            <MapExperience />
             <QuarryAtlas />
             <p className="license-note reveal">المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.</p>
           </div>
