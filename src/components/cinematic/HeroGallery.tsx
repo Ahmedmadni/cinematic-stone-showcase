@@ -101,7 +101,7 @@ export function HeroGallery() {
   }, [active, playing]);
 
   useEffect(() => {
-    const section = heroRef.current?.closest(".hero-cinematic");
+    const section = heroRef.current?.closest<HTMLElement>(".hero-cinematic");
     if (!section) return;
     function start(event: TouchEvent) {
       if (event.touches.length !== 1 || isInteractiveGalleryTarget(event.target)) {
