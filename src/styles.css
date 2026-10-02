@@ -6,6 +6,7 @@
 @import "./styles/cinematic-effects.css";
 @import "./styles/investor-evidence.css";
 @import "./styles/final-polish.css";
+@import "./styles/fleet-scroll.css";
 
 @custom-variant dark (&:is(.dark *));
 
