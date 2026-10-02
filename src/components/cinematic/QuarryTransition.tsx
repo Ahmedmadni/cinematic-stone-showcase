@@ -1,3 +1,4 @@
+import { useSiteLanguage } from "@/lib/site-language";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
@@ -7,6 +8,7 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
  * Progress is provided by CinematicDirector as CSS variables.
  */
 export function QuarryTransition() {
+  const { t } = useSiteLanguage();
   return (
     <section
       className="cinematic-bridge"
@@ -26,21 +28,21 @@ export function QuarryTransition() {
         <div className="cinematic-bridge__body">
           <div className="cinematic-bridge__meta">
             <span className="cinematic-bridge__line" aria-hidden="true" />
-            <span>الفصل الثاني</span>
+            <span>{t("الفصل الثاني")}</span>
             <span className="latin" dir="ltr">FROM ROCK TO PRODUCTION</span>
           </div>
           <div className="cinematic-bridge__story">
-            <p className="cinematic-bridge__before">تبدأ الرحلة من عمق الأرض.</p>
-            <h2 id="cinematic-bridge-title">إلى قلب <em>الإنتاج.</em></h2>
-            <p className="cinematic-bridge__after">حيث يتحول الحجر الخام إلى بحص عبر خطوط التكسير والفرز.</p>
+            <p className="cinematic-bridge__before">{t("تبدأ الرحلة من عمق الأرض.")}</p>
+            <h2 id="cinematic-bridge-title">{t("إلى قلب")} <em>{t("الإنتاج.")}</em></h2>
+            <p className="cinematic-bridge__after">{t("حيث يتحول الحجر الخام إلى بحص عبر خطوط التكسير والفرز.")}</p>
           </div>
           <a className="cinematic-bridge__skip" href="#production-title">
-            انتقل مباشرة إلى تفاصيل الإنتاج
+            {t("انتقل مباشرة إلى تفاصيل الإنتاج")}
             <span aria-hidden="true">↙</span>
           </a>
         </div>
         <div className="cinematic-bridge__footer">
-          <span>مشاهد توضيحية وليست تصويرًا للموقع الفعلي</span>
+          <span>{t("مشاهد توضيحية وليست تصويرًا للموقع الفعلي")}</span>
           <span className="latin" dir="ltr">02 — PRODUCTION</span>
         </div>
         <div className="cinematic-bridge__meter" aria-hidden="true"><span /></div>

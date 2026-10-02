@@ -1,3 +1,4 @@
+import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,7 @@ export function GalleryLightbox({
   onPrevious,
   onRequestClose,
 }: GalleryLightboxProps) {
+  const { t, language } = useSiteLanguage();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -62,7 +64,7 @@ export function GalleryLightbox({
     <dialog
       ref={dialogRef}
       className="gallery-lightbox gallery-lightbox--native"
-      aria-label={"صور " + title}
+      aria-label={(language === "en" ? "Gallery · " : "صور ") + title}
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); onRequestClose(); }}
       onClick={handleBackdropClick}
@@ -75,24 +77,24 @@ export function GalleryLightbox({
           ref={closeRef}
           type="button"
           variant="ghost"
-          aria-label="إغلاق الصورة"
+          aria-label={t("إغلاق الصورة")}
           onClick={onRequestClose}
         >
           <X size={24} aria-hidden="true" />
         </Button>
       </div>
       <div className="lightbox-content" onClick={(event) => event.stopPropagation()}>
-        <img src={image} alt={"صورة تجريبية توضيحية: " + label} decoding="async" />
+        <img src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
         <div className="lightbox-caption">
           <div>
-            <span>صورة تجريبية · {replacement}</span>
+            <span>{t("صورة تجريبية ·")} {replacement}</span>
             <h3>{title} — {label}</h3>
           </div>
           <div className="lightbox-controls">
-            <Button type="button" variant="outline" aria-label="الصورة السابقة" onClick={onPrevious}>
+            <Button type="button" variant="outline" aria-label={t("الصورة السابقة")} onClick={onPrevious}>
               <ArrowRight size={20} aria-hidden="true" />
             </Button>
-            <Button type="button" variant="outline" aria-label="الصورة التالية" onClick={onNext}>
+            <Button type="button" variant="outline" aria-label={t("الصورة التالية")} onClick={onNext}>
               <ArrowLeft size={20} aria-hidden="true" />
             </Button>
           </div>

@@ -62,6 +62,58 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-hero.png", animations: "disabled" });
   });
 
+
+  await caseRun("floating language control translates the entire site and persists choice", async () => {
+    const lang = desktopPage.getByRole("button", { name: "Switch website to English" });
+    assert.ok(await lang.isVisible());
+    await lang.click();
+    await desktopPage.waitForFunction(() =>
+      document.documentElement.lang === "en" && document.documentElement.dir === "ltr"
+      && document.querySelector(".presentation")?.getAttribute("data-language") === "en");
+    assert.ok(await desktopPage.getByRole("heading", { name: /More than a crushing plant/i }).isVisible());
+    assert.match(await desktopPage.locator(".fleet-experience__header").innerText(), /Four chapters/);
+    assert.match(await desktopPage.locator(".quarry-cards__heading").innerText(), /Three quarries/);
+    assert.match(await desktopPage.locator(".evidence-studio__header").innerText(), /Evidence/i);
+
+    const untranslated = await desktopPage.evaluate(() => {
+      const main = document.querySelector("main");
+      if (!main) return ["missing main"];
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+      const leftovers = [];
+      let node;
+      while ((node = walker.nextNode())) {
+        const value = node.textContent?.trim() ?? "";
+        if (/[\u0621-\u064a]/.test(value)) leftovers.push(value.slice(0, 115));
+      }
+      return [...new Set(leftovers)].slice(0, 15);
+    });
+    assert.deepEqual(untranslated, [], "English view contains unlocalized Arabic copy: " + JSON.stringify(untranslated));
+
+    await desktopPage.reload({ waitUntil: "domcontentloaded" });
+    await desktopPage.waitForFunction(() => document.documentElement.lang === "en");
+    assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
+    await desktopPage.screenshot({ path: output + "/desktop-english-identity.png", animations: "disabled" });
+  });
+
+  await caseRun("floating assistant refuses off-topic English requests without model access", async () => {
+    const toggle = desktopPage.getByRole("button", { name: "Open Al Somman assistant" });
+    await toggle.click();
+    const drawer = desktopPage.locator("#somman-assistant-drawer");
+    assert.ok(await drawer.isVisible());
+    await drawer.getByRole("textbox", { name: "Your quarry question" }).fill("What is the capital of France?");
+    await drawer.getByRole("button", { name: "Send question" }).click();
+    await desktopPage.waitForFunction(() =>
+      document.querySelector("#somman-assistant-drawer .assistant-msg.assistant")?.textContent?.includes("Sorry, I can only answer"),
+      null, { timeout: 12000 });
+    assert.match(await drawer.innerText(), /quarry and crushing plant/i);
+    await drawer.getByRole("button", { name: "Close assistant" }).click();
+    assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+    assert.ok(!(await drawer.isVisible()));
+    const switchBack = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
+    await switchBack.click();
+    await desktopPage.waitForFunction(() => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
+  });
+
   await caseRun("scrubbed quarry reveal advances with natural scroll", async () => {
     await desktopPage.evaluate(() => {
       const bridge = document.getElementById("cinematic-bridge");
@@ -152,14 +204,69 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-photographic-quarries.png", animations: "disabled" });
   });
 
-  await caseRun("question suggestions are readable grouped actions", async () => {
-    const qa = desktopPage.locator(".assistant-panel");
-    await qa.scrollIntoViewIfNeeded();
+  await caseRun("question suggestions are readable in the floating assistant", async () => {
+    // The assistant used to be inline. It now starts in a closed drawer and
+    // keeps the conversation until a reload; reopen a fresh session for chips.
+    await openWithRetry(desktopPage, baseURL);
+    const open = desktopPage.getByRole("button", { name: "فتح مساعد الصمان" });
+    await open.click();
+    const qa = desktopPage.locator("#somman-assistant-drawer");
+    assert.ok(await qa.isVisible());
     const chips = qa.locator(".assistant-suggestions button");
     assert.equal(await chips.count(), 4);
     assert.ok(await chips.first().isVisible());
     assert.ok((await chips.first().boundingBox())?.height >= 45);
     await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
+    await qa.getByRole("button", { name: "أغلق المساعد" }).click();
+  });
+
+
+  await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
+    await openWithRetry(desktopPage, baseURL);
+    const hero = desktopPage.locator(".hero-media img");
+    await hero.waitFor({ state: "visible" });
+    const heroState = await hero.evaluate((image) => ({
+      loaded: image instanceof HTMLImageElement && image.complete && image.naturalWidth >= 1200,
+      width: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+      objectFit: getComputedStyle(image).objectFit,
+      visible: getComputedStyle(image).visibility,
+    }));
+    assert.ok(heroState.loaded, "hero photograph must decode at its original sharp resolution: " + JSON.stringify(heroState));
+    assert.equal(heroState.objectFit, "cover");
+    assert.equal(heroState.visible, "visible");
+
+    for (const spec of [
+      { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
+      { id: "fleet-scroll-track", chapterClass: ".fleet-experience__image", count: 4, active: "cinema-fleet-scene" },
+    ]) {
+      for (const index of [0, 1, spec.count - 1]) {
+        await desktopPage.evaluate(({ id, count, index }) => {
+          const section = document.getElementById(id);
+          if (!section) throw new Error("Missing track " + id);
+          const rect = section.getBoundingClientRect();
+          const top = window.scrollY + rect.top;
+          window.scrollTo({ top: top + (rect.height - window.innerHeight) * ((index + .13) / count), behavior: "instant" });
+        }, { ...spec, index });
+        await desktopPage.waitForFunction(({ active, index }) =>
+          document.querySelector(".presentation")?.getAttribute("data-" + active.replace(/[A-Z]/g, x => "-" + x.toLowerCase())) === String(index),
+          { active: spec.active, index }, { timeout: 11000, polling: "raf" });
+        const visual = await desktopPage.evaluate(({ selector, index }) => {
+          const image = document.querySelectorAll(selector)[index];
+          if (!image) throw new Error("Missing illustration #" + index);
+          const style = getComputedStyle(image);
+          return {
+            clip: style.clipPath,
+            mask: style.maskImage,
+            z: style.zIndex,
+            opacity: style.opacity,
+          };
+        }, { selector: spec.chapterClass, index });
+        assert.ok(visual.clip.startsWith("polygon("), "chapter " + spec.id + "/" + index + " must use jagged polygon reveal: " + JSON.stringify(visual));
+        assert.equal(visual.z, "1", "foreground image must paint above backdrop");
+        assert.equal(visual.opacity, "1");
+      }
+    }
+    await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
   });
 
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
