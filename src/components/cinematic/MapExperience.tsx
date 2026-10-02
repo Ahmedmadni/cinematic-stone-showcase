@@ -91,7 +91,7 @@ export function MapExperience() {
             {mapAllowed ? (
               <iframe
                 title="Google Maps — مركز استرشادي لإحداثيات رخصة محجر الصمان"
-                src={googleSatelliteEmbedSource(import.meta.env.VITE_GOOGLE_MAPS_EMBED_KEY)}
+                src={googleSatelliteEmbedSource(import.meta.env["VITE_GOOGLE_MAPS_EMBED_KEY"])}
                 loading="lazy"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
