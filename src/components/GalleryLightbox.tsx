@@ -1,6 +1,6 @@
 import { useSiteLanguage } from "@/lib/site-language";
-import { useEffect, useRef, type KeyboardEvent, type MouseEvent } from "react";
-import { ArrowLeft, ArrowRight, X } from "lucide-react";
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from "react";
+import { ArrowLeft, ArrowRight, Pause, Play, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type GalleryLightboxProps = {
@@ -30,6 +30,9 @@ export function GalleryLightbox({
   const { t, language } = useSiteLanguage();
   const dialogRef = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  const [manuallyPaused, setManuallyPaused] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
+  const [motionAllowed, setMotionAllowed] = useState(false);
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -45,6 +48,26 @@ export function GalleryLightbox({
       if (originalFocus?.isConnected) originalFocus.focus({ preventScroll: true });
     };
   }, []);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updateMotion = () => setMotionAllowed(!media.matches);
+    const updateVisibility = () => setPageVisible(!document.hidden);
+    updateMotion(); updateVisibility();
+    media.addEventListener("change", updateMotion);
+    document.addEventListener("visibilitychange", updateVisibility);
+    return () => {
+      media.removeEventListener("change", updateMotion);
+      document.removeEventListener("visibilitychange", updateVisibility);
+    };
+  }, []);
+
+  const playing = motionAllowed && pageVisible && !manuallyPaused && total > 1;
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setTimeout(() => onNext(), 7700);
+    return () => window.clearTimeout(timer);
+  }, [playing, image, onNext]);
 
   function handleKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
     if (event.key === "ArrowLeft") {
@@ -64,6 +87,7 @@ export function GalleryLightbox({
     <dialog
       ref={dialogRef}
       className="gallery-lightbox gallery-lightbox--native"
+      data-lightbox-autoplay={playing ? "playing" : "paused"}
       aria-label={(language === "en" ? "Gallery · " : "صور ") + title}
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); onRequestClose(); }}
@@ -73,6 +97,7 @@ export function GalleryLightbox({
         <span className="latin" dir="ltr">
           {String(position).padStart(2, "0")} / {String(total).padStart(2, "0")}
         </span>
+        <Button type="button" variant="ghost" aria-pressed={!manuallyPaused} aria-label={manuallyPaused ? (language === "en" ? "Resume gallery slideshow" : "تشغيل معرض الصور") : (language === "en" ? "Pause gallery slideshow" : "إيقاف معرض الصور")} onClick={() => setManuallyPaused(current => !current)}>{manuallyPaused ? <Play size={20} aria-hidden="true"/> : <Pause size={20} aria-hidden="true"/>}</Button>
         <Button
           ref={closeRef}
           type="button"
