@@ -38,9 +38,11 @@ const REVEAL_MS = 1300;
 export function HeroGallery() {
   const { language } = useSiteLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
+  const activeImageRef = useRef<HTMLImageElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const [active, setActive] = useState(0);
   const [outgoing, setOutgoing] = useState<number | null>(null);
+  const [loadedScene, setLoadedScene] = useState<string | null>(null);
   const [sequence, setSequence] = useState(0);
   const [inView, setInView] = useState(true); // first viewport contains the hero
   const [pageVisible, setPageVisible] = useState(true);
@@ -86,11 +88,31 @@ export function HeroGallery() {
     return () => window.clearTimeout(timer);
   }, [playing, active]);
 
+  const currentSrc = (scenes[active] ?? scenes[0]).src;
+  const imageReady = loadedScene === currentSrc;
+
   useEffect(() => {
-    if (outgoing === null) return;
+    // React 19 may stream/high-priority preload the first image before the
+    // client mounts. Its native load event is then already in the past.
+    // Read the intrinsic image state after hydration, not just onLoad.
+    const image = activeImageRef.current;
+    if (!image?.complete) return;
+    if (image.naturalWidth > 0) {
+      setLoadedScene(currentSrc);
+    } else if (active !== 0) {
+      setActive(0);
+      setOutgoing(null);
+      setPaused(true);
+    }
+  }, [active, currentSrc]);
+
+  useEffect(() => {
+    // Never remove the last valid frame before the incoming image finishes.
+    // Otherwise slow connections can briefly reveal an empty dark hero.
+    if (outgoing === null || !imageReady) return;
     const timer = window.setTimeout(() => setOutgoing(null), motionAllowed ? REVEAL_MS : 0);
     return () => window.clearTimeout(timer);
-  }, [outgoing, sequence, motionAllowed]);
+  }, [outgoing, sequence, motionAllowed, imageReady]);
 
   useEffect(() => {
     // Preload only the next frame, not all ten large hero photos.
@@ -156,6 +178,18 @@ export function HeroGallery() {
   const label = language === "en" ? current.en : current.ar;
   const isMotionPaused = !motionAllowed || paused;
 
+  function handleImageError() {
+    // Keep the page readable even if a later local image fails to download.
+    // Do not endlessly retry a missing asset while the gallery timer runs.
+    if (active !== 0) {
+      setActive(0);
+      setPaused(true);
+      setOutgoing(null);
+    } else {
+      setLoadedScene(currentSrc);
+    }
+  }
+
   return (
     <>
       <div
@@ -163,6 +197,7 @@ export function HeroGallery() {
         ref={heroRef}
         data-hero-active={active}
         data-hero-playing={playing}
+        data-hero-image-ready={imageReady}
         aria-hidden="true"
       >
         {previous && (
@@ -178,15 +213,18 @@ export function HeroGallery() {
         )}
         <img
           key={"current-" + active + "-" + sequence}
-          className={"hero-gallery__photo hero-gallery__photo--active" + (sequence > 0 && motionAllowed ? " hero-gallery__photo--reveal" : "")}
+          ref={activeImageRef}
+          className={"hero-gallery__photo hero-gallery__photo--active" + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
           data-reveal={["lower-right", "centre", "upper-left", "soft-wipe"][active % 4]}
           src={current.src}
           alt=""
           fetchPriority={active === 0 ? "high" : "auto"}
-          loading={active === 0 ? "eager" : "lazy"}
+          loading="eager"
           decoding="async"
           width={1536}
           height={1024}
+          onLoad={() => setLoadedScene(currentSrc)}
+          onError={handleImageError}
         />
         <span className="hero-gallery__film-grain" aria-hidden="true" />
       </div>
@@ -203,6 +241,7 @@ export function HeroGallery() {
         <button
           type="button"
           className="hero-gallery__motion-toggle"
+          disabled={!motionAllowed}
           onClick={() => {
             // Explicit Play should work even while focus remains on this button.
             // Moving focus to a different gallery control pauses it again.
@@ -211,7 +250,7 @@ export function HeroGallery() {
           }}
           aria-label={isMotionPaused ? (language === "en" ? "Play hero slideshow" : "تشغيل صور الهيرو") : (language === "en" ? "Pause hero slideshow" : "إيقاف صور الهيرو")}
           aria-pressed={!paused && motionAllowed}
-          title={language === "en" ? (paused ? "Play" : "Pause") : (paused ? "تشغيل" : "إيقاف")}
+          title={!motionAllowed ? (language === "en" ? "Automatic movement is disabled by your reduced-motion setting" : "التحريك التلقائي معطل وفق إعداد تقليل الحركة") : language === "en" ? (paused ? "Play" : "Pause") : (paused ? "تشغيل" : "إيقاف")}
         >
           {paused || !motionAllowed ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}
         </button>

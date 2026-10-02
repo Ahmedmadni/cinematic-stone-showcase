@@ -58,7 +58,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
   };
 
   return (
-    <div className="gallery-slider" data-gallery-autoplay={playing ? "playing" : "paused"} data-gallery-active={active} ref={frame} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
+    <div className="gallery-slider" data-gallery-autoplay={playing ? "playing" : "paused"} data-gallery-interaction={paused ? "hover-paused" : manuallyPaused ? "manual-paused" : "idle"} data-gallery-active={active} ref={frame} onPointerEnter={(event) => { if (event.pointerType === "mouse") setPaused(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setPaused(false); }} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
       <Button type="button" variant="ghost" className="gallery-image-button" aria-label={language === "en" ? `View ${title}, ${slides[active]?.label ?? title} larger` : `عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
         <span className="image-window">
           {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1536} height={1024} alt={index === active ? `${t("صورة تجريبية توضيحية:")} ${slide.label} — ${replacement}` : ""} aria-hidden={index !== active} className={`gallery-slide ${index === active ? "active" : ""}`} />)}
@@ -70,7 +70,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
         <div className="gallery-slide-arrows">
           <Button type="button" variant="ghost" aria-label={`${t("الصورة السابقة")}: ${title}`} onClick={() => choose(active - 1)}><ArrowRight size={19} /></Button>
           <Button type="button" variant="ghost" aria-label={`${t("الصورة التالية")}: ${title}`} onClick={() => choose(active + 1)}><ArrowLeft size={19} /></Button>
-          <Button type="button" variant="ghost" aria-pressed={!manuallyPaused} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
+          <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
         </div>
         <span className="gallery-slide-count latin" dir="ltr">{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
       </div>

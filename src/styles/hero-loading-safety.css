@@ -1,0 +1,31 @@
+/* Keep a verified image on screen while an incoming photo downloads.
+   This prevents empty hero flashes on throttled or flaky connections. */
+.presentation .hero-cinematic .hero-gallery__photo--waiting {
+  opacity: 0 !important;
+  animation: none !important;
+  visibility: hidden;
+}
+.presentation .hero-cinematic .hero-gallery__photo--outgoing {
+  opacity: 1;
+  visibility: visible;
+}
+/* Image frame transitions remain compositor-only wherever supported. */
+@media (prefers-reduced-motion: reduce) {
+  .presentation .hero-cinematic .hero-gallery__photo--waiting {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* Disabled controls explicitly indicate why autoplay cannot be used.
+   Manual previous/next controls stay operational. */
+.presentation :is(
+  .hero-gallery__motion-toggle,
+  .gallery-slide-arrows button,
+  .quarry-cards__autoplay-tools button
+):disabled,
+.gallery-lightbox--native .lightbox-toolbar button:disabled {
+  opacity: .46;
+  cursor: not-allowed;
+  box-shadow: none;
+}

@@ -9,7 +9,7 @@
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
 
-- Keep the investment presentation as a single Arabic RTL page at `/`, with all sections in one route; the user requested a cinematic one-page experience rather than multiple pages.
+- Keep the investment presentation as a single bilingual page at `/`, **English LTR by default** with a persistent Arabic RTL toggle. Preserve every section in one route, do not create separate language landing routes.
 - Keep presentation imagery in `src/assets` and label generated images as illustrative; actual site and equipment photos have not been supplied.
 - Store investment inquiries through a validated public server function into a locked Cloud table; public visitors must never read submitted contact details.
 - After saving a validated investment inquiry, offer visitor-initiated prefilled email to the fixed employee address or WhatsApp to the fixed company number; do not send automatic notices, so visitors review and send their own message.
@@ -17,3 +17,6 @@
 - Keep main visual transitions in independent AutoVisual instances so each pauses off-screen and when the page is hidden or reduced motion is requested.
 - Keep the hero as ten independently staged illustrative full-frame photographs with visibility-aware autoplay (pause on reduced motion or hidden tab); load only first image eagerly and prefetch one frame ahead, never stitch unrelated equipment into a false operation. Preserve passive scroll-driven Fleet/Material chapter masks and avoid scroll-jacking.
 - Keep blueprint SVG motifs as decorative source assets behind light sections only; this preserves legibility and separates editorial art from real site evidence.
+
+- Respect actual image readiness on the ten-photo hero: keep the prior valid image until the incoming image has finished loading, and fall back safely if the file is missing.
+- Pause six subject galleries on real mouse hover, not synthesized touch hover; keep independent timers and reduced-motion/keyboard pauses.

@@ -80,6 +80,50 @@ try {
   });
 
 
+  await caseRun("first hero image preloaded and outgoing scene stays until new image loads", async () => {
+    // Dedicated context avoids cached assets from prior scroll tests. Slow only
+    // the *second* scene; never globally throttle site hydration or vital CSS.
+    const context = await browser.newContext({
+      viewport: { width: 1240, height: 780 },
+      reducedMotion: "no-preference",
+    });
+    const page = await context.newPage();
+    try {
+      let deferredRoutes = 0;
+      await page.route("**/excavators.jpg*", async route => {
+        deferredRoutes += 1;
+        await new Promise(resolve => setTimeout(resolve, 2600));
+        await route.continue();
+      });
+      await openWithRetry(page, baseURL);
+      const preload = page.locator('link[rel="preload"][as="image"][href*="quarry-aerial"]');
+      assert.equal(await preload.count(), 1, "first hero photo must be discoverable as an image preload");
+      await page.waitForFunction(() =>
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
+        null, { timeout: 6500 });
+      await page.locator(".hero-gallery__dots button").nth(1).click();
+      await page.waitForFunction(() => 
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") === "1",
+        null, {timeout:4500});
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 1);
+      // While the new network image is pending, preserve previous decoded
+      // pixels under a transparent incoming layer.
+      if ((await page.locator(".hero-gallery").getAttribute("data-hero-image-ready")) === "false") {
+        assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
+      }
+      await page.waitForFunction(() =>
+        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
+        null, {timeout:10000});
+      assert.ok(deferredRoutes >= 1, "test must actually delay the second hero image");
+      await page.waitForTimeout(1450);
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 0);
+      assert.equal(await page.locator(".hero-gallery__photo--active").count(), 1);
+      await page.screenshot({path:output+"/hero-loaded-no-flash.png", animations:"disabled"});
+    } finally {
+      await context.close();
+    }
+  });
+
   await caseRun("floating language control translates the entire site and persists choice", async () => {
     const arabic = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
     assert.ok(await arabic.isVisible());
@@ -362,6 +406,15 @@ try {
     }
     const firstGallery = galleries.first();
     await firstGallery.scrollIntoViewIfNeeded();
+    // A touchscreen may synthesize mouse compatibility events. A touch
+    // pointerover must not freeze the card's auto-rotation indefinitely.
+    await desktopPage.mouse.move(0, 0);
+    await firstGallery.evaluate((element) => {
+      element.dispatchEvent(new PointerEvent("pointerover", {
+        bubbles: true, pointerType: "touch",
+      }));
+    });
+    assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
     await desktopPage.mouse.move(0, 0);
     await desktopPage.waitForFunction(() =>
       document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
@@ -541,6 +594,7 @@ try {
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
     assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    assert.ok(await mobilePage.locator(".hero-gallery__motion-toggle").isDisabled(), "no ineffective Play button under reduced motion");
     const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
     assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
     await mobilePage.locator(".hero-gallery__dots button").nth(5).tap();
@@ -549,9 +603,11 @@ try {
     const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
     await firstGallery.scrollIntoViewIfNeeded();
     assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
+    assert.ok(await firstGallery.locator(".gallery-slide-arrows button").last().isDisabled(), "gallery autoplay is disabled when motion is reduced");
     const quarries = mobilePage.locator(".quarry-cards");
     await quarries.scrollIntoViewIfNeeded();
     assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");
+    assert.ok(await quarries.locator(".quarry-cards__autoplay-tools button").isDisabled(), "quarry autoplay disabled under reduced motion");
 
     // All remaining reduced-motion map / permit checks intentionally exercise
     // the persisted Arabic alternative after checking new English default.
