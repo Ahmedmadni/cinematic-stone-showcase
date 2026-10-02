@@ -162,6 +162,55 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
   });
 
+
+  await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
+    await desktopPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    const hero = desktopPage.locator(".hero-media img");
+    await hero.waitFor({ state: "visible" });
+    const heroState = await hero.evaluate((image) => ({
+      loaded: image instanceof HTMLImageElement && image.complete && image.naturalWidth >= 1200,
+      width: image instanceof HTMLImageElement ? image.naturalWidth : 0,
+      objectFit: getComputedStyle(image).objectFit,
+      visible: getComputedStyle(image).visibility,
+    }));
+    assert.ok(heroState.loaded, "hero photograph must decode at its original sharp resolution: " + JSON.stringify(heroState));
+    assert.equal(heroState.objectFit, "cover");
+    assert.equal(heroState.visible, "visible");
+
+    for (const spec of [
+      { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
+      { id: "fleet-scroll-track", chapterClass: ".fleet-experience__image", count: 4, active: "cinema-fleet-scene" },
+    ]) {
+      for (const index of [0, 1, spec.count - 1]) {
+        await desktopPage.evaluate(({ id, count, index }) => {
+          const section = document.getElementById(id);
+          if (!section) throw new Error("Missing track " + id);
+          const rect = section.getBoundingClientRect();
+          const top = window.scrollY + rect.top;
+          window.scrollTo({ top: top + (rect.height - window.innerHeight) * ((index + .13) / count), behavior: "instant" });
+        }, { ...spec, index });
+        await desktopPage.waitForFunction(({ active, index }) =>
+          document.querySelector(".presentation")?.getAttribute("data-" + active.replace(/[A-Z]/g, x => "-" + x.toLowerCase())) === String(index),
+          { active: spec.active, index }, { timeout: 11000, polling: "raf" });
+        const visual = await desktopPage.evaluate(({ selector, index }) => {
+          const image = document.querySelectorAll(selector)[index];
+          if (!image) throw new Error("Missing illustration #" + index);
+          const style = getComputedStyle(image);
+          return {
+            clip: style.clipPath,
+            mask: style.maskImage,
+            z: style.zIndex,
+            opacity: style.opacity,
+          };
+        }, { selector: spec.chapterClass, index });
+        assert.ok(visual.clip.startsWith("polygon("), "chapter " + spec.id + "/" + index + " must use jagged polygon reveal: " + JSON.stringify(visual));
+        assert.equal(visual.z, "1", "foreground image must paint above backdrop");
+        assert.equal(visual.opacity, "1");
+      }
+    }
+    await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
+  });
+
   await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
