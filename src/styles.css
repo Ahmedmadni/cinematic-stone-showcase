@@ -10,6 +10,7 @@
 @import "./styles/fleet-scroll.css";
 @import "./styles/storytelling-refinement.css";
 @import "./styles/editorial-rebuild.css";
+@import "./styles/ostool-identity.css";
 
 @custom-variant dark (&:is(.dark *));
 
