@@ -336,7 +336,13 @@ try {
     assert.equal(await carousel.getAttribute("data-hero-active"), "7");
     assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
     await desktopPage.locator(".hero-gallery__motion-toggle").click();
-    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true");
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
+    await dots.nth(3).focus();
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "false", null, { timeout: 5000 });
+    await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await desktopPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 5000 });
     await desktopPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
   });
 
@@ -453,6 +459,62 @@ try {
     assert.ok((await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5);
     await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
   });
+
+  await caseRun("real browser mobile swipe handlers preserve vertical page scroll", async () => {
+    await openWithRetry(motionPage, baseURL);
+    await motionPage.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
+    const hero = motionPage.locator(".hero-gallery");
+    const dots = motionPage.locator(".hero-gallery__dots .hero-gallery__dot");
+    assert.equal(await dots.count(), 10);
+    const dot = await dots.first().boundingBox();
+    assert.ok(dot && dot.width >= 24 && dot.height >= 30, "10 dots need substantial touch hit regions on a phone");
+    const start = Number(await hero.getAttribute("data-hero-active"));
+
+    async function dispatchSwipe(selector, fromX, toX, fromY, toY) {
+      await motionPage.evaluate(({selector,fromX,toX,fromY,toY}) => {
+        const element = document.querySelector(selector);
+        if (!element) throw new Error("Swipe target missing: " + selector);
+        function touchAt(x,y) {
+          return new Touch({ identifier: 1, target: element, clientX: x, clientY: y, pageX: x + scrollX, pageY: y + scrollY });
+        }
+        const start = touchAt(fromX, fromY), end = touchAt(toX, toY);
+        element.dispatchEvent(new TouchEvent("touchstart", {
+          bubbles: true, cancelable: true,
+          touches: [start], targetTouches: [start], changedTouches: [start],
+        }));
+        element.dispatchEvent(new TouchEvent("touchend", {
+          bubbles: true, cancelable: true,
+          touches: [], targetTouches: [], changedTouches: [end],
+        }));
+      }, { selector, fromX, toX, fromY, toY });
+    }
+
+    await dispatchSwipe(".hero-cinematic", 300, 110, 330, 340);
+    await motionPage.waitForFunction(previous =>
+      Number(document.querySelector(".hero-gallery")?.getAttribute("data-hero-active")) === ((previous + 1) % 10),
+      start, {timeout: 4500});
+    assert.equal(await hero.getAttribute("data-hero-playing"), "false", "manual swipe should pause autoplay");
+    const afterHorizontal = await hero.getAttribute("data-hero-active");
+    await dispatchSwipe(".hero-cinematic", 260, 246, 250, 400);
+    assert.equal(await hero.getAttribute("data-hero-active"), afterHorizontal, "vertical gestures must never change images");
+
+    // Inspect the enlarged gallery in the same touch-enabled browser.
+    const thumbnail = motionPage.locator(".gallery-image-button").first();
+    await thumbnail.scrollIntoViewIfNeeded();
+    await thumbnail.tap();
+    const dialog = motionPage.locator("dialog.gallery-lightbox--native");
+    await dialog.waitFor({state:"visible", timeout:9000});
+    const firstLabel = await dialog.locator(".lightbox-toolbar .latin").innerText();
+    await dispatchSwipe("dialog.gallery-lightbox .lightbox-content", 290, 110, 280, 290);
+    await motionPage.waitForFunction(previous => 
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
+      firstLabel, {timeout:4000});
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused", "manual lightbox swipe pauses playback");
+    await dialog.getByRole("button", {name:"Close image"}).click();
+    await dialog.waitFor({state:"hidden", timeout:4500});
+    await motionPage.screenshot({path: output + "/mobile-swipe-controls.png",animations:"disabled"});
+  });
+
   await fullMotionMobile.close();
 
   const mobile = await browser.newContext({
