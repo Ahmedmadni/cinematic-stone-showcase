@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
 import { GalleryLightbox } from "@/components/GalleryLightbox";
 import { AutoVisual } from "@/components/AutoVisual";
+import { HeroGallery } from "@/components/cinematic/HeroGallery";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
 import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
@@ -229,15 +230,11 @@ function Index() {
 
       <main>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
-          <div className="hero-media" aria-hidden="true">
-            <div className="hero-media__breaker"><img src={excavators} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></div>
-            <div className="hero-media__loading"><img src={loaders} alt="" width={1536} height={1024} loading="lazy" decoding="async" /></div>
-            <div className="hero-media__soft-joint" />
-          </div>
+          <HeroGallery />
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
-            <span className="photo-placeholder hero-photo-label">{language === "en" ? "Illustrative operational composite · rock breaking and truck loading" : "مشهدان توضيحيان · تكسير الصخر وتحميل الشاحنات"}</span>
+            <span className="photo-placeholder hero-photo-label">{t("الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.")}</span>
             <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
             <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em>{t("الصمان")}</em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
             <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
