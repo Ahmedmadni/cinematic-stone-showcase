@@ -123,7 +123,8 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 }
 
 function Index() {
-  const [language, setLanguage] = useState<SiteLanguage>("ar");
+  const [language, setLanguage] = useState<SiteLanguage>("en");
+  const [localeReady, setLocaleReady] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const assistantTrigger = useRef<HTMLButtonElement>(null);
   const assistantClose = useRef<HTMLButtonElement>(null);
@@ -178,16 +179,19 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    try { if (localStorage.getItem("somman:language") === "en") setLanguage("en"); }
+    try { if (localStorage.getItem("somman:language") === "ar") setLanguage("ar"); }
     catch { /* Storage is optional. */ }
+    setLocaleReady(true);
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.title = language === "en" ? "Al Somman Quarry | Investment Opportunity — Al Ostool Alaali" : "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي";
-    try { localStorage.setItem("somman:language", language); } catch { /* optional */ }
-  }, [language]);
+    if (localeReady) {
+      try { localStorage.setItem("somman:language", language); } catch { /* optional */ }
+    }
+  }, [language, localeReady]);
 
   useEffect(() => {
     if (assistantOpen) assistantClose.current?.focus();
@@ -225,12 +229,14 @@ function Index() {
       <main>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
           <div className="hero-media" aria-hidden="true">
-            <picture><source media="(max-width: 640px)" srcSet={equipment} /><img src={equipment} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></picture>
+            <div className="hero-media__breaker"><img src={excavators} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></div>
+            <div className="hero-media__loading"><img src={loaders} alt="" width={1536} height={1024} loading="lazy" decoding="async" /></div>
+            <div className="hero-media__soft-joint" />
           </div>
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
-            <span className="photo-placeholder hero-photo-label">{t("صورة تجريبية · منظر عام لمحجر الصمان")}</span>
+            <span className="photo-placeholder hero-photo-label">{language === "en" ? "Illustrative operational composite · rock breaking and truck loading" : "مشهدان توضيحيان · تكسير الصخر وتحميل الشاحنات"}</span>
             <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
             <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em>{t("الصمان")}</em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
             <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
@@ -353,10 +359,10 @@ function Index() {
       )}
       <div className="somman-floating-tools" role="group" aria-label={language === "ar" ? "أدوات الموقع" : "Site tools"}>
         <button type="button" className="somman-tool somman-tool--language" aria-label={language === "ar" ? "Switch website to English" : "تغيير لغة الموقع إلى العربية"} title={language === "ar" ? "English" : "العربية"} onClick={() => setLanguage(prev => prev === "ar" ? "en" : "ar")}>
-          <Languages size={21} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "EN" : "عربي"}</span>
+          <Languages size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
         <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" onClick={() => setAssistantOpen(open => !open)}>
-          <Bot size={23} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "اسأل الصمان" : "Ask Somman"}</span>
+          <Bot size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
       </div>
       <aside id="somman-assistant-drawer" hidden={!assistantOpen} className="somman-assistant-drawer" role="region" aria-label={t("مساعد الصمان")} dir={language === "ar" ? "rtl" : "ltr"}>
