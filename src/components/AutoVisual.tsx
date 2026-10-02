@@ -30,14 +30,16 @@ export function AutoVisual({ images, className = "", interval = 7200, eager = fa
     };
   }, []);
 
+  const playing = visible && pageVisible && motionAllowed && images.length > 1;
+
   useEffect(() => {
-    if (!visible || !pageVisible || !motionAllowed || images.length < 2) return;
+    if (!playing) return;
     const timer = window.setTimeout(() => setActive((current) => (current + 1) % images.length), interval);
     return () => window.clearTimeout(timer);
-  }, [visible, pageVisible, motionAllowed, images.length, interval, active]);
+  }, [playing, images.length, interval, active]);
 
   return (
-    <div ref={frame} className={`auto-visual ${className}`}>
+    <div ref={frame} className={`auto-visual ${className}`} data-auto-active={active} data-auto-playing={playing ? "playing" : "paused"}>
       {images.map((item, index) => <img
         key={item.image}
         src={item.image}
