@@ -78,7 +78,7 @@ export function FleetExperience() {
                 src={images[index]}
                 alt={index === selected ? "مشهد توضيحي لفئة " + item.name + "، وليس صورة موثقة للموقع" : ""}
                 aria-hidden={index !== selected}
-                className={"fleet-experience__image" + (index === selected ? " is-active" : "")}
+                className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
                 decoding="async"
                 width={1536}

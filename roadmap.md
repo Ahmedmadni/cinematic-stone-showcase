@@ -85,3 +85,9 @@
 - [ ] Physical Safari, Firefox and lower-end mobile performance audit before declaring production readiness.
 - [ ] Publish genuine authorised quarry/machinery photography when supplied; current imagery is labelled illustrative.
 - [ ] Do not merge superseded PR #6 after integrating its code here.
+
+## Editorial visual rebuild
+- [x] Expose a priority quarry-machinery hero photo without stacked fog; retain the illustrative label.
+- [x] Give the four equipment and three material chapters distinct scroll-progress zigzag/center reveals and reduced-motion fallbacks.
+- [x] Place three restrained geological and production blueprint motifs in light sections.
+- [ ] Check physical Safari and lower-end devices for mask compositing and performance before publication.
