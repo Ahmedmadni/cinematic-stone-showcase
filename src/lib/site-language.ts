@@ -329,7 +329,7 @@ type LanguageContextValue = {
   t: (text: string) => string;
 };
 export const SiteLanguageContext = createContext<LanguageContextValue>({
-  language: "ar", t: (s) => s,
+  language: "en", t: (s) => translateSite(s, "en"),
 });
 
 export function translateSite(text: string, language: SiteLanguage): string {

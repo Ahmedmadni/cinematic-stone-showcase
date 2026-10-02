@@ -22,7 +22,6 @@ import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
-import equipment from "@/assets/equipment.jpg";
 import crushingPlant from "@/assets/crushing-plant.jpg";
 import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
 import excavators from "@/assets/excavators.jpg";
@@ -41,23 +40,25 @@ import housingAlt from "@/assets/worker-housing-recreation-alt.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي" },
-      { name: "description", content: "تعرّف على فرصة الاستثمار في محجر وكسارة الصمان بالمنطقة الشرقية: ثلاثة محاجر، خطا إنتاج للبحص، حفارات وشيولات ومرافق تشغيلية. سجّل اهتمامك للتواصل." },
-      { property: "og:title", content: "محجر وكسارة الصمان | شركة الأسطول الآلي" },
-      { property: "og:description", content: "عرض استثماري عربي لمحاجر الصمان، خطوط التكسير والفرز، المعدات والمرافق التشغيلية. الصور توضيحية وليست صور الموقع الفعلية." },
+      { title: "Al Somman Quarry & Crushing Plant | Al Ostool Investment Opportunity" },
+      { name: "description", content: "Explore the documented Al Somman quarry and crushing plant investment opportunity in Saudi Arabia: three quarry records, two production lines, excavators, loaders and support facilities. Images are illustrative." },
+      { property: "og:title", content: "Al Somman Quarry & Crushing Plant | Al Ostool" },
+      { property: "og:description", content: "A bilingual investment presentation of the documented Al Somman quarry, crushing lines, equipment and facilities. Illustrative imagery only; current permit status requires verification." },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
+      { property: "og:locale", content: "en_US" },
+      { property: "og:locale:alternate", content: "ar_SA" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "canonical", href: "/" }],
     scripts: [{ type: "application/ld+json", children: JSON.stringify({
       "@context": "https://schema.org",
       "@type": "WebPage",
-      name: "محجر وكسارة الصمان | شركة الأسطول الآلي",
-      inLanguage: "ar-SA",
-      description: "فرصة استثمارية في محاجر الصمان وخطوط إنتاج البحص بالمنطقة الشرقية في المملكة العربية السعودية.",
-      about: { "@type": "Place", name: "محجر الصمان", address: { "@type": "PostalAddress", addressRegion: "المنطقة الشرقية", addressCountry: "SA" } },
-      publisher: { "@type": "Organization", name: "شركة الأسطول الآلي", email: "info@alostool.com.sa" },
+      name: "Al Somman Quarry & Crushing Plant | Al Ostool",
+      inLanguage: ["en", "ar-SA"],
+      description: "Bilingual reference presentation of the Al Somman quarry and two crushing lines in Saudi Arabia, Eastern Province.",
+      about: { "@type": "Place", name: "Al Somman Quarry", address: { "@type": "PostalAddress", addressRegion: "Eastern Province", addressCountry: "SA" } },
+      publisher: { "@type": "Organization", name: "Al Ostool Alaali", email: "info@alostool.com.sa" },
     }) }],
   }),
   component: Index,
@@ -123,7 +124,8 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 }
 
 function Index() {
-  const [language, setLanguage] = useState<SiteLanguage>("ar");
+  const [language, setLanguage] = useState<SiteLanguage>("en");
+  const [localeReady, setLocaleReady] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const assistantTrigger = useRef<HTMLButtonElement>(null);
   const assistantClose = useRef<HTMLButtonElement>(null);
@@ -178,16 +180,19 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    try { if (localStorage.getItem("somman:language") === "en") setLanguage("en"); }
+    try { if (localStorage.getItem("somman:language") === "ar") setLanguage("ar"); }
     catch { /* Storage is optional. */ }
+    setLocaleReady(true);
   }, []);
 
   useEffect(() => {
     document.documentElement.lang = language;
     document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
     document.title = language === "en" ? "Al Somman Quarry | Investment Opportunity — Al Ostool Alaali" : "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي";
-    try { localStorage.setItem("somman:language", language); } catch { /* optional */ }
-  }, [language]);
+    if (localeReady) {
+      try { localStorage.setItem("somman:language", language); } catch { /* optional */ }
+    }
+  }, [language, localeReady]);
 
   useEffect(() => {
     if (assistantOpen) assistantClose.current?.focus();
@@ -225,12 +230,14 @@ function Index() {
       <main>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
           <div className="hero-media" aria-hidden="true">
-            <picture><source media="(max-width: 640px)" srcSet={equipment} /><img src={equipment} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></picture>
+            <div className="hero-media__breaker"><img src={excavators} alt="" width={1536} height={1024} fetchPriority="high" decoding="async" /></div>
+            <div className="hero-media__loading"><img src={loaders} alt="" width={1536} height={1024} loading="lazy" decoding="async" /></div>
+            <div className="hero-media__soft-joint" />
           </div>
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
-            <span className="photo-placeholder hero-photo-label">{t("صورة تجريبية · منظر عام لمحجر الصمان")}</span>
+            <span className="photo-placeholder hero-photo-label">{language === "en" ? "Illustrative operational composite · rock breaking and truck loading" : "مشهدان توضيحيان · تكسير الصخر وتحميل الشاحنات"}</span>
             <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
             <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em>{t("الصمان")}</em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
             <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
@@ -353,10 +360,10 @@ function Index() {
       )}
       <div className="somman-floating-tools" role="group" aria-label={language === "ar" ? "أدوات الموقع" : "Site tools"}>
         <button type="button" className="somman-tool somman-tool--language" aria-label={language === "ar" ? "Switch website to English" : "تغيير لغة الموقع إلى العربية"} title={language === "ar" ? "English" : "العربية"} onClick={() => setLanguage(prev => prev === "ar" ? "en" : "ar")}>
-          <Languages size={21} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "EN" : "عربي"}</span>
+          <Languages size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
-        <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" onClick={() => setAssistantOpen(open => !open)}>
-          <Bot size={23} strokeWidth={1.8} aria-hidden="true"/><span>{language === "ar" ? "اسأل الصمان" : "Ask Somman"}</span>
+        <button type="button" className="somman-tool somman-tool--assistant" ref={assistantTrigger} aria-label={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} aria-expanded={assistantOpen} aria-controls="somman-assistant-drawer" title={assistantOpen ? t("أغلق المساعد") : t("فتح مساعد الصمان")} onClick={() => setAssistantOpen(open => !open)}>
+          <Bot size={23} strokeWidth={1.8} aria-hidden="true"/>
         </button>
       </div>
       <aside id="somman-assistant-drawer" hidden={!assistantOpen} className="somman-assistant-drawer" role="region" aria-label={t("مساعد الصمان")} dir={language === "ar" ? "rtl" : "ltr"}>

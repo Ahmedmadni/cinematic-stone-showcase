@@ -53,20 +53,40 @@ try {
   const runtimeErrors = [];
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
-  await caseRun("desktop RTL and investor content", async () => {
+  await caseRun("desktop English default, icon-only tools and logical quarry hero", async () => {
     await openWithRetry(desktopPage, baseURL);
-    assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "rtl");
+    assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
+    assert.equal(await desktopPage.evaluate(() => document.documentElement.lang), "en");
     assert.ok(await desktopPage.locator("#hero-title").isVisible());
-    assert.ok(await desktopPage.locator("#cinematic-bridge").count() === 1);
-    assert.ok(await desktopPage.locator("#التواصل").count() === 1);
-    await desktopPage.screenshot({ path: output + "/desktop-hero.png", animations: "disabled" });
+    assert.equal(await desktopPage.locator("#cinematic-bridge").count(), 1);
+    assert.equal(await desktopPage.locator("#التواصل").count(), 1);
+    const controls = desktopPage.locator(".somman-floating-tools .somman-tool");
+    assert.equal(await controls.count(), 2);
+    for (const iconButton of await controls.all()) {
+      assert.ok(await iconButton.getAttribute("aria-label"), "icon-only control must have an accessible name");
+      assert.equal(await iconButton.locator("span").count(), 0, "floating controls should have SVG icon only");
+      const box = await iconButton.boundingBox();
+      assert.ok(box && box.width >= 44 && box.height >= 44, "icon control must be touch accessible");
+    }
+    assert.equal(await desktopPage.locator(".hero-media__breaker img").count(), 1);
+    assert.equal(await desktopPage.locator(".hero-media__loading img").count(), 1);
+    assert.match(await desktopPage.locator(".hero-media__breaker img").getAttribute("src") ?? "", /excavators/);
+    assert.match(await desktopPage.locator(".hero-media__loading img").getAttribute("src") ?? "", /loaders-maintenance/);
+    assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
+    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /Illustrative operational composite/);
+    await desktopPage.screenshot({ path: output + "/desktop-hero-two-operations-english.png", animations: "disabled" });
   });
 
 
   await caseRun("floating language control translates the entire site and persists choice", async () => {
-    const lang = desktopPage.getByRole("button", { name: "Switch website to English" });
-    assert.ok(await lang.isVisible());
-    await lang.click();
+    const arabic = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
+    assert.ok(await arabic.isVisible());
+    await arabic.click();
+    await desktopPage.waitForFunction(() =>
+      document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
+    assert.match(await desktopPage.locator(".overview-grid").innerText(), /ليست مجرد كسارة/);
+    const english = desktopPage.getByRole("button", { name: "Switch website to English" });
+    await english.click();
     await desktopPage.waitForFunction(() =>
       document.documentElement.lang === "en" && document.documentElement.dir === "ltr"
       && document.querySelector(".presentation")?.getAttribute("data-language") === "en");
@@ -223,7 +243,8 @@ try {
 
   await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
-    const hero = desktopPage.locator(".hero-media img");
+    const hero = desktopPage.locator(".hero-media__breaker img");
+    const loader = desktopPage.locator(".hero-media__loading img");
     await hero.waitFor({ state: "visible" });
     const heroState = await hero.evaluate((image) => ({
       loaded: image instanceof HTMLImageElement && image.complete && image.naturalWidth >= 1200,
@@ -234,6 +255,10 @@ try {
     assert.ok(heroState.loaded, "hero photograph must decode at its original sharp resolution: " + JSON.stringify(heroState));
     assert.equal(heroState.objectFit, "cover");
     assert.equal(heroState.visible, "visible");
+    const loaderSharp = await loader.evaluate((img) => img instanceof HTMLImageElement && img.complete && img.naturalWidth >= 1200);
+    assert.ok(loaderSharp, "separate wheel loader/dump-truck image must be sharp");
+    const seam = await desktopPage.locator(".hero-media__loading").evaluate(element => getComputedStyle(element).maskImage);
+    assert.ok(seam.includes("gradient"), "composite photo join must be feathered");
 
     for (const spec of [
       { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
@@ -369,13 +394,18 @@ try {
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       fogDisplay: getComputedStyle(document.querySelector(".cinema-atmosphere")).display,
       bridgePosition: getComputedStyle(document.querySelector(".cinematic-bridge__sticky")).position,
-      headingPresent: Boolean(document.querySelector("#hero-title")?.textContent?.includes("الصمان")),
+      headingPresent: Boolean(document.querySelector("#hero-title")?.textContent?.includes("Somman")),
     }));
     assert.ok(state.headingPresent, "mobile h1 should be available");
     assert.ok(state.overflow <= 5, "unexpected mobile horizontal overflow " + state.overflow);
     assert.equal(state.fogDisplay, "none");
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
+    // All remaining reduced-motion map / permit checks intentionally exercise
+    // the persisted Arabic alternative after checking new English default.
+    await mobilePage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" }).click();
+    await mobilePage.waitForFunction(() => document.documentElement.lang === "ar");
+
   });
 
   await caseRun("mobile reference map and 3D hotspots remain usable with reduced motion", async () => {
