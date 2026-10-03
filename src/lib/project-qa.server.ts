@@ -1,9 +1,14 @@
 import { z } from "zod";
 import { isQuarryQuestion, OFF_TOPIC_REPLY } from "@/lib/quarry-question-scope";
+import { createPublicAiBudget, readBoundedJson, relayAiStream } from "@/lib/public-ai-budget";
+
+// Per-worker budget. Edge/CDN or persistent rate limits are still necessary
+// for a multi-instance public release; see docs/ASSISTANT_PUBLIC_SAFETY.md.
+const requestBudget = createPublicAiBudget({ maxPerMinute: 24, maxConcurrent: 3 });
 
 const askSchema = z.object({
   question: z.string().trim().min(3).max(500),
-  language: z.enum(["ar", "en"]).default("ar"),
+  language: z.enum(["ar", "en"]).default("en"),
   history: z
     .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(2000) }))
     .max(8)
@@ -39,7 +44,7 @@ ${PROJECT_FACTS}
 export async function handleProjectQuestion(request: Request): Promise<Response> {
   let body: z.infer<typeof askSchema>;
   try {
-    body = askSchema.parse(await request.json());
+    body = askSchema.parse(await readBoundedJson(request));
   } catch {
     return Response.json({ error: "اكتب سؤالاً واضحاً بين ٣ و٥٠٠ حرف." }, { status: 400 });
   }
@@ -55,7 +60,22 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
   }
 
   const apiKey = process.env["LOVABLE_API_KEY"];
-  if (!apiKey) return Response.json({ error: "خدمة الأسئلة غير مهيأة حالياً." }, { status: 500 });
+  if (!apiKey) return Response.json({ error: body.language === "en"
+    ? "The specialist is temporarily unavailable. Please contact the investment team."
+    : "خدمة الأسئلة غير مهيأة حالياً. يرجى التواصل مع مسؤول الاستثمار." }, { status: 503 });
+
+  // Avoid spending on unbounded public requests. This budget is deliberately
+  // shared per worker: an unverified forwarded IP cannot bypass its limits.
+  const permit = requestBudget.acquire();
+  if (!permit.allowed) {
+    return Response.json({ error: body.language === "en"
+      ? "Too many quarry questions right now. Please retry shortly."
+      : "طلبات الأسئلة كثيرة حالياً. يرجى المحاولة بعد قليل." }, {
+      status: 429,
+      headers: { "Cache-Control": "no-store", "Retry-After": String(permit.retryAfterSeconds) },
+    });
+  }
+  let handedOff = false;
 
   const input = [
     { role: "developer", content: INSTRUCTIONS.replace("{{OUTPUT_LANGUAGE}}", body.language === "en" ? "English" : "العربية الفصحى") },
@@ -65,7 +85,9 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
   try {
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
-      signal: request.signal,
+      // End abandoned expensive upstream requests even if a visitor's network
+      // does not trigger a useful disconnect event in the application worker.
+      signal: AbortSignal.any([request.signal, AbortSignal.timeout(35_000)]),
       headers: { "Content-Type": "application/json", "Lovable-API-Key": apiKey, "X-Lovable-AIG-SDK": "fetch" },
       body: JSON.stringify({
         model: "openai/gpt-6-astra",
@@ -91,10 +113,19 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
     upstream.headers.forEach((v, k) => {
       if (k.toLowerCase().startsWith("x-lovable-aig-")) headers.set(k, v);
     });
-    return new Response(upstream.body, { status: 200, headers });
+    // Relay enforces backpressure/output size and owns the permit until the
+    // stream finishes or the browser cancels it. No question text is logged.
+    handedOff = true;
+    return new Response(relayAiStream(upstream.body, permit.release), { status: 200, headers });
   } catch (error) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
-    console.error(error);
-    return Response.json({ error: "تعذّرت الإجابة الآن. حاول لاحقاً." }, { status: 500 });
+    // Avoid logging potentially sensitive upstream errors or body content.
+    console.error("AI gateway request failed", error instanceof Error ? error.name : "unknown");
+    return Response.json({ error: body.language === "en"
+      ? "Unable to answer right now. Please retry or contact the investment team."
+      : "تعذّرت الإجابة الآن. حاول لاحقاً." }, { status: 503 });
+  } finally {
+    // If streaming never began, release the admission slot immediately.
+    if (!handedOff) permit.release();
   }
 }
