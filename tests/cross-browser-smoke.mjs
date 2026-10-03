@@ -149,7 +149,9 @@ try {
 
   const mobile = await browser.newContext({
     viewport: { width: 360, height: 780 },
-    isMobile: true,
+    // Firefox Playwright does not implement isMobile; viewport + touch are
+    // still tested. WebKit supports full mobile layout emulation.
+    ...(engineName === "webkit" ? { isMobile: true } : {}),
     hasTouch: true,
     deviceScaleFactor: 1,
     reducedMotion: "reduce",
