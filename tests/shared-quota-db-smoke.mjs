@@ -7,8 +7,16 @@ import { readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 
 const uri = process.env.SOMMAN_TEST_DATABASE_URL;
-if (!uri || !/^postgres(?:ql)?:\/\/(?:localhost|127\.0\.0\.1)(?::\d+)?\//.test(uri)) {
+let parsed;
+try {
+  parsed = new URL(uri ?? "");
+} catch {
   throw new Error("Only a local ephemeral PostgreSQL instance is permitted");
+}
+if (!["postgres:", "postgresql:"].includes(parsed.protocol) ||
+    !["localhost", "127.0.0.1"].includes(parsed.hostname) ||
+    parsed.pathname !== "/somman_qa") {
+  throw new Error("Only the local ephemeral somman_qa database is permitted");
 }
 const require = createRequire(import.meta.url);
 const { Pool } = require("/tmp/somman-dbqa/node_modules/pg");
