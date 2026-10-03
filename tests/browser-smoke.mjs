@@ -180,6 +180,63 @@ try {
     await desktopPage.waitForFunction(() => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
   });
 
+  await caseRun("assistant stream handles provider completion, failure and 429 without paid requests", async () => {
+    const isolated = await browser.newContext({ viewport: { width: 1280, height: 800 }, reducedMotion: "reduce" });
+    const page = await isolated.newPage();
+    try {
+      let requested = 0;
+      await page.route("**/api/public/ask", async route => {
+        requested++;
+        if (requested === 1) {
+          const first = JSON.stringify({type:"response.output_text.delta",delta:"Two crusher lines; "});
+          const second = JSON.stringify({type:"response.output_text.delta",delta:"actual permits require verification."});
+          await route.fulfill({
+            status:200,
+            headers:{"Content-Type":"text/event-stream"},
+            body:"data: "+first+"\n\ndata: "+second+"\n\ndata: "+JSON.stringify({type:"response.completed"})+"\n\n",
+          });
+        } else if (requested === 2) {
+          await route.fulfill({
+            status:429,
+            headers:{"Content-Type":"application/json","Retry-After":"5"},
+            body:JSON.stringify({error:"Too many quarry questions right now. Please retry shortly."}),
+          });
+        } else {
+          await route.fulfill({
+            status:200,
+            headers:{"Content-Type":"text/event-stream"},
+            body:'data: {"type":"response.failed"}\n\n',
+          });
+        }
+      });
+      await openWithRetry(page, baseURL);
+      await page.getByRole("button", { name: "Open Al Somman assistant" }).click();
+      const drawer = page.locator("#somman-assistant-drawer");
+      const field = drawer.getByRole("textbox", { name: "Your quarry question" });
+      const send = drawer.getByRole("button", { name: "Send question" });
+
+      await field.fill("How many crushing lines does the quarry have?");
+      await send.click();
+      await page.waitForFunction(() => [...document.querySelectorAll("#somman-assistant-drawer .assistant-msg.assistant")]
+        .some(element => element.textContent?.includes("actual permits require verification.")), null, {timeout:10000});
+      assert.equal(await drawer.locator(".assistant-error").count(), 0);
+
+      await field.fill("Tell me about Al Somman quarry equipment?");
+      await send.click();
+      await drawer.getByRole("alert").waitFor({ timeout: 10000 });
+      assert.match(await drawer.locator(".assistant-error").innerText(), /Too many quarry questions/);
+      assert.equal(await drawer.locator(".assistant-msg.assistant").count(), 1, "no empty phantom response after 429");
+
+      await field.fill("Which rock crushing equipment is mentioned?");
+      await send.click();
+      await page.waitForFunction(() => document.querySelector("#somman-assistant-drawer .assistant-error")?.textContent?.includes("Unable to complete"), null, {timeout:10000});
+      assert.equal(await drawer.locator(".assistant-msg.assistant").count(), 1, "no empty phantom response after provider failure");
+      assert.equal(requested, 3);
+    } finally {
+      await isolated.close();
+    }
+  });
+
   await caseRun("scrubbed quarry reveal advances with natural scroll", async () => {
     await desktopPage.evaluate(() => {
       const bridge = document.getElementById("cinematic-bridge");
