@@ -83,6 +83,26 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
   ];
 
   try {
+    // Optional database-backed, atomic global quota across all app workers.
+    // Feature-gated until the migration is verified on this repo's Supabase
+    // project. Any DB failure after activation fails CLOSED to protect billing.
+    const { consumeSharedPublicQuota } = await import("@/lib/shared-public-quota.server");
+    const shared = await consumeSharedPublicQuota("assistant");
+    if (!shared.allowed) {
+      const limited = shared.reason === "limited";
+      const message = body.language === "en"
+        ? limited
+          ? "The quarry assistant is busy. Please retry shortly."
+          : "The quarry assistant is temporarily unavailable."
+        : limited
+          ? "مساعد المحجر مشغول حالياً. يرجى المحاولة بعد قليل."
+          : "مساعد المحجر غير متاح مؤقتاً.";
+      return Response.json({ error: message }, {
+        status: limited ? 429 : 503,
+        headers: { "Cache-Control": "no-store", "Retry-After": String(shared.retryAfterSeconds) },
+      });
+    }
+
     const upstream = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
       method: "POST",
       // End abandoned expensive upstream requests even if a visitor's network
