@@ -139,7 +139,7 @@ function Index() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<SelectedGalleryImage | null>(null);
 
-  const updateField = (key: keyof InquiryInput, value: string) => {
+  const updateField = (key: keyof InquiryInput, value: string | boolean) => {
     setFields((current) => ({ ...current, [key]: value }));
     setFieldErrors((current) => ({ ...current, [key]: "" }));
   };
