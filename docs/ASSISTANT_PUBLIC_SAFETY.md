@@ -47,3 +47,22 @@ per-person anti-spam guarantee.
 - [ ] Verify real Lovable gateway streaming on **staging**; set billing alerts.
 - [ ] Check the separate investment inquiry form's live Supabase write permission, spam protections and retention policy.
 - [ ] Security-review actual hosting secrets, lawful privacy text and document sources before broad public launch.
+
+
+## Streaming transport hardening (October 2026)
+
+- The browser now decodes Server-Sent Events by complete event boundaries,
+  including fragmented UTF-8 chunks, CRLF and multi-line \`data:\` payloads.
+  It distinguishes normal \`[DONE]\` or \`response.completed\` from truncated
+  network EOF and explicit \`response.failed\` provider events.
+- A bounded decoder limits one incomplete event and cumulative rendered answer,
+  and never displays raw server/provider errors as instructions.
+- Closing the assistant component stops any active fetch. Clicking Stop aborts
+  the request, releases its browser stream reader and removes empty assistant
+  placeholders; partially received text remains visibly partial instead of
+  silently masquerading as a finished reply.
+- The existing HTTP 429 and service unavailable messages are rendered from
+  localized server responses. A simulated browser test uses intercepted
+  responses and **never contacts the paid AI provider**.
+- These changes improve transport correctness; they do not prove real provider
+  availability, answer accuracy or globally enforced billing quotas.
