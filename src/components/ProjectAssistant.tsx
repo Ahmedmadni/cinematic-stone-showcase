@@ -1,4 +1,5 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { createQuarryStreamDecoder } from "@/lib/quarry-stream-decoder";
 import { useSiteLanguage } from "@/lib/site-language";
 import { ArrowUpLeft, Pickaxe, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,17 +16,28 @@ export function ProjectAssistant() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const abortRef = useRef<AbortController | null>(null);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => { mountedRef.current = false; abortRef.current?.abort(); };
+  }, []);
 
   async function ask(text: string) {
     const q = text.trim();
-    if (q.length < 3 || loading) return;
-    setError("");
-    setQuestion("");
-    const history = messages.slice(-6);
-    setMessages((m) => [...m, { role: "user", content: q }, { role: "assistant", content: "" }]);
-    setLoading(true);
+    // The ref closes the tiny gap between an Enter key and the state update:
+    // no visitor can accidentally start two metered requests simultaneously.
+    if (q.length < 3 || loading || abortRef.current) return;
     const controller = new AbortController();
     abortRef.current = controller;
+    setError("");
+    setQuestion("");
+    const history = messages.filter((m) => m.content.trim().length > 0).slice(-6);
+    setMessages((m) => [...m, { role: "user", content: q }, { role: "assistant", content: "" }]);
+    setLoading(true);
+
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
+    let streamCompleted = false;
     try {
       const res = await fetch("/api/public/ask", {
         method: "POST",
@@ -34,49 +46,59 @@ export function ProjectAssistant() {
         signal: controller.signal,
       });
       if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? "تعذّرت الإجابة الآن.");
+        const data: unknown = await res.json().catch(() => null);
+        const serverError = data && typeof data === "object" && "error" in data &&
+          typeof data.error === "string" ? data.error.slice(0, 350) : t("تعذّرت الإجابة الآن.");
+        throw new Error(serverError);
       }
-      const reader = res.body.getReader();
+
+      const parser = createQuarryStreamDecoder();
       const decoder = new TextDecoder();
-      let buffer = "";
-      for (;;) {
+      reader = res.body.getReader();
+      while (!streamCompleted) {
         const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.startsWith("data:")) continue;
-          const payload = line.slice(5).trim();
-          if (!payload || payload === "[DONE]") continue;
-          try {
-            const evt = JSON.parse(payload);
-            if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") {
-              setMessages((m) => {
-                const copy = [...m];
-                const last = copy[copy.length - 1];
-                if (!last || last.role !== "assistant") return m;
-                copy[copy.length - 1] = { ...last, content: last.content + evt.delta };
-                return copy;
-              });
-            } else if (evt.type === "response.failed" || evt.type === "error") {
-              throw new Error("تعذّر إكمال الإجابة.");
-            }
-          } catch (e) {
-            if (e instanceof Error && e.message.startsWith("تعذّر")) throw e;
+        const events = parser.push(done ? decoder.decode() : decoder.decode(value, { stream: true }));
+        for (const event of events) {
+          if (event.kind === "error") throw new Error(t("تعذّر إكمال الإجابة."));
+          if (event.kind === "complete") { streamCompleted = true; break; }
+          if (event.kind === "text" && mountedRef.current) {
+            setMessages((current) => {
+              const last = current.at(-1);
+              if (!last || last.role !== "assistant") return current;
+              return [...current.slice(0, -1), { ...last, content: last.content + event.text }];
+            });
           }
+        }
+        if (done) {
+          if (!streamCompleted) parser.finish(); // incomplete upstream ≠ success
+          break;
         }
       }
     } catch (e) {
-      if (!(e instanceof DOMException && e.name === "AbortError")) {
-        setError(e instanceof Error ? e.message : "تعذّرت الإجابة الآن.");
-        setMessages((m) => (m[m.length - 1]?.content ? m : m.slice(0, -1)));
+      if (!mountedRef.current) return;
+      if (!controller.signal.aborted) {
+        setError(e instanceof Error && e.message.length < 400 ? e.message : t("تعذّرت الإجابة الآن."));
       }
+      // Remove only a truly empty placeholder. A partial provider reply
+      // remains visible with the failure message instead of silently vanishing.
+      setMessages((current) => {
+        const last = current.at(-1);
+        return last?.role === "assistant" && !last.content ? current.slice(0, -1) : current;
+      });
     } finally {
-      setLoading(false);
-      abortRef.current = null;
+      if (reader) {
+        // Explicitly release upstream concurrency even if the stream ends with
+        // response.completed rather than closing its network connection.
+        await reader.cancel("Assistant answer concluded").catch(() => {});
+        reader.releaseLock();
+      }
+      if (abortRef.current === controller) abortRef.current = null;
+      if (mountedRef.current) setLoading(false);
     }
+  }
+
+  function stop() {
+    abortRef.current?.abort();
   }
 
   function onSubmit(e: FormEvent) {
@@ -112,7 +134,7 @@ export function ProjectAssistant() {
       <form className="assistant-form" onSubmit={onSubmit}>
         <Textarea value={question} onChange={(e) => setQuestion(e.target.value)} maxLength={500} rows={2} placeholder={t("اكتب سؤالك عن المحجر أو الكسارة…")} aria-label={t("سؤالك عن المشروع")} onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void ask(question); } }} />
         {loading ? (
-          <Button type="button" variant="outline" size="icon" aria-label={t("إيقاف")} onClick={() => abortRef.current?.abort()}><Square size={16} /></Button>
+          <Button type="button" variant="outline" size="icon" aria-label={t("إيقاف")} onClick={stop}><Square size={16} /></Button>
         ) : (
           <Button type="submit" size="icon" aria-label={t("إرسال السؤال")} disabled={question.trim().length < 3}><ArrowUpLeft size={18} /></Button>
         )}
