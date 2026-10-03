@@ -114,7 +114,7 @@ try {
     const dialog = page.locator("dialog.gallery-lightbox--native");
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await dialog.evaluate(el => el instanceof HTMLDialogElement && el.open), true);
-    await dialog.getByRole("button", { name: "Next photo" }).count(); // aria translation varies by language; validate manually below
+    assert.equal(await dialog.locator(".lightbox-controls button").count(), 2);
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 7000 });
   });
