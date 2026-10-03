@@ -30,9 +30,43 @@ jobs:
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
         run: |
-          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/inquiries.functions.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
+          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
       - name: Production build
         run: bun run build
+
+
+
+  shared-quota-db:
+    name: Shared quota PostgreSQL integration (disposable)
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: somman_ci_only
+          POSTGRES_DB: somman_qa
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d somman_qa"
+          --health-interval 3s
+          --health-timeout 3s
+          --health-retries 12
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install isolated PostgreSQL client
+        run: npm install --prefix /tmp/somman-dbqa --no-save --no-package-lock --ignore-scripts pg@8.16.3
+      - name: Check atomic quotas and service-role-only privileges
+        env:
+          SOMMAN_TEST_DATABASE_URL: postgres://postgres:somman_ci_only@127.0.0.1:5432/somman_qa
+        run: node tests/shared-quota-db-smoke.mjs
 
 
   browser-smoke:

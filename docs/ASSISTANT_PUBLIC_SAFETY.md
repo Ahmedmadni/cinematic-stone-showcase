@@ -13,6 +13,25 @@
 - Paid upstream calls have a **35-second abort deadline**. Streaming output is relayed with backpressure and capped to **128 KiB**. The paid concurrency slot is released on EOF, stream cancellation and provider errors; release is idempotent.
 - Off-topic replies stay local and never invoke the gateway. No incoming IP/header values are used as a trusted identifier: \`X-Forwarded-For\` can be forged on untrusted ingress.
 
+## Optional shared deployment quotas (new, not yet activated on the quarry project)
+
+A checked-in migration \`20261003143000_somman_global_public_quotas.sql\`
+adds a service-role-only atomic public action limit for assistant questions
+(48/60s) and investor submissions (12/600s), aggregated across all app
+workers with no IP, prompt, identity or email stored.
+
+**Deployment flag defaults OFF**: \`SOMMAN_SHARED_QUOTA_ENABLED=true\`
+enables this only after the SQL migration has been verified in the **correct**
+project. The available Supabase connection does not show the project specified
+by this repository's config, so no live migration was attempted. With the flag
+enabled, database errors fail closed. See \`docs/SHARED_QUOTA_ROLLOUT.md\`.
+
+The separate investor form now has a per-worker burst cap (six/minute, two
+simultaneous writes) even when the shared flag is off. Its existing honeypot,
+Zod validation and RLS data restrictions remain in effect. This is not a
+per-person anti-spam guarantee.
+
+
 ## What this does NOT protect
 **Per-process memory is not an account-wide or distributed rate limit.** Deployments with multiple worker processes or autoscaling each get independent quotas, and process restarts reset the counters. For a public domain, configure a CDN/WAF/API gateway limit (or use a shared Redis/Postgres atomic counter) ahead of the app, set an OpenAI/Lovable spend budget, and alert on AI costs. Do not present the app as abuse-proof.
 - This guard does not authenticate visitors, identify people or store behavioral history.

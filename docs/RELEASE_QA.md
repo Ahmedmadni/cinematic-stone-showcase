@@ -15,6 +15,20 @@ or production security checks have been completed.
 - Tests do **not** submit investment inquiries, read private data or use
   actual company credentials.
 
+## Additional launch gate — shared quotas and private investor data
+
+- [ ] Verify the exact configured Supabase project is connected and authorized.
+      Do not apply the checked-in global quota SQL to any other project.
+- [ ] Apply/review the new aggregate-only SQL migration on that project.
+- [ ] Enable \`SOMMAN_SHARED_QUOTA_ENABLED=true\` server-side **only after**
+      staging tests confirm assistant and inquiry flows. It defaults off.
+- [ ] Set a provider spending ceiling and CDN/WAF anti-abuse controls.
+- [ ] Approve retention, access and deletion practices for investor leads.
+- [ ] Tracked \`.env\` from historical commits requires a private credential
+      review and rotation if sensitive. New \`.gitignore\` rules do not remove
+      a file that is already tracked or erase historical Git data.
+
+
 ## Manual release review required
 - [ ] Review hero typography, photo cropping and motion on Firefox, Safari and Chromium.
 - [ ] Review 390px mobile, tablet and 1366px desktop at 100% and 200% zoom.
