@@ -81,8 +81,10 @@ try {
 
   const leads = await Promise.all(Array.from({ length: 14 }, () => permitScope("inquiry")));
   assert.equal(leads.filter(r => r.rows[0]?.allowed === true).length, 12);
-  assert.equal(leads.filter(r => r.rows[0]?.allowed === false).length, 2);
-  assert.ok(leads.at(-1)?.rows[0]?.retry_after_seconds >= 1);
+  const deniedLeads = leads.filter(r => r.rows[0]?.allowed === false);
+  assert.equal(deniedLeads.length, 2);
+  assert.ok(deniedLeads.every(r => Number(r.rows[0]?.retry_after_seconds) >= 1),
+    "each rejected inquiry receives a positive retry-after regardless of completion order");
   console.log("[DB] separate 12/10-minute inquiry admission: PASS");
 
   const columns = await pool.query(

@@ -135,11 +135,11 @@ function Index() {
   const [submitted, setSubmitted] = useState(false);
   const [readyInquiry, setReadyInquiry] = useState<InquiryInput | null>(null);
   const [formError, setFormError] = useState("");
-  const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "" });
+  const [fields, setFields] = useState<InquiryInput>({ name: "", email: "", phone: "", company: "", message: "", website: "", privacyConsent: false });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [selectedImage, setSelectedImage] = useState<SelectedGalleryImage | null>(null);
 
-  const updateField = (key: keyof InquiryInput, value: string) => {
+  const updateField = (key: keyof InquiryInput, value: string | boolean) => {
     setFields((current) => ({ ...current, [key]: value }));
     setFieldErrors((current) => ({ ...current, [key]: "" }));
   };
@@ -161,7 +161,7 @@ function Index() {
       setReadyInquiry(parsed.data);
       setSubmitted(true);
     } catch {
-      setFormError("تعذر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.");
+      setFormError("تعذّر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.");
     } finally {
       setSubmitting(false);
     }
@@ -334,7 +334,19 @@ function Index() {
                   <div className="form-field form-field-wide"><Label htmlFor="inquiry-message">{t("رسالتك")} <span className="optional-label">{t("اختياري")}</span></Label><Textarea id="inquiry-message" name="message" value={fields.message} onChange={(e) => updateField("message", e.target.value)} maxLength={1000} placeholder={t("ما الذي تود معرفته عن الفرصة؟")} /></div>
                   <div className="form-honeypot" aria-hidden="true"><Label htmlFor="inquiry-website">{t("الموقع الإلكتروني")}</Label><Input id="inquiry-website" name="website" value={fields.website} onChange={(e) => updateField("website", e.target.value)} tabIndex={-1} autoComplete="off" /></div>
                 </div>
-                {formError && <p className="form-error" role="alert">{formError}</p>}
+                <div className="inquiry-consent">
+                  <label htmlFor="inquiry-consent" className="inquiry-consent__choice">
+                    <input id="inquiry-consent" type="checkbox" name="privacyConsent" required checked={fields.privacyConsent}
+                      onChange={(event) => updateField("privacyConsent", event.target.checked)}
+                      aria-invalid={Boolean(fieldErrors["privacyConsent"])}
+                      aria-describedby={fieldErrors["privacyConsent"] ? "inquiry-consent-description inquiry-consent-error" : "inquiry-consent-description"} />
+                    <span>{t("أوافق على حفظ بيانات هذا النموذج حتى يتمكن فريق الاستثمار من مراجعة اهتمامي والتواصل معي بشأن محجر الصمان.")}</span>
+                  </label>
+                  <p id="inquiry-consent-description">{t("الاسم والبريد الإلكتروني مطلوبان، ورقم الهاتف والشركة والرسالة اختيارية. لن تُرسل رسائل بريد أو واتساب تلقائيًا.")}</p>
+                  {fieldErrors["privacyConsent"] && <small id="inquiry-consent-error" className="form-error" role="alert">{t(fieldErrors["privacyConsent"])}</small>}
+                  <p className="inquiry-consent__request">{t("للاستفسار عن البيانات التي قدمتها أو طلب تعديلها أو حذفها، راسل")} <a href="mailto:info@alostool.com.sa" dir="ltr">info@alostool.com.sa</a>.</p>
+                </div>
+                {formError && <p className="form-error" role="alert">{t(formError)}</p>}
                 <Button type="submit" disabled={submitting} className="contact-button">{submitting ? t("جارٍ حفظ البيانات...") : t("احفظ بياناتك واختر طريقة التواصل")} <ArrowLeft size={18} /></Button>
                 <p className="form-privacy">{t("تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.")}</p>
               </form>}

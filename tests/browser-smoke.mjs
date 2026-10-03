@@ -483,6 +483,27 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-evidence.png", animations: "disabled" });
   });
 
+  await caseRun("investor data consent is explicit and never auto-submits", async () => {
+    const form = desktopPage.locator(".inquiry-panel form");
+    await form.scrollIntoViewIfNeeded();
+    const consent = form.locator("#inquiry-consent");
+    assert.ok(await consent.isVisible());
+    assert.equal(await consent.getAttribute("required"), "");
+    assert.equal(await consent.isChecked(), false);
+    const notice = await form.locator(".inquiry-consent").innerText();
+    assert.match(notice, /agree|أوافق/i);
+    assert.match(notice, /delete|حذف/i);
+    assert.match(notice, /WhatsApp|واتساب/i);
+    const contact = form.locator(".inquiry-consent__request a");
+    assert.equal(await contact.getAttribute("href"), "mailto:info@alostool.com.sa");
+    await consent.check();
+    assert.equal(await consent.isChecked(), true);
+    await consent.uncheck();
+    assert.equal(await consent.isChecked(), false);
+    // Deliberately no submit action: browser QA must never insert real leads.
+    await desktopPage.screenshot({ path: output + "/desktop-investor-consent-empty.png", animations: "disabled" });
+  });
+
   await caseRun("no uncaught desktop hydration errors", async () => {
     assert.deepEqual(runtimeErrors, []);
   });

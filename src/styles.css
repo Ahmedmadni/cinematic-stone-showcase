@@ -15,6 +15,7 @@
 @import "./styles/gallery-motion.css";
 @import "./styles/gallery-mobile-accessibility.css";
 @import "./styles/hero-loading-safety.css";
+@import "./styles/inquiry-privacy.css";
 
 @custom-variant dark (&:is(.dark *));
 

@@ -23,7 +23,9 @@ or production security checks have been completed.
 - [ ] Enable \`SOMMAN_SHARED_QUOTA_ENABLED=true\` server-side **only after**
       staging tests confirm assistant and inquiry flows. It defaults off.
 - [ ] Set a provider spending ceiling and CDN/WAF anti-abuse controls.
+- [x] Add explicitly unchecked investor data-use checkbox validated client/server, with bilingual rights contact.
 - [ ] Approve retention, access and deletion practices for investor leads.
+- [ ] Decide whether legal review requires storing a notice version and consent timestamp; the current table does not persist a consent receipt. See `docs/INVESTOR_CONTACT_PRIVACY.md`.
 - [ ] Tracked \`.env\` from historical commits requires a private credential
       review and rotation if sensitive. New \`.gitignore\` rules do not remove
       a file that is already tracked or erase historical Git data.

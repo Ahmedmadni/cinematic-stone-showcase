@@ -83,6 +83,12 @@ const english: Record<string, string> = {
   "جارٍ حفظ البيانات...": "Saving your details...",
   "احفظ بياناتك واختر طريقة التواصل": "Save details and choose a contact channel",
   "تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.": "Your details are used only to follow up on this opportunity. No email or WhatsApp message is sent automatically.",
+
+  "أوافق على حفظ بيانات هذا النموذج حتى يتمكن فريق الاستثمار من مراجعة اهتمامي والتواصل معي بشأن محجر الصمان.": "I agree to the storage of my form details so the investment team can review my interest and contact me about Al Somman quarry.",
+  "الاسم والبريد الإلكتروني مطلوبان، ورقم الهاتف والشركة والرسالة اختيارية. لن تُرسل رسائل بريد أو واتساب تلقائيًا.": "Name and email are required; phone, company and message are optional. No email or WhatsApp message is sent automatically.",
+  "للاستفسار عن البيانات التي قدمتها أو طلب تعديلها أو حذفها، راسل": "To ask about, correct or request deletion of details you supplied, email",
+  "يلزم الموافقة على استخدام البيانات قبل إرسال الطلب.": "Please confirm how your details will be used before submitting.",
+
   "© شركة الأسطول الآلي": "© Al Ostool Alaali Company",
   "الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.": "All imagery is illustrative, not actual photographs of the quarry or its equipment.",
   "العودة للأعلى ↑": "Back to top ↑",
