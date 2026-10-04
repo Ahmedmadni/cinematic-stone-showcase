@@ -54,7 +54,7 @@ try {
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
   await caseRun("server adds conservative security headers without blocking current integrations", async () => {
-    const response = await desktopPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    const response = await openWithRetry(desktopPage, baseURL);
     assert.ok(response, "main document response is required");
     const headers = response.headers();
     assert.equal(headers["x-frame-options"], "DENY");
