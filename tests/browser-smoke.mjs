@@ -67,6 +67,16 @@ try {
     assert.equal(headers["cross-origin-opener-policy"], "same-origin");
     // Local preview is HTTP, so HSTS should not be advertised in CI.
     assert.equal(headers["strict-transport-security"], undefined);
+    const oversized = await desktopPage.request.post(baseURL + "/api/public/ask", {
+      headers: { "content-type": "application/json" },
+      data: { question: "x".repeat(30000), language: "en" },
+    });
+    assert.ok(oversized.status() >= 400);
+    const apiHeaders = oversized.headers();
+    assert.equal(apiHeaders["cache-control"], "no-store");
+    assert.equal(apiHeaders["x-frame-options"], "DENY");
+    assert.equal(apiHeaders["x-content-type-options"], "nosniff");
+    assert.match(apiHeaders["content-security-policy"] ?? "", /frame-ancestors 'none'/);
     assert.ok(await desktopPage.locator("#hero-title").isVisible());
   });
 
