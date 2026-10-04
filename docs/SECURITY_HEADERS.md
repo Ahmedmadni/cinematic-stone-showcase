@@ -13,6 +13,8 @@ fallback error pages:
 - HTTPS responses advertise one-year HSTS for the current host only. `includeSubDomains` is intentionally omitted until every company subdomain is confirmed HTTPS.
 - Error and 429/503 responses default to \`Cache-Control: no-store\`.
 
+Lovable editor preview hosts under `*.lovable.app` are a deliberate exception to the public anti-frame rule: only `lovable.dev` / `*.lovable.dev` may frame those preview hosts, and the legacy `X-Frame-Options` header is omitted there because it cannot express that allowlist. Public/custom domains continue to use `frame-ancestors 'none'` plus `X-Frame-Options: DENY`.
+
 This intentionally does **not** define broad \`default-src\`, \`script-src\`,
 \`style-src\` or \`frame-src\` policies yet. TanStack Start/React streaming,
 Google Fonts and the optional Google Maps iframe need a separately tested
