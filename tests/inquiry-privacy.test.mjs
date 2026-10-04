@@ -48,3 +48,21 @@ test("the consent and data rights instructions are translated fully in English U
   assert.match(translateSite(notice, "en"), /No email or WhatsApp/i);
   assert.equal(translateSite(consent, "ar"), consent);
 });
+
+
+test("every investor validation message has an English-default translation", () => {
+  const cases = [
+    ["أدخل اسمك الكامل", /full name/i],
+    ["الاسم طويل جداً", /too long/i],
+    ["أدخل بريداً إلكترونياً صحيحاً", /valid email/i],
+    ["البريد الإلكتروني طويل جداً", /too long/i],
+    ["رقم الهاتف طويل جداً", /too long/i],
+    ["أدخل رقم هاتف صحيحاً", /valid phone/i],
+    ["اسم الجهة طويل جداً", /too long/i],
+    ["الرسالة طويلة جداً", /too long/i],
+  ];
+  for (const [arabic, expected] of cases) {
+    assert.match(translateSite(arabic, "en"), expected);
+    assert.equal(translateSite(arabic, "ar"), arabic);
+  }
+});
