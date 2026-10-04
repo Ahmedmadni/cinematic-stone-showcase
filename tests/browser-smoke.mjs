@@ -53,6 +53,23 @@ try {
   const runtimeErrors = [];
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
+  await caseRun("server adds conservative security headers without blocking current integrations", async () => {
+    const response = await desktopPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+    assert.ok(response, "main document response is required");
+    const headers = response.headers();
+    assert.equal(headers["x-frame-options"], "DENY");
+    assert.equal(headers["x-content-type-options"], "nosniff");
+    assert.equal(headers["referrer-policy"], "strict-origin-when-cross-origin");
+    assert.match(headers["content-security-policy"] ?? "", /frame-ancestors 'none'/);
+    assert.match(headers["content-security-policy"] ?? "", /object-src 'none'/);
+    assert.match(headers["permissions-policy"] ?? "", /camera=\(\)/);
+    assert.match(headers["permissions-policy"] ?? "", /microphone=\(\)/);
+    assert.equal(headers["cross-origin-opener-policy"], "same-origin");
+    // Local preview is HTTP, so HSTS should not be advertised in CI.
+    assert.equal(headers["strict-transport-security"], undefined);
+    assert.ok(await desktopPage.locator("#hero-title").isVisible());
+  });
+
   await caseRun("desktop English default, icon-only tools and logical quarry hero", async () => {
     await openWithRetry(desktopPage, baseURL);
     assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
