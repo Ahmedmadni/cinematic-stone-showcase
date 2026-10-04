@@ -121,3 +121,7 @@
 - [ ] Reverify latest clean head in CI after removing diagnostic instrumentation.
 - [ ] Manually verify gestures/visual styling on real iOS Safari, Android Chrome and Firefox before public sign-off.
 - [ ] Replace all illustrative quarry photographs with approved authentic site images before claiming real-site provenance.
+
+## Editorial headline motion
+- [x] Add a replayable split-lock treatment to the hero place name, a vertical subject rotator to the gallery heading, and a grapheme-aware typing treatment to the Q&A heading.
+- [ ] Verify both languages, phone layout, replay and reduced-motion behavior in the running preview.
