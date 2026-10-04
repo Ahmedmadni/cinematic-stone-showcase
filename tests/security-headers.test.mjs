@@ -64,3 +64,27 @@ test("security defaults intentionally omit broad source restrictions that would 
   assert.doesNotMatch(csp, /\bscript-src\b/);
   assert.doesNotMatch(csp, /\bframe-src\b/);
 });
+
+test("trusted Lovable preview hosts remain embeddable only by the editor", () => {
+  const response = withPublicSecurityHeaders(
+    new Response("preview"),
+    new Request("https://id-preview--example.lovable.app/"),
+  );
+  assert.equal(response.headers.has("x-frame-options"), false);
+  const csp = response.headers.get("content-security-policy") ?? "";
+  assert.match(csp, /frame-ancestors 'self' https:\/\/lovable\.dev https:\/\/\*\.lovable\.dev/);
+  assert.doesNotMatch(csp, /frame-ancestors 'none'/);
+});
+
+test("similarly named untrusted domains do not receive Lovable preview exception", () => {
+  for (const host of [
+    "https://lovable.app.evil.example/",
+    "https://preview-lovable.app.example/",
+    "https://lovable.dev.evil.example/",
+  ]) {
+    const response = withPublicSecurityHeaders(new Response("public"), new Request(host));
+    assert.equal(response.headers.get("x-frame-options"), "DENY");
+    assert.match(response.headers.get("content-security-policy") ?? "", /frame-ancestors 'none'/);
+  }
+});
+
