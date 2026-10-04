@@ -1,4 +1,5 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { createAssistantStreamParser } from "@/lib/assistant-stream";
 import { useSiteLanguage } from "@/lib/site-language";
 import { ArrowUpLeft, Pickaxe, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,66 +17,95 @@ export function ProjectAssistant() {
   const [error, setError] = useState("");
   const abortRef = useRef<AbortController | null>(null);
 
+  // Closing the drawer keeps its conversation; unmounting aborts outstanding
+  // metered requests so the server can free its concurrent-request permit.
+  useEffect(() => () => abortRef.current?.abort(), []);
+
   async function ask(text: string) {
     const q = text.trim();
     if (q.length < 3 || loading) return;
+    const failure = language === "en"
+      ? "The answer was interrupted. Please try again."
+      : "انقطعت الإجابة قبل اكتمالها. يرجى المحاولة مرة أخرى.";
     setError("");
     setQuestion("");
-    const history = messages.slice(-6);
-    setMessages((m) => [...m, { role: "user", content: q }, { role: "assistant", content: "" }]);
+    // Do not send half-written or blank assistant responses as prior facts.
+    const history = messages.filter(message => message.content.trim()).slice(-6);
+    setMessages(previous => [...previous, { role: "user", content: q }, { role: "assistant", content: "" }]);
     setLoading(true);
     const controller = new AbortController();
     abortRef.current = controller;
+    let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
+    let completed = false;
+
     try {
-      const res = await fetch("/api/public/ask", {
+      const response = await fetch("/api/public/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: q, history, language }),
         signal: controller.signal,
       });
-      if (!res.ok || !res.body) {
-        const data = await res.json().catch(() => null);
-        throw new Error(data?.error ?? "تعذّرت الإجابة الآن.");
+
+      if (!response.ok || !response.body) {
+        const data: unknown = await response.json().catch(() => null);
+        const detail = data && typeof data === "object" && "error" in data
+          ? (data as { error?: unknown }).error
+          : null;
+        throw new Error(typeof detail === "string" && detail.length <= 300 ? detail : failure);
       }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? "";
-        for (const line of lines) {
-          if (!line.startsWith("data:")) continue;
-          const payload = line.slice(5).trim();
-          if (!payload || payload === "[DONE]") continue;
-          try {
-            const evt = JSON.parse(payload);
-            if (evt.type === "response.output_text.delta" && typeof evt.delta === "string") {
-              setMessages((m) => {
-                const copy = [...m];
-                const last = copy[copy.length - 1];
-                if (!last || last.role !== "assistant") return m;
-                copy[copy.length - 1] = { ...last, content: last.content + evt.delta };
-                return copy;
-              });
-            } else if (evt.type === "response.failed" || evt.type === "error") {
-              throw new Error("تعذّر إكمال الإجابة.");
-            }
-          } catch (e) {
-            if (e instanceof Error && e.message.startsWith("تعذّر")) throw e;
-          }
+
+      reader = response.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      const parser = createAssistantStreamParser();
+      let receivedText = false;
+
+      function consume(events: ReturnType<typeof parser.push>) {
+        let delta = "";
+        for (const event of events) {
+          if (event.kind === "error") throw new Error(failure);
+          if (event.kind === "done") completed = true;
+          if (event.kind === "delta") delta += event.text;
+        }
+        if (delta) {
+          receivedText = true;
+          // One state update per network chunk, instead of per SSE line/token.
+          setMessages(previous => {
+            const last = previous.at(-1);
+            if (!last || last.role !== "assistant") return previous;
+            const next = [...previous];
+            next[next.length - 1] = { ...last, content: last.content + delta };
+            return next;
+          });
         }
       }
-    } catch (e) {
-      if (!(e instanceof DOMException && e.name === "AbortError")) {
-        setError(e instanceof Error ? e.message : "تعذّرت الإجابة الآن.");
-        setMessages((m) => (m[m.length - 1]?.content ? m : m.slice(0, -1)));
+
+      while (!completed) {
+        const { done, value } = await reader.read();
+        if (done) {
+          consume(parser.finish());
+          break;
+        }
+        consume(parser.push(decoder.decode(value, { stream: true })));
+      }
+      if (!completed) throw new Error(failure);
+      if (!receivedText) throw new Error(failure);
+    } catch (cause) {
+      const cancelled = controller.signal.aborted ||
+        (cause instanceof DOMException && cause.name === "AbortError");
+      if (cancelled) {
+        // Remove an unanswered placeholder; keep an already streamed excerpt.
+        setMessages(previous => previous.at(-1)?.role === "assistant" &&
+          !previous.at(-1)?.content ? previous.slice(0, -1) : previous);
+      } else {
+        setError(cause instanceof Error && cause.message ? cause.message : failure);
+        setMessages(previous => previous.at(-1)?.role === "assistant" &&
+          !previous.at(-1)?.content ? previous.slice(0, -1) : previous);
       }
     } finally {
+      // Early completion, error and Stop all release the server-side stream.
+      if (reader && !completed) await reader.cancel().catch(() => {});
+      if (abortRef.current === controller) abortRef.current = null;
       setLoading(false);
-      abortRef.current = null;
     }
   }
 
