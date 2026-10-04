@@ -8,7 +8,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
-    "test:cinematic": "node --experimental-strip-types --test tests/cinematic-progress.test.mjs tests/experience-data.test.mjs tests/investor-evidence.test.mjs tests/asset-budget.test.mjs tests/quarry-map.test.mjs tests/quarry-question-scope.test.mjs tests/site-language.test.mjs tests/gallery-gestures.test.mjs tests/public-ai-budget.test.mjs tests/shared-public-quota.test.mjs tests/inquiry-privacy.test.mjs",
+    "test:cinematic": "node --experimental-strip-types --test tests/cinematic-progress.test.mjs tests/experience-data.test.mjs tests/investor-evidence.test.mjs tests/asset-budget.test.mjs tests/quarry-map.test.mjs tests/quarry-question-scope.test.mjs tests/site-language.test.mjs tests/gallery-gestures.test.mjs tests/public-ai-budget.test.mjs tests/shared-public-quota.test.mjs tests/inquiry-privacy.test.mjs tests/assistant-stream.test.mjs",
     "lint": "eslint .",
     "format": "prettier --write ."
   },

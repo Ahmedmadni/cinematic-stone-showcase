@@ -30,7 +30,7 @@ jobs:
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
         run: |
-          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/lib/inquiry-schema.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
+          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/assistant-stream.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/lib/inquiry-schema.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
       - name: Production build
         run: bun run build
 
