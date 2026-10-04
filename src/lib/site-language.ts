@@ -328,6 +328,15 @@ const english: Record<string, string> = {
   "م³ / يوم": "m³ / day",
   "م²": "m²",
 
+  "أدخل اسمك الكامل": "Enter your full name",
+  "الاسم طويل جداً": "Name is too long",
+  "أدخل بريداً إلكترونياً صحيحاً": "Enter a valid email address",
+  "البريد الإلكتروني طويل جداً": "Email address is too long",
+  "رقم الهاتف طويل جداً": "Phone number is too long",
+  "أدخل رقم هاتف صحيحاً": "Enter a valid phone number",
+  "اسم الجهة طويل جداً": "Company name is too long",
+  "الرسالة طويلة جداً": "Message is too long",
+
 } as const;
 
 type LanguageContextValue = {
