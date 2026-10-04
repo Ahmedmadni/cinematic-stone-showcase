@@ -124,4 +124,4 @@
 
 ## Editorial headline motion
 - [x] Add a replayable split-lock treatment to the hero place name, a vertical subject rotator to the gallery heading, and a grapheme-aware typing treatment to the Q&A heading.
-- [ ] Verify both languages, phone layout, replay and reduced-motion behavior in the running preview.
+- [x] Verify both languages, phone layout, replay and reduced-motion behavior in the running preview.
