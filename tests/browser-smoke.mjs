@@ -180,6 +180,76 @@ try {
     await desktopPage.waitForFunction(() => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
   });
 
+  await caseRun("assistant handles success, upstream failures, truncated SSE and rate limits", async () => {
+    // These are synthetic responses; no paid AI calls or real user data are sent.
+    const chatContext = await browser.newContext({
+      viewport: { width: 1050, height: 820 },
+      reducedMotion: "reduce",
+      locale: "en-US",
+    });
+    const page = await chatContext.newPage();
+    let mode = "success";
+    let requests = 0;
+    await page.route("**/api/public/ask", async route => {
+      requests++;
+      const posted = route.request().postDataJSON();
+      assert.equal(posted.language, "en");
+      assert.match(posted.question, /quarry/i);
+      if (mode === "busy") {
+        await route.fulfill({
+          status: 429,
+          contentType: "application/json",
+          headers: { "Retry-After": "12", "Cache-Control": "no-store" },
+          body: JSON.stringify({ error: "Too many quarry questions right now. Please retry shortly." }),
+        });
+        return;
+      }
+      const stream = mode === "success"
+        ? [
+          'data: {"type":"response.output_text.delta","delta":"Fourteen "}\n\n',
+          'data: {"type":"response.output_text.delta","delta":"excavators."}\n\n',
+          "data: [DONE]\n\n",
+        ].join("")
+        : mode === "failure"
+          ? 'event: response.failed\ndata: {"type":"response.failed","error":{"message":"PROVIDER_PRIVATE_DETAIL"}}\n\n'
+          : 'data: {"type":"response.output_text.delta","delta":"Partial excerpt."}\n\n';
+      await route.fulfill({ status: 200, contentType: "text/event-stream; charset=utf-8", body: stream });
+    });
+    try {
+      await openWithRetry(page, baseURL);
+      await page.getByRole("button", { name: "Open Al Somman assistant" }).click();
+      const drawer = page.locator("#somman-assistant-drawer");
+      const question = drawer.getByRole("textbox", { name: "Your quarry question" });
+      async function submit() {
+        await question.fill("How many excavators does the Al Somman quarry have?");
+        await drawer.getByRole("button", { name: "Send question" }).click();
+      }
+      await submit();
+      await page.waitForFunction(() =>
+        document.querySelector("#somman-assistant-drawer .assistant-msg.assistant")?.textContent?.includes("Fourteen excavators."),
+        null, { timeout: 7000 });
+      assert.equal(await drawer.locator(".assistant-error").count(), 0);
+      mode = "failure";
+      await submit();
+      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+      assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
+      assert.doesNotMatch(await drawer.innerText(), /PROVIDER_PRIVATE_DETAIL/);
+      mode = "truncated";
+      await submit();
+      await drawer.locator(".assistant-msg.assistant").last().filter({ hasText: "Partial excerpt." }).waitFor({ state: "visible", timeout: 7000 });
+      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+      assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
+      mode = "busy";
+      await submit();
+      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+      assert.match(await drawer.locator(".assistant-error").innerText(), /Too many quarry questions/i);
+      assert.equal(requests, 4, "all four test requests were intercepted in the browser");
+      await drawer.getByRole("button", { name: "Close assistant" }).click();
+    } finally {
+      await chatContext.close();
+    }
+  });
+
   await caseRun("scrubbed quarry reveal advances with natural scroll", async () => {
     await desktopPage.evaluate(() => {
       const bridge = document.getElementById("cinematic-bridge");
