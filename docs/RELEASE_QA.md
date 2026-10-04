@@ -60,3 +60,16 @@ The build and automated tests cannot certify active permits, certificate
 authenticity, cross-browser visual quality, actual 60fps scrolling or platform
 credential security. Keep the deployment/publication decision separate from
 merge approval. Project imagery currently remains illustrative.
+
+
+## Public response and third-party launch hardening
+
+- [x] Apply clickjacking, MIME sniffing, strict referrer, COOP and restricted browser-permission headers to SSR/API/error responses.
+- [x] Set HSTS on HTTPS for the **current host only**; do not enforce unverified company subdomains.
+- [x] Keep CSP conservative: block embedding/object/base/form abuse without an untested broad source policy that could break TanStack, fonts or Maps.
+- [x] Do not create the Google Maps iframe until the visitor explicitly chooses to load it.
+- [x] Align root fallback metadata with English-default presentation.
+- [x] Translate all investor validation errors in English mode and expose optional company/message errors with accessible descriptions.
+- [ ] On the published HTTPS domain, confirm headers at the edge/CDN are not overwritten or duplicated with conflicting policies.
+- [ ] Review a stricter nonce/source CSP in report-only mode before any future enforcement.
+
