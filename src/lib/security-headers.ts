@@ -25,7 +25,7 @@ export function withPublicSecurityHeaders(response: Response, request: Request):
   // HSTS is meaningful only on HTTPS responses. Browsers ignore it over HTTP,
   // but don't advertise HSTS from a local/dev HTTP origin.
   if (new URL(request.url).protocol === "https:") {
-    headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+    headers.set("Strict-Transport-Security", "max-age=31536000");
   }
 
   // Public HTML and API errors may contain localized visitor-specific state;
