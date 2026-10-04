@@ -24,6 +24,7 @@ test("public responses block clickjacking, plugin content and unused sensitive p
   assert.match(response.headers.get("permissions-policy") ?? "", /microphone=\(\)/);
   assert.equal(response.headers.get("cross-origin-opener-policy"), "same-origin");
   assert.match(response.headers.get("strict-transport-security") ?? "", /max-age=31536000/);
+  assert.doesNotMatch(response.headers.get("strict-transport-security") ?? "", /includeSubDomains/i);
   assert.equal(await response.text(), "<!doctype html><title>Somman</title>");
 });
 
