@@ -485,8 +485,12 @@ try {
     assert.ok(await location.getByRole("heading", { name: "خريطة القمر الصناعي" }).isVisible());
     assert.ok(await location.getByRole("heading", { name: "منظور مجسّم تصوري" }).isVisible());
     const iframe = location.locator('iframe[title*="Google Maps"]');
-    assert.ok(await iframe.count() === 1);
-    const src = await iframe.getAttribute("src");
+    assert.equal(await iframe.count(), 0, "Google iframe must not load before visitor opt-in");
+    const loadMap = location.getByRole("button", { name: "تحميل Google Maps" });
+    assert.ok(await loadMap.isVisible());
+    await loadMap.click();
+    await location.locator('iframe[title*="Google Maps"]').waitFor({ state: "attached", timeout: 8000 });
+    const src = await location.locator('iframe[title*="Google Maps"]').getAttribute("src");
     assert.ok(src?.includes("maps.google.com/maps?"));
     assert.match(src ?? "", /25\.515292%2C48\.362458/);
     const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
@@ -676,7 +680,9 @@ try {
     const location = mobilePage.locator(".somman-location-experience");
     await location.scrollIntoViewIfNeeded();
     const iframe = location.locator('iframe[title*="Google Maps"]');
-    assert.equal(await iframe.count(), 1);
+    assert.equal(await iframe.count(), 0, "reduced-motion mobile still requires explicit third-party map opt-in");
+    await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
+    await location.locator('iframe[title*="Google Maps"]').waitFor({ state: "attached", timeout: 8000 });
     const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في المشهد التصوري" });
     await hotspot.tap();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
