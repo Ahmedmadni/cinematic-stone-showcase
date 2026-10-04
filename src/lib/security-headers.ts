@@ -25,7 +25,7 @@ export function withPublicSecurityHeaders(response: Response, request: Request):
   const requestUrl = new URL(request.url);
   // Lovable's editor renders its isolated preview host inside a trusted
   // lovable.dev frame. Keep that workflow functional without making public
-  ///custom domains frameable by arbitrary origins.
+  // custom domains frameable by arbitrary origins.
   if (requestUrl.hostname.endsWith(".lovable.app")) {
     headers.set(
       "Content-Security-Policy",
