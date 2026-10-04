@@ -22,9 +22,21 @@ export function withPublicSecurityHeaders(response: Response, request: Request):
     if (!headers.has(name)) headers.set(name, value);
   }
 
+  const requestUrl = new URL(request.url);
+  // Lovable's editor renders its isolated preview host inside a trusted
+  // lovable.dev frame. Keep that workflow functional without making public
+  ///custom domains frameable by arbitrary origins.
+  if (requestUrl.hostname.endsWith(".lovable.app")) {
+    headers.set(
+      "Content-Security-Policy",
+      "base-uri 'self'; object-src 'none'; frame-ancestors 'self' https://lovable.dev https://*.lovable.dev; form-action 'self'",
+    );
+    headers.delete("X-Frame-Options");
+  }
+
   // HSTS is meaningful only on HTTPS responses. Browsers ignore it over HTTP,
   // but don't advertise HSTS from a local/dev HTTP origin.
-  if (new URL(request.url).protocol === "https:") {
+  if (requestUrl.protocol === "https:") {
     headers.set("Strict-Transport-Security", "max-age=31536000");
   }
 
