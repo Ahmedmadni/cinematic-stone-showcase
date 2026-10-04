@@ -28,3 +28,16 @@ Before production sign-off:
    required origins/nonces before enforcement.
 4. Never loosen \`frame-ancestors\` to support third-party embedding unless the
    company explicitly approves those origins.
+
+## Third-party map privacy
+
+The Google Maps iframe now starts **unloaded**. The conceptual local quarry
+visual remains available immediately, but the browser does not create the
+Google iframe until the visitor explicitly presses the load button. The normal
+external "Open in Google Maps" link remains a separate visitor-initiated
+navigation. Browser QA covers desktop and reduced-motion mobile opt-in.
+
+This reduces passive third-party contact but is not a comprehensive cookie/
+tracking consent system; Google Maps policies and any company privacy notice
+still require operator/legal review.
+
