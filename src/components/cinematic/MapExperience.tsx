@@ -41,7 +41,8 @@ export function MapExperience() {
   const sceneRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
   const [focus, setFocus] = useState<(typeof landmarks)[number]["id"]>("production");
-  const [mapAllowed, setMapAllowed] = useState(true);
+  // Privacy-first: no Google iframe/network request until the visitor opts in.
+  const [mapAllowed, setMapAllowed] = useState(false);
   const active = landmarks.find((item) => item.id === focus) ?? landmarks[1];
 
   useEffect(() => {
