@@ -10,7 +10,7 @@ fallback error pages:
 - \`Permissions-Policy\` disables camera, microphone, geolocation, payment, USB
   and interest-cohort features that the presentation does not use.
 - \`Cross-Origin-Opener-Policy: same-origin\`
-- HTTPS responses advertise one-year HSTS with subdomains.
+- HTTPS responses advertise one-year HSTS for the current host only. `includeSubDomains` is intentionally omitted until every company subdomain is confirmed HTTPS.
 - Error and 429/503 responses default to \`Cache-Control: no-store\`.
 
 This intentionally does **not** define broad \`default-src\`, \`script-src\`,
