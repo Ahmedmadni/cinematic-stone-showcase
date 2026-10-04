@@ -103,7 +103,7 @@ export function ProjectAssistant() {
       }
     } finally {
       // Early completion, error and Stop all release the server-side stream.
-      if (reader && !completed) await reader.cancel().catch(() => {});
+      if (reader) await reader.cancel().catch(() => {});
       if (abortRef.current === controller) abortRef.current = null;
       setLoading(false);
     }
