@@ -84,8 +84,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Al Somman Quarry | Al Ostool Alaali" },
       { property: "og:description", content: "Investment presentation for Al Somman quarry and crushing plant." },
       { property: "og:type", content: "website" },
-      { property: "og:locale", content: "en_US" },
-      { property: "og:locale:alternate", content: "ar_SA" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [
