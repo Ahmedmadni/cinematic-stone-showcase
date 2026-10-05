@@ -870,6 +870,8 @@ try {
   await mobile.close();
 
   await caseRun("phone, 200%-zoom-equivalent and tablet layouts preserve scroll chapter controls", async () => {
+    // 683 CSS px approximates the layout viewport seen at 200% browser zoom
+    // from a 1366px desktop, while 768px exercises the tablet breakpoint.
     for (const [width, height] of [[320, 568], [360, 640], [390, 720], [683, 450], [768, 1024]]) {
       const context = await browser.newContext({
         viewport: { width, height },
