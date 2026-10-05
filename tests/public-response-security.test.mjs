@@ -24,6 +24,7 @@ test("all public responses receive conservative browser security headers", () =>
   assert.match(csp, /frame-ancestors 'none'/);
   assert.match(csp, /style-src 'self' 'unsafe-inline' https:\/\/fonts\.googleapis\.com/);
   assert.match(csp, /font-src 'self' data: https:\/\/fonts\.gstatic\.com/);
+  assert.match(csp, /frame-src 'self' https:\/\/maps\.google\.com https:\/\/www\.google\.com/);
   assert.match(csp, /connect-src 'self' https:\/\/\*\.supabase\.co wss:\/\/\*\.supabase\.co/);
   assert.doesNotMatch(csp, /'unsafe-eval'/);
   assert.match(csp, /upgrade-insecure-requests/);
