@@ -36,8 +36,6 @@ export function ProjectAssistant({ active = true }: { active?: boolean }) {
       : "انقطعت الإجابة قبل اكتمالها. يرجى المحاولة مرة أخرى.";
     setError("");
     setQuestion("");
-    // Do not send half-written or blank assistant responses as prior facts.
-    const history = messages.filter(message => message.content.trim()).slice(-6);
     setMessages(previous => [...previous, { role: "user", content: q }, { role: "assistant", content: "" }]);
     setLoading(true);
     const controller = new AbortController();
@@ -49,7 +47,7 @@ export function ProjectAssistant({ active = true }: { active?: boolean }) {
       const response = await fetch("/api/public/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question: q, history, language }),
+        body: JSON.stringify({ question: q, language }),
         signal: controller.signal,
       });
 
