@@ -4,6 +4,11 @@ import { describeDiagnosticError } from "./error-redaction";
 // diagnostic shape when h3 has already swallowed the throw into a generic 500.
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
+
+function record(error: unknown) {
+  lastCapturedError = { error, at: Date.now() };
+}
+
 function isErrorLike(value: unknown): value is Error {
   return value instanceof Error;
 }
