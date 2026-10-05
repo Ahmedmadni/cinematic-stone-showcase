@@ -28,14 +28,14 @@
 }
 .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
 .production-flow--story .production-flow__photo.is-active {
-  --chapter-wipe: clamp(0, calc(var(--cinema-fleet-local-progress, 0) * 3.4), 1);
+  --chapter-wipe: clamp(0, calc(var(--cinema-fleet-local-progress, 0) * 1.85), 1);
   z-index: -1; visibility: visible; opacity: 1;
   filter: saturate(1) contrast(1.05);
   transition: none;
   transform: translate3d(var(--cinema-fleet-mouse-x, 0px), var(--cinema-fleet-mouse-y, 0px), 0) scale(var(--cinema-fleet-scale, 1.05));
 }
 .production-flow--story .production-flow__photo.is-active {
-  --chapter-wipe: clamp(0, calc(var(--cinema-material-local, 0) * 3.4), 1);
+  --chapter-wipe: clamp(0, calc(var(--cinema-material-local, 0) * 1.85), 1);
   transform: scale(var(--cinema-material-scale, 1.05));
 }
 /* 01: diagonal descent from lower right, with a stepped strata-like boundary. */
