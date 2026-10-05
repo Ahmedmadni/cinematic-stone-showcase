@@ -27,7 +27,7 @@ export async function consumeSharedPublicQuota(
 ): Promise<QuotaDecision> {
   const enabled = resolveSharedQuotaEnabled(
     process.env["SOMMAN_SHARED_QUOTA_ENABLED"],
-    process.env["NODE_ENV"],
+    import.meta.env.PROD,
   );
   return checkSharedPublicQuota({
     enabled,
