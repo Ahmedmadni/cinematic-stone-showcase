@@ -584,7 +584,7 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
   });
 
-  await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
+  await caseRun("native gallery keyboard navigation, focus trap and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
     await button.click();
@@ -592,12 +592,33 @@ try {
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
     assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
-    const initial = await dialog.locator(".lightbox-toolbar .latin").innerText();
-    await desktopPage.waitForFunction(previous =>
-      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
-      initial, { timeout: 10500 });
+
+    // Native modal dialog must keep keyboard focus inside the enlarged gallery.
+    for (let step = 0; step < 8; step++) {
+      await desktopPage.keyboard.press("Tab");
+      assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
+        "Tab escaped the open modal lightbox");
+    }
+    await desktopPage.keyboard.press("Shift+Tab");
+    assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
+      "Shift+Tab escaped the open modal lightbox");
+
     await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
     assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
+
+    const initial = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+    await desktopPage.keyboard.press("ArrowRight");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
+      initial, { timeout: 5000 });
+    const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+    assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
+
+    await desktopPage.keyboard.press("ArrowLeft");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
+      afterRight, { timeout: 5000 });
+
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
     assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
@@ -848,8 +869,8 @@ try {
 
   await mobile.close();
 
-  await caseRun("short smartphone and narrow zoom layout preserve scroll chapter controls", async () => {
-    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [680, 450]]) {
+  await caseRun("phone, 200%-zoom-equivalent and tablet layouts preserve scroll chapter controls", async () => {
+    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [683, 450], [768, 1024]]) {
       const context = await browser.newContext({
         viewport: { width, height },
         reducedMotion: "no-preference",
