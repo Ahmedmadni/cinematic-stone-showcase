@@ -169,13 +169,17 @@
 .presentation .gallery-item .gallery-image-button,
 .presentation .gallery-item .image-window {border-radius:inherit;}
 .presentation .gallery-item .gallery-slide {
+  transform:scale(1.025);
   filter:saturate(.84) contrast(1.06);
   transition:opacity 1.2s cubic-bezier(.22,.61,.3,1),
     transform 6.2s cubic-bezier(.18,.7,.25,1),
     filter 1.2s,visibility 1.2s;
 }
 .presentation .gallery-item .gallery-slide.active {
-  opacity:1;filter:saturate(1) contrast(1.06);
+  opacity:1;transform:scale(1);filter:saturate(1) contrast(1.06);
+}
+.presentation .gallery-item .gallery-image-button:hover .gallery-slide.active {
+  transform:scale(1.015);
 }
 .presentation .gallery-item .image-window::after {
   content:"";position:absolute;inset:0;z-index:1;
