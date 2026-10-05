@@ -39,7 +39,7 @@ or production security checks have been completed.
 - [x] All app responses set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a strict-origin referrer policy, same-origin opener isolation and a restrictive Permissions Policy for unused camera/microphone/geolocation/payment/USB capabilities.
 - [x] POST and public API responses are `Cache-Control: no-store`; normal GET/static caching remains owned by the framework/platform.
 - [x] HSTS is emitted only for HTTPS requests and is deliberately absent on local HTTP development.
-- [ ] Add a production Content-Security-Policy only after inventorying TanStack-generated inline script/style requirements and the external font origins; do not deploy an untested CSP that can blank the investor presentation.
+- [x] Production Content-Security-Policy added after inventorying TanStack inline hydration/styles, Google Fonts, Supabase browser connections and Lovable preview origins. HTTPS excludes `unsafe-eval`; Chromium, Firefox and WebKit CI pass with the policy.
 - [ ] Confirm these headers survive the actual CDN/hosting edge and that the chosen domain/subdomains are appropriate for the HSTS `includeSubDomains` directive before public launch.
 
 ## Search and keyboard release checks
