@@ -46,9 +46,8 @@ export function safeTelemetryError(error: unknown): Error {
 
   if (error instanceof Error) {
     const name = redactDiagnosticText(error.name || "Error", 120);
-    const message = redactDiagnosticText(error.message || "Unhandled error", 1_000);
-    return new Error(name + ": " + message);
+    return new Error(name + " (message redacted)");
   }
 
-  return new Error("Non-Error failure: " + redactDiagnosticText(String(error), 1_000));
+  return new Error("Non-Error failure (" + typeof error + ")");
 }
