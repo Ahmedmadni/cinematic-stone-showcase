@@ -54,5 +54,6 @@ must review and publish an appropriate privacy notice and:
 - [x] Accessible label, focus indicator and error message
 - [x] Read-only browser checks that never submit actual contact details
 - [ ] Authorized privacy notice/retention procedure issued by company
-- [ ] Production database and operational privacy-request process verified
+- [x] Production database technical controls verified (RLS, client grants and privileged RPC access)
+- [ ] Operational privacy-request process verified by company
 - [ ] Real-device/browser launch sign-off
