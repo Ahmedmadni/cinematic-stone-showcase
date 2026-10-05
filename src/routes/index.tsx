@@ -216,6 +216,7 @@ function Index() {
   return (
     <SiteLanguageContext.Provider value={{ language, t }}>
     <div className="presentation" dir={language === "ar" ? "rtl" : "ltr"} data-language={language}>
+      <a className="skip-to-content" href="#main-content">{t("تجاوز إلى المحتوى الرئيسي")}</a>
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
         <AutoVisual className="scene-visual" interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
@@ -229,7 +230,7 @@ function Index() {
         <a className="header-contact" href="#التواصل">{t("تواصل للاستفسار")} <ArrowUpLeft size={17} strokeWidth={1.5} /></a>
       </header>
 
-      <main>
+      <main id="main-content" tabIndex={-1}>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
           <HeroGallery />
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
