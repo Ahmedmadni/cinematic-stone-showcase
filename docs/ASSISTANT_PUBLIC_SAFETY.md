@@ -12,7 +12,7 @@
 - The browser sends only the **current question + language**. Prior visible chat messages remain local to the drawer and are not transmitted to the server or paid gateway.
 - Assistant request bodies over **4 KiB** are cancelled early, before JSON parsing. The accepted question remains capped at 500 characters.
 - Paid upstream calls have a **35-second abort deadline**. Streaming output is relayed with backpressure and capped to **32 KiB**. The paid concurrency slot is released on EOF, stream cancellation and provider errors; release is idempotent.
-- The gateway request does not ask for encrypted reasoning payloads; only the public answer stream is needed.
+- The gateway request does not ask for encrypted reasoning payloads or reasoning summaries; only low-effort reasoning plus the public answer stream is needed.
 - Off-topic replies stay local and never invoke the gateway. No incoming IP/header values are used as a trusted identifier: \`X-Forwarded-For\` can be forged on untrusted ingress.
 
 ## Shared deployment quotas
