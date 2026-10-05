@@ -18,6 +18,15 @@ test("all public responses receive conservative browser security headers", () =>
   assert.match(response.headers.get("permissions-policy") ?? "", /camera=\(\)/);
   assert.match(response.headers.get("permissions-policy") ?? "", /geolocation=\(\)/);
   assert.equal(response.headers.get("strict-transport-security"), "max-age=31536000; includeSubDomains");
+  const csp = response.headers.get("content-security-policy") ?? "";
+  assert.match(csp, /default-src 'self'/);
+  assert.match(csp, /object-src 'none'/);
+  assert.match(csp, /frame-ancestors 'none'/);
+  assert.match(csp, /style-src 'self' 'unsafe-inline' https:\/\/fonts\.googleapis\.com/);
+  assert.match(csp, /font-src 'self' data: https:\/\/fonts\.gstatic\.com/);
+  assert.match(csp, /connect-src 'self' https:\/\/\*\.supabase\.co wss:\/\/\*\.supabase\.co/);
+  assert.doesNotMatch(csp, /'unsafe-eval'/);
+  assert.match(csp, /upgrade-insecure-requests/);
 });
 
 test("contact and assistant POST responses are never cacheable", () => {
@@ -39,6 +48,10 @@ test("public API GET is no-store while ordinary page GET preserves framework cac
 test("HSTS is never emitted on local or other plain HTTP development requests", () => {
   const response = hardened("http://127.0.0.1:4173/", "GET");
   assert.equal(response.headers.get("strict-transport-security"), null);
+  const csp = response.headers.get("content-security-policy") ?? "";
+  assert.match(csp, /'unsafe-eval'/);
+  assert.match(csp, /connect-src 'self' http: https: ws: wss:/);
+  assert.doesNotMatch(csp, /upgrade-insecure-requests/);
 });
 
 test("existing content type, status and response body survive hardening", async () => {
