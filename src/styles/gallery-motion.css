@@ -54,11 +54,11 @@
 }
 @keyframes hero-reveal-lower-right {
   from {opacity:.30;clip-path:inset(5% 0 0 5%);transform:translate3d(.6%,.8%,0) scale(1.038);}
-  to {opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);transform:translateZ(0) scale(1.018);}
+  to {opacity:1;clip-path:inset(0);transform:translateZ(0) scale(1.018);}
 }
 @keyframes hero-reveal-centre {
   from {opacity:.30;clip-path:inset(4%);transform:scale(1.036);}
-  to {opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);transform:scale(1.018);}
+  to {opacity:1;clip-path:inset(0);transform:scale(1.018);}
 }
 @keyframes hero-reveal-upper-left {
   from {opacity:.30;clip-path:inset(0 5% 5% 0);transform:translate3d(-.6%,-.8%,0) scale(1.038);}
