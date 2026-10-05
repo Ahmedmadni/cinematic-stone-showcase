@@ -18,9 +18,9 @@ or production security checks have been completed.
 
 ## Additional launch gate — shared quotas and private investor data
 
-- [ ] Verify the exact configured Supabase project is connected and authorized.
-      Do not apply the checked-in global quota SQL to any other project.
-- [ ] Apply/review the new aggregate-only SQL migration on that project.
+- [x] Operator confirmed the configured Supabase project and executed the reviewed checks on the intended project only.
+- [x] Aggregate-only shared quota migration applied and verified: anon/authenticated cannot execute the RPC or read the counter table, while service_role can.
+- [x] Invalid quota scopes are rejected with PostgreSQL error 22023 as designed.
 - [ ] Enable \`SOMMAN_SHARED_QUOTA_ENABLED=true\` server-side **only after**
       staging tests confirm assistant and inquiry flows. It defaults off.
 - [ ] Set a provider spending ceiling and CDN/WAF anti-abuse controls.
@@ -72,8 +72,8 @@ or production security checks have been completed.
       if any sensitive credential was ever committed, revoke/rotate it and perform
       coordinated history remediation as appropriate.
 - [ ] Confirm the inquiry form saves only to the intended protected table with
-      current production Row-Level Security; there is no browser test that
-      submits real investor personal information.
+      current production Row-Level Security using synthetic staging data; read-only
+      browser CI intentionally never submits real investor personal information.
 
 ## Constraints
 The build and automated tests cannot certify active permits, certificate
