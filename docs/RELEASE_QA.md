@@ -38,6 +38,15 @@ or production security checks have been completed.
 - [ ] Add a production Content-Security-Policy only after inventorying TanStack-generated inline script/style requirements and the external font origins; do not deploy an untested CSP that can blank the investor presentation.
 - [ ] Confirm these headers survive the actual CDN/hosting edge and that the chosen domain/subdomains are appropriate for the HSTS `includeSubDomains` directive before public launch.
 
+## Search and keyboard release checks
+- [x] English-first fallback metadata matches the default UI and company identity.
+- [x] Public presentation is crawlable while `/api/` is excluded in `robots.txt`.
+- [x] Bilingual, brand-aligned keyboard skip navigation targets the main content.
+- [ ] Approve the final public HTTPS domain before emitting an absolute canonical,
+      sitemap or social-share URL. See `docs/SEO_ACCESSIBILITY_RELEASE.md`.
+- [ ] Approve a dedicated social preview image; do not present illustrative
+      quarry artwork as verified site photography.
+
 ## Manual release review required
 - [ ] Review hero typography, photo cropping and motion on Firefox, Safari and Chromium.
 - [ ] Review 390px mobile, tablet and 1366px desktop at 100% and 200% zoom.
