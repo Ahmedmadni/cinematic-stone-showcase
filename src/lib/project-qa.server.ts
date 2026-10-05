@@ -9,10 +9,6 @@ const requestBudget = createPublicAiBudget({ maxPerMinute: 24, maxConcurrent: 3 
 const askSchema = z.object({
   question: z.string().trim().min(3).max(500),
   language: z.enum(["ar", "en"]).default("en"),
-  history: z
-    .array(z.object({ role: z.enum(["user", "assistant"]), content: z.string().max(2000) }))
-    .max(8)
-    .default([]),
 });
 
 const PROJECT_FACTS = `
@@ -44,7 +40,7 @@ ${PROJECT_FACTS}
 export async function handleProjectQuestion(request: Request): Promise<Response> {
   let body: z.infer<typeof askSchema>;
   try {
-    body = askSchema.parse(await readBoundedJson(request));
+    body = askSchema.parse(await readBoundedJson(request, 4_096));
   } catch {
     return Response.json({ error: "اكتب سؤالاً واضحاً بين ٣ و٥٠٠ حرف." }, { status: 400 });
   }
@@ -83,9 +79,9 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
   ];
 
   try {
-    // Optional database-backed, atomic global quota across all app workers.
-    // Feature-gated until the migration is verified on this repo's Supabase
-    // project. Any DB failure after activation fails CLOSED to protect billing.
+    // Database-backed, atomic global quota across all app workers.
+    // Production defaults this ON after the verified migration/RLS rollout.
+    // Any accounting failure fails CLOSED before reaching the paid gateway.
     const { consumeSharedPublicQuota } = await import("@/lib/shared-public-quota.server");
     const shared = await consumeSharedPublicQuota("assistant");
     if (!shared.allowed) {
@@ -115,7 +111,6 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
         stream: true,
         store: false,
         reasoning: { effort: "low", summary: "auto" },
-        include: ["reasoning.encrypted_content"],
       }),
     });
     if (!upstream.ok || !upstream.body) {
@@ -141,7 +136,7 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
     // Relay enforces backpressure/output size and owns the permit until the
     // stream finishes or the browser cancels it. No question text is logged.
     handedOff = true;
-    return new Response(relayAiStream(upstream.body, permit.release), { status: 200, headers });
+    return new Response(relayAiStream(upstream.body, permit.release, 32_768), { status: 200, headers });
   } catch (error) {
     if (request.signal.aborted) return new Response(null, { status: 499 });
     // Avoid logging potentially sensitive upstream errors or body content.
