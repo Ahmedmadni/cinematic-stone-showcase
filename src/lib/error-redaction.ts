@@ -39,14 +39,58 @@ export function redactDiagnosticText(value: string, maxLength = 8_000): string {
     .slice(0, maxLength);
 }
 
+function errorStatus(error: Error): string {
+  const { status, statusCode } = error as { status?: unknown; statusCode?: unknown };
+  const value = status ?? statusCode;
+  return typeof value === "number" ? " (status " + value + ")" : "";
+}
+
+function safeStackFrames(error: Error, maxLength: number): string {
+  if (!error.stack) return "";
+  // The first stack line normally repeats error.message, which may contain
+  // visitor/contact text. Keep frames only.
+  return redactDiagnosticText(error.stack.split("\n").slice(1, 13).join("\n"), maxLength);
+}
+
+export function describeDiagnosticError(
+  error: unknown,
+  maxLength = 8_000,
+  causeDepthLimit = 5,
+): string {
+  if (!Number.isSafeInteger(maxLength) || maxLength < 1 ||
+      !Number.isSafeInteger(causeDepthLimit) || causeDepthLimit < 1) {
+    throw new Error("Invalid diagnostic limits");
+  }
+
+  const parts: string[] = [];
+  let current: unknown = error;
+
+  for (let depth = 0; depth < causeDepthLimit && current != null; depth++) {
+    if (!(current instanceof Error)) {
+      parts.push(depth === 0
+        ? "Non-Error failure (" + typeof current + ")"
+        : "caused by: non-Error (" + typeof current + ")");
+      break;
+    }
+
+    const label = depth === 0 ? "" : "caused by: ";
+    const name = redactDiagnosticText(current.name || "Error", 120);
+    const frames = safeStackFrames(current, maxLength);
+    parts.push(label + name + errorStatus(current) + (frames ? "\n" + frames : ""));
+    current = current.cause;
+  }
+
+  return parts.join("\n").slice(0, maxLength);
+}
+
 export function safeTelemetryError(error: unknown): Error {
-  if (error instanceof Response) {
+  if (typeof Response !== "undefined" && error instanceof Response) {
     return new Error("Response " + error.status);
   }
 
   if (error instanceof Error) {
     const name = redactDiagnosticText(error.name || "Error", 120);
-    return new Error(name + " (message redacted)");
+    return new Error(name + errorStatus(error) + " (message redacted)");
   }
 
   return new Error("Non-Error failure (" + typeof error + ")");
