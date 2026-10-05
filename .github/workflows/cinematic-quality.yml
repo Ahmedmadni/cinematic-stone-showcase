@@ -26,7 +26,7 @@ jobs:
             echo "$bad_env_files"
             exit 1
           fi
-          if git grep -n --fixed-strings -- '-----BEGIN PRIVATE KEY-----' -- . ':!*.md' >/tmp/private-key-hits.txt 2>/dev/null; then
+          if git grep -n --fixed-strings -- '-----BEGIN PRIVATE KEY-----' -- . ':!*.md' ':!.github/workflows/cinematic-quality.yml' >/tmp/private-key-hits.txt 2>/dev/null; then
             echo "::error::A private-key block is tracked in the repository."
             cat /tmp/private-key-hits.txt
             exit 1
