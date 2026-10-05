@@ -29,9 +29,10 @@ or production security checks have been completed.
 - [ ] Decide whether legal review requires storing a notice version and consent timestamp; the current table does not persist a consent receipt. See `docs/INVESTOR_CONTACT_PRIVACY.md`.
 - [x] Current branch no longer tracks a runtime `.env`; only a placeholder
       `.env.example` is allowed, and CI rejects tracked runtime env files.
-- [ ] Historical commits that contained `.env` still require a private credential
-      review and rotation if any formerly committed value was sensitive. Removing
-      the current working-tree file does not erase historical Git data.
+- [x] Historical `.env` commits were privately audited without exposing values.
+      They contain only Supabase project URL/ID and publishable-key variable names;
+      no service-role, provider API-key or other server-secret variable was found.
+      The current tree remains protected by repository hygiene CI.
 
 
 ## HTTP response hardening
@@ -67,10 +68,9 @@ or production security checks have been completed.
       valuation or licensed document scan.
 - [x] Runtime `.env` is removed from the current tree and repository hygiene CI
       prevents it from being reintroduced.
-- [ ] Security reviewer: a file named `.env` exists in historical Git commits.
-      **Do not print or share its contents.** Audit it privately for secrets;
-      if any sensitive credential was ever committed, revoke/rotate it and perform
-      coordinated history remediation as appropriate.
+- [x] Security reviewer: historical `.env` commits were reviewed privately by
+      key name and credential class without printing values. No server-secret
+      variable was found in the historical file; runtime `.env` remains removed.
 - [x] Synthetic transaction test confirmed the inquiry path can write through `service_role` to the intended protected table; `anon`/`authenticated` remain denied direct access and the test transaction was rolled back.
       Read-only browser CI intentionally never submits real investor personal information.
 
