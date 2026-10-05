@@ -10,6 +10,9 @@ import {
   smoothStep,
 } from "@/lib/cinematic-progress";
 
+const POINTER_DAMPING = 0.08;
+const POINTER_SETTLE_EPSILON = 0.002;
+
 /**
  * One native-scroll cinematic director for all chapters.
  *
@@ -37,6 +40,8 @@ export function CinematicDirector() {
     let active = true;
     let pointerX = 0;
     let pointerY = 0;
+    let smoothedPointerX = 0;
+    let smoothedPointerY = 0;
     let hasPointer = false;
     let observerReady = false;
     let heroProgressCache = 0;
@@ -109,16 +114,25 @@ export function CinematicDirector() {
       const secondCaption = reduced ? 1 : smoothStep(segmentProgress(bridgeProgress, 0.57, 0.88));
       const totalScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
 
-      const px = pointerActive ? signedPointer(pointerX, 0, window.innerWidth) : 0;
-      const py = pointerActive ? signedPointer(pointerY, 0, window.innerHeight) : 0;
-      const heroX = pointerActive && heroRect ? normalizedPointer(pointerX, heroRect.left, heroRect.width) * 100 : 55;
-      const heroY = pointerActive && heroRect ? normalizedPointer(pointerY, heroRect.top, heroRect.height) * 100 : 47;
-      const fleetX = pointerActive && fleetRect ? normalizedPointer(pointerX, fleetRect.left, fleetRect.width) * 100 : 50;
-      const fleetY = pointerActive && fleetRect ? normalizedPointer(pointerY, fleetRect.top, fleetRect.height) * 100 : 50;
-      const evidenceX = pointerActive && evidenceRect ? normalizedPointer(pointerX, evidenceRect.left, evidenceRect.width) * 100 : 58;
-      const evidenceY = pointerActive && evidenceRect ? normalizedPointer(pointerY, evidenceRect.top, evidenceRect.height) * 100 : 36;
-      const bridgeMaskX = pointerActive && bridgeRect && Math.abs(bridgeRect.top) < window.innerHeight * 2
-        ? 54 + px * 3 : 54;
+      const targetPointerX = pointerActive ? signedPointer(pointerX, 0, window.innerWidth) : 0;
+      const targetPointerY = pointerActive ? signedPointer(pointerY, 0, window.innerHeight) : 0;
+      const damping = reduced ? 1 : POINTER_DAMPING;
+      smoothedPointerX += (targetPointerX - smoothedPointerX) * damping;
+      smoothedPointerY += (targetPointerY - smoothedPointerY) * damping;
+
+      // Keep photographic parallax intentionally restrained. The pointer is
+      // eased over several frames instead of snapping directly to the cursor,
+      // which keeps the investor presentation calm during quick mouse moves.
+      const px = smoothedPointerX;
+      const py = smoothedPointerY;
+      const heroX = 55 + px * 8;
+      const heroY = 47 + py * 6;
+      const fleetX = 50 + px * 7;
+      const fleetY = 50 + py * 5;
+      const evidenceX = 58 + px * 7;
+      const evidenceY = 36 + py * 5;
+      const bridgeMaskX = bridgeRect && Math.abs(bridgeRect.top) < window.innerHeight * 2
+        ? 54 + px * 1.5 : 54;
 
       let magneticX = 0;
       let magneticY = 0;
@@ -141,31 +155,39 @@ export function CinematicDirector() {
       root.style.setProperty("--cinema-scroll-progress", clampUnit(window.scrollY / totalScroll).toFixed(4));
       root.style.setProperty("--cinema-material-progress", materialProgress.toFixed(4));
       root.style.setProperty("--cinema-material-local", materialLocal.toFixed(4));
-      root.style.setProperty("--cinema-material-scale", (reduced ? 1 : 1.10 - smoothStep(materialLocal) * .05).toFixed(4));
+      root.style.setProperty("--cinema-material-scale", (reduced ? 1 : 1.065 - smoothStep(materialLocal) * .025).toFixed(4));
       root.style.setProperty("--cinema-fleet-progress", fleetProgress.toFixed(4));
       root.style.setProperty("--cinema-fleet-local-progress", fleetLocal.toFixed(4));
-      root.style.setProperty("--cinema-fleet-scale", (reduced ? 1 : 1.12 - smoothStep(fleetLocal) * 0.055).toFixed(4));
-      root.style.setProperty("--cinema-territory-scale", (reduced ? 1 : 1.075 - sceneEntry(atlasRect) * 0.065).toFixed(4));
+      root.style.setProperty("--cinema-fleet-scale", (reduced ? 1 : 1.075 - smoothStep(fleetLocal) * 0.03).toFixed(4));
+      root.style.setProperty("--cinema-territory-scale", (reduced ? 1 : 1.045 - sceneEntry(atlasRect) * 0.03).toFixed(4));
       root.style.setProperty("--cinema-mask-x", bridgeMaskX.toFixed(2) + "%");
       root.style.setProperty("--cinema-fog-strength", (reduced ? 0 : 0.12 + smoothStep(segmentProgress(bridgeProgress, 0.12, 0.86)) * 0.2).toFixed(3));
-      root.style.setProperty("--pointer-x", (px * 14).toFixed(2) + "px");
-      root.style.setProperty("--pointer-y", (py * 11).toFixed(2) + "px");
-      root.style.setProperty("--cinema-fog-x", (px * 16).toFixed(2) + "px");
-      root.style.setProperty("--cinema-fog-y", (py * 9).toFixed(2) + "px");
+      root.style.setProperty("--pointer-x", (px * 8).toFixed(2) + "px");
+      root.style.setProperty("--pointer-y", (py * 6).toFixed(2) + "px");
+      root.style.setProperty("--cinema-fog-x", (px * 9).toFixed(2) + "px");
+      root.style.setProperty("--cinema-fog-y", (py * 5).toFixed(2) + "px");
       root.style.setProperty("--cinema-hero-pointer-x", heroX.toFixed(2) + "%");
       root.style.setProperty("--cinema-hero-pointer-y", heroY.toFixed(2) + "%");
       root.style.setProperty("--cinema-fleet-pointer-x", fleetX.toFixed(2) + "%");
       root.style.setProperty("--cinema-fleet-pointer-y", fleetY.toFixed(2) + "%");
       root.style.setProperty("--cinema-evidence-x", evidenceX.toFixed(2) + "%");
       root.style.setProperty("--cinema-evidence-y", evidenceY.toFixed(2) + "%");
-      root.style.setProperty("--cinema-fleet-mouse-x", (px * 7).toFixed(2) + "px");
-      root.style.setProperty("--cinema-fleet-mouse-y", (py * 5).toFixed(2) + "px");
+      root.style.setProperty("--cinema-fleet-mouse-x", (px * 4).toFixed(2) + "px");
+      root.style.setProperty("--cinema-fleet-mouse-y", (py * 3).toFixed(2) + "px");
       root.style.setProperty("--cinema-cta-x", magneticX.toFixed(2) + "px");
       root.style.setProperty("--cinema-cta-y", magneticY.toFixed(2) + "px");
       root.dataset["cinemaReady"] = "true";
       root.dataset["cinemaMotion"] = reduced ? "reduced" : "full";
       root.dataset["cinemaPointer"] = pointerActive ? "active" : "off";
       root.dataset["cinemaBridgeVisible"] = shouldMeasure(bridge) ? "true" : "false";
+
+      const pointerNeedsSettling = !reduced && (
+        Math.abs(targetPointerX - smoothedPointerX) > POINTER_SETTLE_EPSILON ||
+        Math.abs(targetPointerY - smoothedPointerY) > POINTER_SETTLE_EPSILON
+      );
+      if (pointerNeedsSettling && active && !document.hidden) {
+        frame = window.requestAnimationFrame(update);
+      }
     }
 
     function schedule() {
