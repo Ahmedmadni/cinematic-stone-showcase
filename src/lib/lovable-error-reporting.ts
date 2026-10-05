@@ -30,12 +30,17 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
   if (typeof window === "undefined") return;
 
   const safeError = safeTelemetryError(error);
+  const safeRoute = window.location.pathname === "/" ? "/" : "[redacted-route]";
+  const safeBoundary = typeof context["boundary"] === "string"
+    ? context["boundary"].slice(0, 120)
+    : undefined;
+
   window.__lovableEvents?.captureException?.(
     safeError,
     {
       source: "react_error_boundary",
-      route: window.location.pathname,
-      ...context,
+      route: safeRoute,
+      ...(safeBoundary ? { boundary: safeBoundary } : {}),
     },
     {
       mechanism: "react_error_boundary",
@@ -49,6 +54,6 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
   // message, stack, URL query or arbitrary cause object.
   window.__lovableReportRuntimeError?.({
     message: safeError.message,
-    filename: window.location.pathname,
+    filename: safeRoute,
   });
 }
