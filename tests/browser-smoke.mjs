@@ -54,14 +54,14 @@ try {
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
   await caseRun("localhost responses expose release security headers without breaking development", async () => {
-    const response = await desktopPage.request.get(baseUrl + "/");
+    const response = await desktopPage.request.get(baseURL + "/");
     assert.equal(response.headers()["x-content-type-options"], "nosniff");
     assert.equal(response.headers()["x-frame-options"], "DENY");
     assert.equal(response.headers()["referrer-policy"], "strict-origin-when-cross-origin");
     assert.match(response.headers()["permissions-policy"] ?? "", /camera=\(\)/);
     assert.equal(response.headers()["strict-transport-security"], undefined);
 
-    const api = await desktopPage.request.post(baseUrl + "/api/public/ask", {
+    const api = await desktopPage.request.post(baseURL + "/api/public/ask", {
       data: { question: "write me a poem", history: [], language: "en" },
     });
     assert.equal(api.headers()["cache-control"], "no-store");
