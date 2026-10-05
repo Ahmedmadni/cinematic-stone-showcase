@@ -27,9 +27,11 @@ or production security checks have been completed.
 - [x] Add explicitly unchecked investor data-use checkbox validated client/server, with bilingual rights contact.
 - [ ] Approve retention, access and deletion practices for investor leads.
 - [ ] Decide whether legal review requires storing a notice version and consent timestamp; the current table does not persist a consent receipt. See `docs/INVESTOR_CONTACT_PRIVACY.md`.
-- [ ] Tracked \`.env\` from historical commits requires a private credential
-      review and rotation if sensitive. New \`.gitignore\` rules do not remove
-      a file that is already tracked or erase historical Git data.
+- [x] Current branch no longer tracks a runtime `.env`; only a placeholder
+      `.env.example` is allowed, and CI rejects tracked runtime env files.
+- [ ] Historical commits that contained `.env` still require a private credential
+      review and rotation if any formerly committed value was sensitive. Removing
+      the current working-tree file does not erase historical Git data.
 
 
 ## HTTP response hardening
