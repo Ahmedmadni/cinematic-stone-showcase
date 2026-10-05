@@ -644,6 +644,33 @@ try {
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
+
+    const conceptScene = location.locator(".somman-location-experience__scene");
+    const conceptBox = await conceptScene.boundingBox();
+    assert.ok(conceptBox, "conceptual map scene should have measurable bounds");
+    await desktopPage.mouse.move(
+      conceptBox.x + conceptBox.width * 0.92,
+      conceptBox.y + conceptBox.height * 0.12,
+    );
+    await desktopPage.waitForTimeout(500);
+    const activeTilt = await conceptScene.evaluate((element) => ({
+      x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
+      y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
+    }));
+    assert.ok(Math.abs(activeTilt.x) <= 1.61 && Math.abs(activeTilt.y) <= 1.61,
+      "conceptual map tilt must stay restrained: " + JSON.stringify(activeTilt));
+    assert.ok(Math.abs(activeTilt.x) + Math.abs(activeTilt.y) > 0.2,
+      "fine-pointer map tilt should remain perceptible");
+
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForTimeout(1100);
+    const restingTilt = await conceptScene.evaluate((element) => ({
+      x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
+      y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
+    }));
+    assert.ok(Math.abs(restingTilt.x) < 0.15 && Math.abs(restingTilt.y) < 0.15,
+      "conceptual map tilt should ease back to center: " + JSON.stringify(restingTilt));
+
     await desktopPage.screenshot({ path: output + "/desktop-google-map-and-concept.png", animations: "disabled" });
   });
 
