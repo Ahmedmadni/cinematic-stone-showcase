@@ -31,8 +31,8 @@ export function reportLovableError(error: unknown, context: Record<string, unkno
 
   const safeError = safeTelemetryError(error);
   const safeRoute = window.location.pathname === "/" ? "/" : "[redacted-route]";
-  const safeBoundary = typeof context["boundary"] === "string"
-    ? context["boundary"].slice(0, 120)
+  const safeBoundary = context["boundary"] === "tanstack_root_error_component"
+    ? "tanstack_root_error_component"
     : undefined;
 
   window.__lovableEvents?.captureException?.(
