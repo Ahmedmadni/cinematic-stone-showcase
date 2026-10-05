@@ -6,6 +6,7 @@
  * - TanStack hydration emits inline scripts, so script-src keeps 'unsafe-inline'.
  * - Runtime CSS variables / framework styles require inline styles.
  * - Google Fonts uses fonts.googleapis.com + fonts.gstatic.com.
+ * - The optional map iframe is hosted by maps.google.com / www.google.com.
  * - Browser-side Supabase, when used, connects only to *.supabase.co.
  * - Lovable preview/editor telemetry may use *.lovable.dev / *.lovable.app.
  *
@@ -35,6 +36,7 @@ function contentSecurityPolicy(request: Request): string {
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' data: https://fonts.gstatic.com",
     "img-src 'self' data: blob:",
+    "frame-src 'self' https://maps.google.com https://www.google.com",
     `connect-src ${connectSrc}`,
     "worker-src 'self' blob:",
     "media-src 'self'",
