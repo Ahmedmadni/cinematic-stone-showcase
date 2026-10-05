@@ -3,7 +3,6 @@ import {
   clampUnit,
   fleetLocalProgress,
   fleetSceneIndex,
-  normalizedPointer,
   pinnedProgress,
   segmentProgress,
   signedPointer,
