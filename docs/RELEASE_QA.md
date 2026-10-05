@@ -12,6 +12,7 @@ or production security checks have been completed.
   mobile layout.
 - Browser screenshots and a JSON test summary are retained as a GitHub Actions
   artifact for seven days.
+- Firefox and WebKit run focused, read-only compatibility checks in separate Linux jobs; these complement Chromium but do not substitute for physical Safari/Android testing. See `docs/BROWSER_COMPATIBILITY_QA.md`.
 - Tests do **not** submit investment inquiries, read private data or use
   actual company credentials.
 
