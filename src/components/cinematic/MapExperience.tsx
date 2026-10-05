@@ -51,7 +51,24 @@ export function MapExperience() {
 
   useEffect(() => {
     const scene = sceneRef.current;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleMotionPreference = () => {
+      if (!reducedMotion.matches) return;
+      tilt.current.currentX = 0;
+      tilt.current.currentY = 0;
+      tilt.current.targetX = 0;
+      tilt.current.targetY = 0;
+      if (frame.current) window.cancelAnimationFrame(frame.current);
+      frame.current = 0;
+      scene?.style.setProperty("--map-tilt-x", "0deg");
+      scene?.style.setProperty("--map-tilt-y", "0deg");
+    };
+
+    reducedMotion.addEventListener("change", handleMotionPreference);
+    handleMotionPreference();
+
     return () => {
+      reducedMotion.removeEventListener("change", handleMotionPreference);
       if (frame.current) window.cancelAnimationFrame(frame.current);
       scene?.style.setProperty("--map-tilt-x", "0deg");
       scene?.style.setProperty("--map-tilt-y", "0deg");
