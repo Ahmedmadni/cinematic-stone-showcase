@@ -21,8 +21,10 @@ or production security checks have been completed.
 - [x] Operator confirmed the configured Supabase project and executed the reviewed checks on the intended project only.
 - [x] Aggregate-only shared quota migration applied and verified: anon/authenticated cannot execute the RPC or read the counter table, while service_role can.
 - [x] Invalid quota scopes are rejected with PostgreSQL error 22023 as designed.
-- [ ] Enable \`SOMMAN_SHARED_QUOTA_ENABLED=true\` server-side **only after**
-      staging tests confirm assistant and inquiry flows. It defaults off.
+- [x] Shared quota activation no longer depends on an unverified production env step:
+      after the matching DB/RLS/RPC verification, production builds default ON
+      when the server-only flag is blank/omitted; development defaults OFF and
+      explicit true/false remains available as an operational override.
 - [ ] Set a provider spending ceiling and CDN/WAF anti-abuse controls.
 - [x] Add explicitly unchecked investor data-use checkbox validated client/server, with bilingual rights contact.
 - [ ] Approve retention, access and deletion practices for investor leads.

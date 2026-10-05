@@ -2,10 +2,12 @@
  * Pure adapter for the optional Supabase-backed, atomic public action quotas.
  * No user-identifying values are persisted, and no database credentials live here.
  *
- * Keep disabled until the reviewed SQL migration has been applied to the
- * *matching* Supabase project, then turn on SOMMAN_SHARED_QUOTA_ENABLED=true
- * as a server-only environment variable. When enabled, unavailable database
- * accounting fails CLOSED before any paid AI request or contact data insert.
+ * The reviewed SQL migration and production RLS/RPC permissions have been
+ * verified on the matching deployment database. Production therefore defaults
+ * to shared quotas when the flag is omitted. Development remains local-only by
+ * default; an explicit server-only true/false flag always overrides the default.
+ * When enabled, unavailable database accounting fails CLOSED before any paid AI
+ * request or contact data insert.
  */
 export type PublicActionScope = "assistant" | "inquiry";
 
@@ -16,6 +18,15 @@ export type QuotaDecision =
 
 export type RpcReply = { data: unknown; error: unknown };
 
+export function resolveSharedQuotaEnabled(
+  flag: string | undefined,
+  productionBuild: boolean,
+): boolean {
+  if (flag === "true") return true;
+  if (flag === "false") return false;
+  return productionBuild;
+}
+
 export async function checkSharedPublicQuota({
   enabled,
   invoke,
@@ -23,9 +34,6 @@ export async function checkSharedPublicQuota({
   enabled: boolean;
   invoke: () => Promise<RpcReply>;
 }): Promise<QuotaDecision> {
-  // Preserve current production behavior until the correct project's SQL
-  // and environment setup are confirmed. This does NOT claim the shared
-  // rate limit is active by default.
   if (!enabled) return { allowed: true, mode: "local-only" };
 
   try {

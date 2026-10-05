@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import {
   checkSharedPublicQuota,
+  resolveSharedQuotaEnabled,
   type PublicActionScope,
   type QuotaDecision,
   type RpcReply,
@@ -24,7 +25,10 @@ type RestrictedQuotaRpc = {
 export async function consumeSharedPublicQuota(
   scope: PublicActionScope,
 ): Promise<QuotaDecision> {
-  const enabled = process.env["SOMMAN_SHARED_QUOTA_ENABLED"] === "true";
+  const enabled = resolveSharedQuotaEnabled(
+    process.env["SOMMAN_SHARED_QUOTA_ENABLED"],
+    import.meta.env.PROD,
+  );
   return checkSharedPublicQuota({
     enabled,
     invoke: async () => {
