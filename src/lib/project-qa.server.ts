@@ -119,8 +119,13 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
       }),
     });
     if (!upstream.ok || !upstream.body) {
-      const message =
-        upstream.status === 429
+      const message = body.language === "en"
+        ? upstream.status === 429
+          ? "Too many quarry questions right now. Please retry shortly."
+          : upstream.status === 402
+            ? "The quarry assistant is temporarily unavailable. Please contact the investment team."
+            : "Unable to answer right now. Please retry or contact the investment team."
+        : upstream.status === 429
           ? "عدد الأسئلة كبير حالياً، حاول بعد قليل."
           : upstream.status === 402
             ? "خدمة الأسئلة متوقفة مؤقتاً. تواصل معنا مباشرة."
