@@ -30,6 +30,16 @@ test("all public responses receive conservative browser security headers", () =>
   assert.match(csp, /upgrade-insecure-requests/);
 });
 
+test("temporary Lovable hostnames are noindex until the final domain is approved", () => {
+  const published = hardened("https://cinematic-stone-showcase.lovable.app/");
+  const preview = hardened("https://id-preview--example.lovable.app/");
+  const futureCustomDomain = hardened("https://quarry.example/");
+
+  assert.equal(published.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(preview.headers.get("x-robots-tag"), "noindex, nofollow");
+  assert.equal(futureCustomDomain.headers.get("x-robots-tag"), null);
+});
+
 test("contact and assistant POST responses are never cacheable", () => {
   for (const path of ["/api/public/ask", "/_server/inquiry"]) {
     const response = hardened("https://quarry.example" + path, "POST", { "Cache-Control": "public, max-age=3600" });
