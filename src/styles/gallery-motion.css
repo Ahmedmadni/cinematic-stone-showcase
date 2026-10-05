@@ -34,7 +34,7 @@
 }
 .presentation .hero-gallery__photo--active {z-index:1;}
 .presentation .hero-gallery__photo--reveal {
-  animation:hero-soft-reveal 1.3s cubic-bezier(.18,.76,.24,1) both;
+  animation:hero-soft-reveal 1.55s cubic-bezier(.22,.61,.36,1) both;
 }
 .presentation .hero-gallery__photo--reveal[data-reveal="lower-right"] {
   animation-name:hero-reveal-lower-right;
@@ -49,27 +49,27 @@
   animation-name:hero-soft-reveal;
 }
 @keyframes hero-soft-reveal {
-  from {opacity:.08;transform:scale(1.075);clip-path:inset(0 0 0 15%);}
+  from {opacity:.24;transform:scale(1.04);clip-path:inset(0 0 0 6%);}
   to {opacity:1;transform:scale(1.018);clip-path:inset(0);}
 }
 @keyframes hero-reveal-lower-right {
-  from {opacity:.3;clip-path:polygon(100% 100%,98% 88%,92% 91%,91% 100%,100% 100%);transform:translate3d(2%,3%,0) scale(1.06);}
+  from {opacity:.30;clip-path:inset(5% 0 0 5%);transform:translate3d(.6%,.8%,0) scale(1.038);}
   to {opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);transform:translateZ(0) scale(1.018);}
 }
 @keyframes hero-reveal-centre {
-  from {opacity:.26;clip-path:polygon(49% 39%,62% 42%,61% 59%,40% 58%,49% 39%);transform:scale(1.055);}
+  from {opacity:.30;clip-path:inset(4%);transform:scale(1.036);}
   to {opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);transform:scale(1.018);}
 }
 @keyframes hero-reveal-upper-left {
-  from {opacity:.32;clip-path:polygon(0 0,27% 0,22% 15%,9% 25%,0 22%,0 0);transform:translate3d(-2%,-3%,0) scale(1.06);}
+  from {opacity:.30;clip-path:inset(0 5% 5% 0);transform:translate3d(-.6%,-.8%,0) scale(1.038);}
   to {opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%,0 0);transform:translateZ(0) scale(1.018);}
 }
 /* A restrained analog highlight, NOT another opaque fog overlay. */
 .presentation .hero-gallery__film-grain {
   position:absolute;inset:0;z-index:2;
   pointer-events:none;
-  background:radial-gradient(ellipse 58% 78% at 73% 44%,rgba(255,222,166,.07),transparent 84%),
-    linear-gradient(0deg,rgba(9,15,17,.22),transparent 36%);
+  background:radial-gradient(ellipse 58% 78% at 73% 44%,rgba(255,222,166,.04),transparent 84%),
+    linear-gradient(0deg,rgba(9,15,17,.14),transparent 36%);
 }
 .presentation .hero-cinematic::before {pointer-events:none;}
 /* The hero slideshow toolbar sits ABOVE overlays and the historical footer. */
@@ -207,22 +207,22 @@
 .presentation[dir="rtl"] .gallery-slider__timeline {transform-origin:right center;}
 @keyframes gallery-timeline {from{transform:scaleX(0);}to{transform:scaleX(1);}}
 .presentation .gallery-item:nth-child(3n + 2) .gallery-slide.active {
-  animation:gallery-warm-enter 1.1s ease both;
+  animation:gallery-warm-enter 1.35s ease both;
 }
 @keyframes gallery-warm-enter {
   from{opacity:.25;filter:saturate(.8) contrast(.98);}
   to{opacity:1;filter:saturate(1) contrast(1.06);}
 }
 .presentation .gallery-item:nth-child(3n + 3) .gallery-slide.active {
-  animation:gallery-soft-enter 1.1s cubic-bezier(.2,.7,.2,1) both;
+  animation:gallery-soft-enter 1.35s cubic-bezier(.22,.61,.36,1) both;
 }
 @keyframes gallery-soft-enter {
-  from{opacity:.19;clip-path:inset(0 11% 0 0);}
+  from{opacity:.30;clip-path:inset(0 5% 0 0);}
   to{opacity:1;clip-path:inset(0);}
 }
 /* Open lightbox also gets image motion, with a clear pause control. */
 .gallery-lightbox--native .lightbox-content img {
-  animation:lightbox-photo-enter .85s cubic-bezier(.18,.67,.3,1) both;
+  animation:lightbox-photo-enter 1.05s cubic-bezier(.22,.61,.36,1) both;
 }
 @keyframes lightbox-photo-enter {
   from{opacity:.24;transform:translateY(9px) scale(1.018);}
