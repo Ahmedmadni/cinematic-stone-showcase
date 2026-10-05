@@ -17,6 +17,7 @@
 @import "./styles/hero-loading-safety.css";
 @import "./styles/inquiry-privacy.css";
 @import "./styles/headline-motion.css";
+@import "./styles/release-accessibility.css";
 
 @custom-variant dark (&:is(.dark *));
 
