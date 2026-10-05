@@ -3,6 +3,8 @@ name: Cinematic Quality
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
   workflow_dispatch:
 
 permissions:
@@ -14,6 +16,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Repository hygiene
+        shell: bash
+        run: |
+          set -euo pipefail
+          bad_env_files="$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '(^|/)\.env\.(example|template)$' || true)"
+          if [ -n "$bad_env_files" ]; then
+            echo "::error::Runtime environment files must not be tracked:"
+            echo "$bad_env_files"
+            exit 1
+          fi
+          if git grep -n --fixed-strings -- '-----BEGIN PRIVATE KEY-----' -- . ':!*.md' ':!.github/workflows/cinematic-quality.yml' >/tmp/private-key-hits.txt 2>/dev/null; then
+            echo "::error::A private-key block is tracked in the repository."
+            cat /tmp/private-key-hits.txt
+            exit 1
+          fi
       - name: Set up Node.js 22
         uses: actions/setup-node@v4
         with:

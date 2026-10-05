@@ -1,30 +1,52 @@
-# Samman Quarry Vision
+# Al Somman Quarry — Investor Presentation
 
-لدى شركتنا كسارة ومحجر بمنطقة الصمان وفقاً للبيانات الموجودة في الملف المرفق. المطلوب تصميم وإعداد هذا العرض الاستثماري كصفحة هبوط احترافية واحدة وسينمائية (ليست موقعاً عادياً بعدة صفحات)، مع وضع صور تجريبية احترافية للمعدات والموقع حتى تتوفر الصور الحقيقية.
-- الاهتمام الفائق بالمظهر والانتقالات السينمائية والاحترافية، وطريقة مبهرة لعرض الصور وظهور النصوص والصور.
-- خلفية ثابتة للصفحة بشكل احترافي سينمائي وتظهر كافة العناصر فوقها بتفاعل جذاب مع التمرير وحركة الماوس.
-- عدم وضع تبويبات صفحات علوية كالمواقع التقليدية، بل واجهة سينمائية تركز على التجربة والعرض السلس.
-- عدم ذكر أي أرقام أو تفاصيل لقيمة المبيعات والإيرادات المالية في الصفحة.
+Single-page bilingual investor presentation for Al Somman Quarry, built as a cinematic web experience rather than a conventional multi-page website.
 
-This project was built with [Lovable](https://lovable.dev).
+## Product scope
 
-**Live app**: https://cinematic-stone-showcase.lovable.app
+- English-first interface with persistent Arabic support.
+- Cinematic hero, galleries and scroll-driven presentation.
+- Quarry project facts are separated from illustrative imagery.
+- Public project assistant is restricted to approved project information.
+- Investor inquiry flow includes explicit bilingual data-use consent.
+- Public AI/inquiry quotas, response hardening and read-only browser QA are covered by automated checks.
 
-## Build with Lovable
+## Local development
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/52240555-fae6-45bd-8641-054b3ffcdc3f).
+Requirements:
 
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+- Node.js 22+
+- Bun
 
 ```sh
-git clone <this-repository-url>
-cd <repository-name>
-npm i
-npm run dev
+git clone https://github.com/Ahmedmadni/cinematic-stone-showcase.git
+cd cinematic-stone-showcase
+cp .env.example .env
+bun install --frozen-lockfile
+bun run dev
 ```
+
+Provide only the required public Supabase browser values in local `.env`. Server-only credentials, provider keys and service-role secrets must be configured through the hosting platform and must never be committed or exposed with a `VITE_` prefix.
+
+## Verification
+
+```sh
+bun run test:cinematic
+bunx tsc --noEmit
+bun run lint
+bun run build
+```
+
+GitHub Actions also runs Chromium, Firefox/WebKit compatibility checks and an isolated PostgreSQL integration test for shared quota behavior.
+
+## Release documentation
+
+Release and launch controls are documented under `docs/`, especially:
+
+- `docs/RELEASE_QA.md`
+- `docs/SEO_ACCESSIBILITY_RELEASE.md`
+- `docs/INVESTOR_CONTACT_PRIVACY.md`
+- `docs/SHARED_QUOTA_ROLLOUT.md`
+- `docs/ASSISTANT_PUBLIC_SAFETY.md`
+
+The production hostname, canonical URL, sitemap, social preview asset, final privacy-retention policy, production Supabase activation and official quarry imagery/document verification remain explicit launch decisions and must not be inferred from development/staging configuration.
