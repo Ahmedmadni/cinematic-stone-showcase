@@ -57,10 +57,17 @@ export function hardenPublicResponse(request: Request, response: Response): Resp
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
   headers.set("Content-Security-Policy", contentSecurityPolicy(request));
 
+  // Do not let temporary Lovable preview/published hostnames become the search
+  // canonical before the company approves its final public domain. A future
+  // custom domain is unaffected and can use the page's normal index directive.
+  const url = new URL(request.url);
+  if (url.hostname === "lovable.app" || url.hostname.endsWith(".lovable.app")) {
+    headers.set("X-Robots-Tag", "noindex, nofollow");
+  }
+
   // POST bodies may contain investor contact details or assistant questions.
   // Public API responses may also contain model text. Never let intermediaries
   // persist these. Static assets and normal GET pages retain framework caching.
-  const url = new URL(request.url);
   if (request.method !== "GET" && request.method !== "HEAD") {
     headers.set("Cache-Control", "no-store");
     headers.set("Pragma", "no-cache");
