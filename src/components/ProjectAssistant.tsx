@@ -9,7 +9,7 @@ type Message = { role: "user" | "assistant"; content: string };
 
 const suggestions = ["كم عدد المحاجر ومساحاتها؟", "ما المعدات المتوفرة في الموقع؟", "ما الشهادات التي يحملها المشروع؟", "أين يقع المحجر بالتحديد؟"];
 
-export function ProjectAssistant() {
+export function ProjectAssistant({ active = true }: { active?: boolean }) {
   const { language, t } = useSiteLanguage();
   const [messages, setMessages] = useState<Message[]>([]);
   const [question, setQuestion] = useState("");
@@ -20,6 +20,13 @@ export function ProjectAssistant() {
   // Closing the drawer keeps its conversation; unmounting aborts outstanding
   // metered requests so the server can free its concurrent-request permit.
   useEffect(() => () => abortRef.current?.abort(), []);
+
+  // The drawer stays mounted so a completed conversation is preserved when
+  // reopened. A hidden drawer must NOT keep consuming a paid streaming request.
+  // Closing via icon, floating trigger or Escape flips active to false here.
+  useEffect(() => {
+    if (!active) abortRef.current?.abort();
+  }, [active]);
 
   async function ask(text: string) {
     const q = text.trim();
@@ -120,7 +127,7 @@ export function ProjectAssistant() {
         <span className="assistant-mark" aria-hidden="true"><Pickaxe size={20} strokeWidth={1.5} /></span>
         <div><strong>{t("مساعد الصمان")}</strong><small>{t("يجيب من معلومات المشروع المعتمدة فقط")}</small></div>
       </div>
-      <div className="assistant-log" aria-live="polite">
+      <div className="assistant-log" role="log" aria-live="polite" aria-relevant="additions text" aria-busy={loading}>
         {messages.length === 0 ? (
           <div className="assistant-empty">
             <p className="assistant-prompt-title">{t("اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل")}</p>
