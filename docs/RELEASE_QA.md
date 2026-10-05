@@ -71,9 +71,8 @@ or production security checks have been completed.
       **Do not print or share its contents.** Audit it privately for secrets;
       if any sensitive credential was ever committed, revoke/rotate it and perform
       coordinated history remediation as appropriate.
-- [ ] Confirm the inquiry form saves only to the intended protected table with
-      current production Row-Level Security using synthetic staging data; read-only
-      browser CI intentionally never submits real investor personal information.
+- [x] Synthetic transaction test confirmed the inquiry path can write through `service_role` to the intended protected table; `anon`/`authenticated` remain denied direct access and the test transaction was rolled back.
+      Read-only browser CI intentionally never submits real investor personal information.
 
 ## Constraints
 The build and automated tests cannot certify active permits, certificate
