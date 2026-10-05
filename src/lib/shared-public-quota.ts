@@ -20,11 +20,11 @@ export type RpcReply = { data: unknown; error: unknown };
 
 export function resolveSharedQuotaEnabled(
   flag: string | undefined,
-  nodeEnv: string | undefined,
+  productionBuild: boolean,
 ): boolean {
   if (flag === "true") return true;
   if (flag === "false") return false;
-  return nodeEnv === "production";
+  return productionBuild;
 }
 
 export async function checkSharedPublicQuota({
