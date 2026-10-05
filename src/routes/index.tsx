@@ -379,7 +379,7 @@ function Index() {
       </div>
       <aside id="somman-assistant-drawer" hidden={!assistantOpen} className="somman-assistant-drawer" role="region" aria-label={t("مساعد الصمان")} dir={language === "ar" ? "rtl" : "ltr"}>
         <button type="button" className="somman-assistant-close" ref={assistantClose} aria-label={t("أغلق المساعد")} onClick={() => { setAssistantOpen(false); assistantTrigger.current?.focus(); }}><X size={20} aria-hidden="true"/></button>
-        <ProjectAssistant />
+        <ProjectAssistant active={assistantOpen} />
       </aside>
       <footer className="site-footer"><span>{t("© شركة الأسطول الآلي")}</span><span>{t("الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.")}</span><a href="#البداية">{t("العودة للأعلى ↑")}</a></footer>
     </div>

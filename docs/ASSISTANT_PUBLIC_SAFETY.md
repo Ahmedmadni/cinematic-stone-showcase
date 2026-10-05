@@ -32,6 +32,20 @@ Zod validation and RLS data restrictions remain in effect. This is not a
 per-person anti-spam guarantee.
 
 
+## Drawer lifecycle and metered-stream cancellation
+
+The floating assistant remains mounted while closed so completed conversation
+context can survive reopening. Closing the drawer by its close icon, floating
+assistant icon, or Escape now immediately aborts any in-flight browser fetch.
+The stream reader is cancelled and the unfinished assistant placeholder is
+removed; a late response cannot be appended after the drawer was closed.
+
+The message log exposes `aria-busy` while a response is streaming and uses
+a polite log live region. Browser QA intercepts the assistant endpoint with a
+delayed synthetic SSE response, closes the drawer before that response arrives,
+and verifies that the busy state clears and no late assistant answer appears.
+That test never calls the paid provider.
+
 ## What this does NOT protect
 **Per-process memory is not an account-wide or distributed rate limit.** Deployments with multiple worker processes or autoscaling each get independent quotas, and process restarts reset the counters. For a public domain, configure a CDN/WAF/API gateway limit (or use a shared Redis/Postgres atomic counter) ahead of the app, set an OpenAI/Lovable spend budget, and alert on AI costs. Do not present the app as abuse-proof.
 - This guard does not authenticate visitors, identify people or store behavioral history.
