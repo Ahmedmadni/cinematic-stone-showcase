@@ -53,6 +53,51 @@ try {
   const runtimeErrors = [];
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
+  await caseRun("localhost responses expose release security headers without breaking development", async () => {
+    // This is the first browser case, so wait for the background Vite process
+    // instead of racing its cold startup in GitHub Actions.
+    await openWithRetry(desktopPage, baseURL);
+    const response = await desktopPage.request.get(baseURL + "/");
+    assert.equal(response.headers()["x-content-type-options"], "nosniff");
+    assert.equal(response.headers()["x-frame-options"], "DENY");
+    assert.equal(response.headers()["referrer-policy"], "strict-origin-when-cross-origin");
+    assert.match(response.headers()["permissions-policy"] ?? "", /camera=\(\)/);
+    assert.equal(response.headers()["strict-transport-security"], undefined);
+
+    const api = await desktopPage.request.post(baseURL + "/api/public/ask", {
+      data: { question: "write me a poem", history: [], language: "en" },
+    });
+    assert.equal(api.headers()["cache-control"], "no-store");
+    assert.equal(api.headers()["x-content-type-options"], "nosniff");
+  });
+
+  await caseRun("English-first metadata, crawler boundaries and keyboard skip navigation", async () => {
+    await openWithRetry(desktopPage, baseURL);
+    assert.match(await desktopPage.title(), /Al Somman Quarry/i);
+    assert.match(await desktopPage.locator('meta[name="description"]').getAttribute("content") ?? "", /Al Somman quarry/i);
+    assert.equal(await desktopPage.locator('meta[name="robots"]').getAttribute("content"), "index,follow,max-image-preview:large");
+    assert.equal(await desktopPage.locator('meta[name="theme-color"]').getAttribute("content"), "#252525");
+
+    const robots = await desktopPage.request.get(baseURL + "/robots.txt");
+    assert.equal(robots.status(), 200);
+    const robotsText = await robots.text();
+    assert.match(robotsText, /User-agent:\s*\*/i);
+    assert.match(robotsText, /Disallow:\s*\/api\//i);
+    assert.doesNotMatch(robotsText, /Sitemap:\s*https?:\/\//i);
+
+    const skip = desktopPage.locator(".skip-to-content");
+    assert.equal(await skip.innerText(), "Skip to main content");
+    await skip.focus();
+    await desktopPage.waitForFunction(() => {
+      const el = document.querySelector(".skip-to-content");
+      return el === document.activeElement && el instanceof HTMLElement
+        && getComputedStyle(el).transform !== "none";
+    });
+    await skip.press("Enter");
+    await desktopPage.waitForFunction(() => location.hash === "#main-content");
+    assert.equal(await desktopPage.evaluate(() => document.activeElement?.id), "main-content");
+  });
+
   await caseRun("desktop English default, icon-only tools and logical quarry hero", async () => {
     await openWithRetry(desktopPage, baseURL);
     assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");

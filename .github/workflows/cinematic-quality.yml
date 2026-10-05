@@ -30,7 +30,7 @@ jobs:
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
         run: |
-          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/assistant-stream.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/lib/inquiry-schema.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
+          bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/assistant-stream.ts src/lib/public-response-security.ts src/server.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/lib/inquiry-schema.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
       - name: Production build
         run: bun run build
 
@@ -107,5 +107,51 @@ jobs:
         with:
           name: somman-browser-qa
           path: /tmp/somman-browser-artifacts
+          if-no-files-found: warn
+          retention-days: 7
+
+  cross-browser-release:
+    name: ${{ matrix.engine }} cross-engine staging QA
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [firefox, webkit]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - name: Install locked dependencies
+        run: bun install --frozen-lockfile
+      - name: Install isolated engine and native dependencies
+        run: |
+          npm install --prefix /tmp/somman-cross-browser --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          /tmp/somman-cross-browser/node_modules/.bin/playwright install --with-deps ${{ matrix.engine }}
+      - name: Start localhost staging site
+        run: |
+          bun run dev -- --host 127.0.0.1 --port 4173 > /tmp/somman-cross-browser-server.log 2>&1 &
+          echo $! > /tmp/somman-cross-browser-server.pid
+      - name: Desktop/mobile safety and compatibility checks (read-only)
+        env:
+          BASE_URL: http://127.0.0.1:4173
+          CROSS_BROWSER_ENGINE: ${{ matrix.engine }}
+          PLAYWRIGHT_MODULE_PATH: /tmp/somman-cross-browser/node_modules/playwright/index.mjs
+          QA_OUTPUT_DIR: /tmp/somman-cross-browser-artifacts
+        run: |
+          node tests/cross-browser-smoke.mjs || (cat /tmp/somman-cross-browser-server.log && exit 1)
+      - name: Upload engine-specific screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: somman-${{ matrix.engine }}-qa
+          path: /tmp/somman-cross-browser-artifacts/${{ matrix.engine }}/
           if-no-files-found: warn
           retention-days: 7

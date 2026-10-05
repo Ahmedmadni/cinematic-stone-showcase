@@ -12,6 +12,7 @@ or production security checks have been completed.
   mobile layout.
 - Browser screenshots and a JSON test summary are retained as a GitHub Actions
   artifact for seven days.
+- Firefox and WebKit run focused, read-only compatibility checks in separate Linux jobs; these complement Chromium but do not substitute for physical Safari/Android testing. See `docs/BROWSER_COMPATIBILITY_QA.md`.
 - Tests do **not** submit investment inquiries, read private data or use
   actual company credentials.
 
@@ -30,6 +31,22 @@ or production security checks have been completed.
       review and rotation if sensitive. New \`.gitignore\` rules do not remove
       a file that is already tracked or erase historical Git data.
 
+
+## HTTP response hardening
+- [x] All app responses set `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY`, a strict-origin referrer policy, same-origin opener isolation and a restrictive Permissions Policy for unused camera/microphone/geolocation/payment/USB capabilities.
+- [x] POST and public API responses are `Cache-Control: no-store`; normal GET/static caching remains owned by the framework/platform.
+- [x] HSTS is emitted only for HTTPS requests and is deliberately absent on local HTTP development.
+- [ ] Add a production Content-Security-Policy only after inventorying TanStack-generated inline script/style requirements and the external font origins; do not deploy an untested CSP that can blank the investor presentation.
+- [ ] Confirm these headers survive the actual CDN/hosting edge and that the chosen domain/subdomains are appropriate for the HSTS `includeSubDomains` directive before public launch.
+
+## Search and keyboard release checks
+- [x] English-first fallback metadata matches the default UI and company identity.
+- [x] Public presentation is crawlable while `/api/` is excluded in `robots.txt`.
+- [x] Bilingual, brand-aligned keyboard skip navigation targets the main content.
+- [ ] Approve the final public HTTPS domain before emitting an absolute canonical,
+      sitemap or social-share URL. See `docs/SEO_ACCESSIBILITY_RELEASE.md`.
+- [ ] Approve a dedicated social preview image; do not present illustrative
+      quarry artwork as verified site photography.
 
 ## Manual release review required
 - [ ] Review hero typography, photo cropping and motion on Firefox, Safari and Chromium.

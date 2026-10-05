@@ -15,6 +15,7 @@ const english: Record<string, string> = {
   "شركة بير زيت للخدمات البترولية": "Bir Zeit Petroleum Services Company",
   "تواصل للاستفسار": "Contact us",
   "العودة إلى بداية العرض": "Back to the beginning",
+  "تجاوز إلى المحتوى الرئيسي": "Skip to main content",
   "شعار شركة الأسطول الآلي": "Al Ostool Alaali official logo",
   "صورة تجريبية · منظر عام لمحجر الصمان": "Illustrative image · Al Somman quarry overview",
   "أصل صناعي في قلب الصمان": "An industrial asset in Al Somman",
