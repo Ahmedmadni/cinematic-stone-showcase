@@ -53,6 +53,21 @@ try {
   const runtimeErrors = [];
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
+  await caseRun("localhost responses expose release security headers without breaking development", async () => {
+    const response = await desktopPage.request.get(baseUrl + "/");
+    assert.equal(response.headers()["x-content-type-options"], "nosniff");
+    assert.equal(response.headers()["x-frame-options"], "DENY");
+    assert.equal(response.headers()["referrer-policy"], "strict-origin-when-cross-origin");
+    assert.match(response.headers()["permissions-policy"] ?? "", /camera=\(\)/);
+    assert.equal(response.headers()["strict-transport-security"], undefined);
+
+    const api = await desktopPage.request.post(baseUrl + "/api/public/ask", {
+      data: { question: "write me a poem", history: [], language: "en" },
+    });
+    assert.equal(api.headers()["cache-control"], "no-store");
+    assert.equal(api.headers()["x-content-type-options"], "nosniff");
+  });
+
   await caseRun("desktop English default, icon-only tools and logical quarry hero", async () => {
     await openWithRetry(desktopPage, baseURL);
     assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
