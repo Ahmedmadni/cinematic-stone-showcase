@@ -135,7 +135,7 @@
   object-position: 50% 53%;
 }
 .cinematic-bridge__shot--quarry img {
-  transform: scale(calc(1.04 + var(--cinema-bridge-progress) * .54));
+  transform: scale(calc(1.04 + var(--cinema-bridge-progress) * .30));
   transform-origin: 58% 52%;
   will-change: transform;
 }
