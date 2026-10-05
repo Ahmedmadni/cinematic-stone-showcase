@@ -428,6 +428,42 @@ try {
   });
 
 
+  await caseRun("closing assistant cancels an unfinished stream and clears busy state", async () => {
+    await openWithRetry(desktopPage, baseURL);
+    let intercepted = 0;
+    await desktopPage.route("**/api/public/ask", async route => {
+      intercepted += 1;
+      await new Promise(resolve => setTimeout(resolve, 2200));
+      await route.fulfill({
+        status: 200,
+        contentType: "text/event-stream; charset=utf-8",
+        body: 'data: {"type":"response.output_text.delta","delta":"late answer"}\n\ndata: [DONE]\n\n',
+      }).catch(() => {});
+    });
+    try {
+      await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
+      const drawer = desktopPage.locator("#somman-assistant-drawer");
+      const log = drawer.locator(".assistant-log");
+      await drawer.locator(".assistant-suggestions button").first().click();
+      await desktopPage.waitForFunction(() =>
+        document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "true",
+        null, { timeout: 2500 });
+      await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
+      await desktopPage.waitForTimeout(250);
+      assert.equal(intercepted, 1);
+      assert.equal(await drawer.isVisible(), false);
+      await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
+      await desktopPage.waitForFunction(() =>
+        document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "false",
+        null, { timeout: 2500 });
+      assert.equal(await drawer.locator(".assistant-msg.assistant").count(), 0,
+        "an aborted hidden request must not append a late paid answer");
+      await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
+    } finally {
+      await desktopPage.unroute("**/api/public/ask");
+    }
+  });
+
   await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
     const hero = desktopPage.locator(".hero-gallery__photo--active");
