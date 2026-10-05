@@ -72,8 +72,8 @@ or production security checks have been completed.
       if any sensitive credential was ever committed, revoke/rotate it and perform
       coordinated history remediation as appropriate.
 - [ ] Confirm the inquiry form saves only to the intended protected table with
-      current production Row-Level Security; there is no browser test that
-      submits real investor personal information.
+      current production Row-Level Security using synthetic staging data; read-only
+      browser CI intentionally never submits real investor personal information.
 
 ## Constraints
 The build and automated tests cannot certify active permits, certificate
