@@ -46,7 +46,7 @@ export function MapExperience() {
   const frame = useRef(0);
   const tilt = useRef({ currentX: 0, currentY: 0, targetX: 0, targetY: 0 });
   const [focus, setFocus] = useState<(typeof landmarks)[number]["id"]>("production");
-  const [mapAllowed, setMapAllowed] = useState(true);
+  const [mapAllowed, setMapAllowed] = useState(false);
   const active = landmarks.find((item) => item.id === focus) ?? landmarks[1];
 
   useEffect(() => {
