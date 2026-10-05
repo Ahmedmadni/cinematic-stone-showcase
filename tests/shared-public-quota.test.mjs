@@ -4,11 +4,11 @@ import { readFileSync } from "node:fs";
 import { checkSharedPublicQuota, resolveSharedQuotaEnabled } from "../src/lib/shared-public-quota.ts";
 
 test("verified shared quota defaults on only in production and supports explicit override", () => {
-  assert.equal(resolveSharedQuotaEnabled(undefined, "production"), true);
-  assert.equal(resolveSharedQuotaEnabled("", "production"), true);
-  assert.equal(resolveSharedQuotaEnabled(undefined, "development"), false);
-  assert.equal(resolveSharedQuotaEnabled("true", "development"), true);
-  assert.equal(resolveSharedQuotaEnabled("false", "production"), false);
+  assert.equal(resolveSharedQuotaEnabled(undefined, true), true);
+  assert.equal(resolveSharedQuotaEnabled("", true), true);
+  assert.equal(resolveSharedQuotaEnabled(undefined, false), false);
+  assert.equal(resolveSharedQuotaEnabled("true", false), true);
+  assert.equal(resolveSharedQuotaEnabled("false", true), false);
 });
 
 test("disabled shared counter preserves existing per-worker admission without database calls", async () => {
