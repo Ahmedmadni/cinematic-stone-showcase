@@ -110,7 +110,7 @@
 }
 .presentation .hero-discover[data-cinema-magnetic] {
   transform: translate3d(var(--cinema-cta-x), var(--cinema-cta-y), 0);
-  transition: transform .16s ease-out, color .24s ease;
+  transition: transform .28s cubic-bezier(.22,.61,.36,1), color .24s ease;
   will-change: transform;
 }
 .presentation .hero-discover .discover-icon {
@@ -256,7 +256,7 @@
 .presentation[data-cinema-pointer="active"] .fleet-experience__stage:hover::after { opacity: 1; }
 .presentation .fleet-experience__image.is-active {
   transform: translate3d(var(--cinema-fleet-mouse-x), var(--cinema-fleet-mouse-y), 0) scale(var(--cinema-fleet-scale, 1.05));
-  transition: opacity .8s ease, filter .95s ease, visibility .8s ease, transform .8s ease-out;
+  transition: opacity 1s ease, filter 1.15s ease, visibility 1s ease, transform 1.35s cubic-bezier(.22,.61,.36,1);
 }
 
 /* Dual clipped and feathered masks: clip-path remains the fallback for browsers
