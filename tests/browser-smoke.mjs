@@ -54,6 +54,9 @@ try {
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
   await caseRun("localhost responses expose release security headers without breaking development", async () => {
+    // This is the first browser case, so wait for the background Vite process
+    // instead of racing its cold startup in GitHub Actions.
+    await openWithRetry(desktopPage, baseURL);
     const response = await desktopPage.request.get(baseURL + "/");
     assert.equal(response.headers()["x-content-type-options"], "nosniff");
     assert.equal(response.headers()["x-frame-options"], "DENY");
