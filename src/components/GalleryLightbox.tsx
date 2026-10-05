@@ -144,7 +144,7 @@ export function GalleryLightbox({
         </Button>
       </div>
       <div className="lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
-        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
+        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" width={1536} height={1024} />
         <div className="lightbox-caption">
           <div>
             <span>{t("صورة تجريبية ·")} {replacement}</span>
