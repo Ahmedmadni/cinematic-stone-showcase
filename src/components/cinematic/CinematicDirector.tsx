@@ -139,10 +139,12 @@ export function CinematicDirector() {
         const rect = magneticLink.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const distance = Math.hypot(pointerX - centerX, pointerY - centerY);
-        if (distance < Math.max(rect.width, rect.height) / 2 + 40) {
-          magneticX = Math.max(-12, Math.min(12, (pointerX - centerX) * 0.12));
-          magneticY = Math.max(-8, Math.min(8, (pointerY - centerY) * 0.12));
+        const smoothPointerX = ((px + 1) / 2) * window.innerWidth;
+        const smoothPointerY = ((py + 1) / 2) * window.innerHeight;
+        const distance = Math.hypot(smoothPointerX - centerX, smoothPointerY - centerY);
+        if (distance < Math.max(rect.width, rect.height) / 2 + 32) {
+          magneticX = Math.max(-7, Math.min(7, (smoothPointerX - centerX) * 0.07));
+          magneticY = Math.max(-5, Math.min(5, (smoothPointerY - centerY) * 0.07));
         }
       }
 
