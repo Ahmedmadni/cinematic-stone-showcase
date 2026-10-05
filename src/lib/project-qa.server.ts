@@ -110,7 +110,7 @@ export async function handleProjectQuestion(request: Request): Promise<Response>
         input,
         stream: true,
         store: false,
-        reasoning: { effort: "low", summary: "auto" },
+        reasoning: { effort: "low" },
       }),
     });
     if (!upstream.ok || !upstream.body) {
