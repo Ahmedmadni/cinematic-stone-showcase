@@ -8,7 +8,10 @@
 - Search robots may crawl the public presentation but are asked not to crawl
   `/api/`, which is a request endpoint rather than public page content.
 - The page emits a conservative robots directive `index,follow,max-image-preview:large`
-  and Al Ostool site-name metadata.
+  and Al Ostool site-name metadata for the eventual approved domain.
+- Temporary `*.lovable.app` preview/published hostnames receive the HTTP
+  `X-Robots-Tag: noindex, nofollow` header, preventing the platform hostname
+  from becoming the search result/canonical before the company approves its domain.
 - The official company identity remains textually attributed to
   **Al Ostool Alaali Contracting Company**. The page does not claim that
   illustrative quarry images are official site photography.
@@ -48,7 +51,8 @@ photography or clearly labelled illustrative artwork.
 - [ ] Add an approved OpenGraph/Twitter image and verify its public 200 URL.
 - [ ] Validate rendered metadata in the deployed HTML, not only localhost.
 - [ ] Test keyboard skip navigation, 200% zoom and visible focus on a physical device/browser combination.
-- [ ] Verify indexing choice with the company before exposing the investment presentation to public search engines.
+- [x] Prevent temporary Lovable hostnames from indexing before domain approval.
+- [ ] Verify indexing choice with the company before exposing the approved custom domain to public search engines.
 
 Automated localhost tests are evidence of implementation behavior only; they
 cannot certify search-engine indexing or a production CDN configuration.
