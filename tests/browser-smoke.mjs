@@ -603,9 +603,6 @@ try {
     assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
       "Shift+Tab escaped the open modal lightbox");
 
-    await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
-
     const initial = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
     await desktopPage.keyboard.press("ArrowRight");
     await desktopPage.waitForFunction(previous =>
@@ -613,11 +610,18 @@ try {
       initial, { timeout: 5000 });
     const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
     assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused",
+      "manual keyboard navigation must pause autoplay");
 
     await desktopPage.keyboard.press("ArrowLeft");
     await desktopPage.waitForFunction(previous =>
       document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
       afterRight, { timeout: 5000 });
+
+    await dialog.getByRole("button", { name: "تشغيل معرض الصور" }).click();
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
+    await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
 
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
