@@ -1,10 +1,50 @@
 /**
- * Browser-facing response hardening that is safe for the current TanStack app.
+ * Browser-facing response hardening for the public investor presentation.
  *
- * We intentionally do not invent a Content-Security-Policy here: the rendered
- * app and external font loading must first be nonce/hash inventoried in the
- * deployed platform. A broken CSP is worse than a documented pending gate.
+ * CSP inventory:
+ * - Application scripts/styles/assets are self-hosted by TanStack/Vite.
+ * - TanStack hydration emits inline scripts, so script-src keeps 'unsafe-inline'.
+ * - Runtime CSS variables / framework styles require inline styles.
+ * - Google Fonts uses fonts.googleapis.com + fonts.gstatic.com.
+ * - Browser-side Supabase, when used, connects only to *.supabase.co.
+ * - Lovable preview/editor telemetry may use *.lovable.dev / *.lovable.app.
+ *
+ * Production HTTPS deliberately omits 'unsafe-eval'. Local HTTP development
+ * permits it plus broad dev websocket/connect origins for Vite HMR only.
  */
+function contentSecurityPolicy(request: Request): string {
+  const url = new URL(request.url);
+  const isProductionHttps = url.protocol === "https:";
+
+  const scriptSrc = isProductionHttps
+    ? "'self' 'unsafe-inline' https://*.lovable.dev https://*.lovable.app"
+    : "'self' 'unsafe-inline' 'unsafe-eval'";
+
+  const connectSrc = isProductionHttps
+    ? "'self' https://*.supabase.co wss://*.supabase.co https://*.lovable.dev https://*.lovable.app wss://*.lovable.dev wss://*.lovable.app"
+    : "'self' http: https: ws: wss:";
+
+  const directives = [
+    "default-src 'self'",
+    "base-uri 'self'",
+    "object-src 'none'",
+    "frame-ancestors 'none'",
+    "form-action 'self'",
+    `script-src ${scriptSrc}`,
+    "script-src-attr 'none'",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' data: https://fonts.gstatic.com",
+    "img-src 'self' data: blob:",
+    `connect-src ${connectSrc}`,
+    "worker-src 'self' blob:",
+    "media-src 'self'",
+    "manifest-src 'self'",
+  ];
+
+  if (isProductionHttps) directives.push("upgrade-insecure-requests");
+  return directives.join("; ");
+}
+
 export function hardenPublicResponse(request: Request, response: Response): Response {
   const headers = new Headers(response.headers);
 
@@ -13,6 +53,7 @@ export function hardenPublicResponse(request: Request, response: Response): Resp
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), payment=(), usb=()");
   headers.set("Cross-Origin-Opener-Policy", "same-origin");
+  headers.set("Content-Security-Policy", contentSecurityPolicy(request));
 
   // POST bodies may contain investor contact details or assistant questions.
   // Public API responses may also contain model text. Never let intermediaries
