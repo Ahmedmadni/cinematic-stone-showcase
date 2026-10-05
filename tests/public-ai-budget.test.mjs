@@ -119,6 +119,7 @@ test("public assistant keeps browser/server payloads deliberately small", () => 
   assert.match(server, /readBoundedJson\(request, 4_096\)/);
   assert.match(server, /relayAiStream\(upstream\.body, permit\.release, 32_768\)/);
   assert.doesNotMatch(server, /reasoning\.encrypted_content/);
+  assert.doesNotMatch(server, /summary:\s*"auto"/);
   assert.match(client, /JSON\.stringify\(\{ question: q, language \}\)/);
   assert.doesNotMatch(client, /JSON\.stringify\(\{ question: q, history/);
 });
