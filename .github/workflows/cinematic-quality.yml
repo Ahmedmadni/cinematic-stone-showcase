@@ -3,12 +3,22 @@ name: Cinematic Quality
 on:
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "*.md"
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: cinematic-quality-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   validate:
@@ -55,6 +65,7 @@ jobs:
 
   shared-quota-db:
     name: Shared quota PostgreSQL integration (disposable)
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     services:
@@ -119,6 +130,7 @@ jobs:
         run: |
           node tests/browser-smoke.mjs || (cat /tmp/somman-qa-server.log && exit 1)
       - name: Throttled mobile performance diagnostics
+        if: github.event_name != 'pull_request'
         env:
           BASE_URL: http://127.0.0.1:4173
           PLAYWRIGHT_MODULE_PATH: /tmp/somman-browser-qa/node_modules/playwright/index.mjs
@@ -136,6 +148,7 @@ jobs:
 
   cross-browser-release:
     name: ${{ matrix.engine }} cross-engine staging QA
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 18
     strategy:
