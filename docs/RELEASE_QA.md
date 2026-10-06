@@ -13,6 +13,11 @@ or production security checks have been completed.
 - Browser screenshots and a JSON test summary are retained as a GitHub Actions
   artifact for seven days.
 - Firefox and WebKit run focused, read-only compatibility checks in separate Linux jobs; these complement Chromium but do not substitute for physical Safari/Android testing. See `docs/BROWSER_COMPATIBILITY_QA.md`.
+- Current full release run `37428830664` passed validate, PostgreSQL, Chromium,
+  Firefox and WebKit on SHA `d4a5a5a0501b1ec409bd095afcc1b2da81acc5e3`.
+- The same run recorded a synthetic 390×844 / 4× CPU / moderate-4G baseline:
+  LCP 1,584 ms, CLS 0, interaction candidate 16 ms, average scroll frame
+  16.51 ms, p95 16.7 ms, and zero sampled frames over 32 ms.
 - Tests do **not** submit investment inquiries, read private data or use
   actual company credentials.
 
