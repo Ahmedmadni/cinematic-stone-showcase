@@ -8,7 +8,7 @@ const EMAIL = /\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b/gi;
 const PHONE = /\+?\d[\d\s().-]{7,}\d/g;
 const JWT = /\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\b/g;
 const SUPABASE_KEY = /\bsb_(?:secret|publishable)_[A-Za-z0-9_-]+\b/g;
-const BEARER = /\bBearer\s+[A-Za-z0-9._~+\/-]+=*\b/gi;
+const BEARER = /\bBearer\s+[A-Za-z0-9._~+/-]+=*\b/gi;
 const NAMED_SECRET = /\b(?:api[_-]?key|service[_-]?role[_-]?key|secret|token|authorization)\s*[:=]\s*[^\s,;]+/gi;
 const URL_WITH_PRIVATE_PARTS = /https?:\/\/[^\s?#]+(?:\?[^\s#]*)?(?:#[^\s]*)?/gi;
 
