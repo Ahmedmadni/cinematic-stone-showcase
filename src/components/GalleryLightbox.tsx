@@ -103,6 +103,32 @@ export function GalleryLightbox({
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
+    if (event.key === "Tab") {
+      const dialog = event.currentTarget;
+      const focusable = Array.from(dialog.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
+      )).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+
+      if (focusable.length === 0) {
+        event.preventDefault();
+        closeRef.current?.focus({ preventScroll: true });
+        return;
+      }
+
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const active = document.activeElement;
+
+      if (event.shiftKey && (active === first || !dialog.contains(active))) {
+        event.preventDefault();
+        last?.focus({ preventScroll: true });
+      } else if (!event.shiftKey && (active === last || !dialog.contains(active))) {
+        event.preventDefault();
+        first?.focus({ preventScroll: true });
+      }
+      return;
+    }
+
     if (event.key === "ArrowLeft") {
       event.preventDefault();
       if (language === "ar") navigateNext();
