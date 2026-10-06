@@ -653,7 +653,13 @@ try {
     const conceptCamera = location.locator(".somman-location-experience__scene-camera");
     const conceptBox = await conceptScene.boundingBox();
     assert.ok(conceptBox, "conceptual map scene should have measurable bounds");
+
+    // The hotspot click leaves the pointer inside the scene, so explicitly
+    // leave the hover area before asserting the idle compositor state.
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForTimeout(80);
     assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "auto");
+
     await desktopPage.mouse.move(
       conceptBox.x + conceptBox.width * 0.92,
       conceptBox.y + conceptBox.height * 0.12,
