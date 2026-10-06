@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import {
   createPublicAiBudget,
   readBoundedJson,
@@ -108,4 +109,17 @@ test("overlong upstream output is terminated before exceeding safe response size
   const reader = relayAiStream(stream, () => releases++, 16).getReader();
   await assert.rejects(reader.read(), /safe size/);
   assert.equal(releases, 1);
+});
+
+
+test("public assistant keeps browser/server payloads deliberately small", () => {
+  const server = readFileSync(new URL("../src/lib/project-qa.server.ts", import.meta.url), "utf8");
+  const client = readFileSync(new URL("../src/components/ProjectAssistant.tsx", import.meta.url), "utf8");
+
+  assert.match(server, /readBoundedJson\(request, 4_096\)/);
+  assert.match(server, /relayAiStream\(upstream\.body, permit\.release, 32_768\)/);
+  assert.doesNotMatch(server, /reasoning\.encrypted_content/);
+  assert.doesNotMatch(server, /summary:\s*"auto"/);
+  assert.match(client, /JSON\.stringify\(\{ question: q, language \}\)/);
+  assert.doesNotMatch(client, /JSON\.stringify\(\{ question: q, history/);
 });

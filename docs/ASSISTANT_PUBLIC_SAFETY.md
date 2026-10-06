@@ -9,33 +9,37 @@
 ## Implemented per-worker spending protection
 - \`src/lib/public-ai-budget.ts\`: a sliding window of at most **24 accepted on-topic gateway requests per 60 seconds per server worker**.
 - At most **3 concurrent accepted upstream streams per worker**. If quota is hit, the server returns HTTP 429, a friendly localized response and \`Retry-After\`; the expensive gateway is never called.
-- Bodies over **24 KiB** are cancelled early, before JSON parsing. Existing Zod question/history limits still apply.
-- Paid upstream calls have a **35-second abort deadline**. Streaming output is relayed with backpressure and capped to **128 KiB**. The paid concurrency slot is released on EOF, stream cancellation and provider errors; release is idempotent.
+- The browser sends only the **current question + language**. Prior visible chat messages remain local to the drawer and are not transmitted to the server or paid gateway.
+- Assistant request bodies over **4 KiB** are cancelled early, before JSON parsing. The accepted question remains capped at 500 characters.
+- Paid upstream calls have a **35-second abort deadline**. Streaming output is relayed with backpressure and capped to **32 KiB**. The paid concurrency slot is released on EOF, stream cancellation and provider errors; release is idempotent.
+- The gateway request does not ask for encrypted reasoning payloads or reasoning summaries; only low-effort reasoning plus the public answer stream is needed.
 - Off-topic replies stay local and never invoke the gateway. No incoming IP/header values are used as a trusted identifier: \`X-Forwarded-For\` can be forged on untrusted ingress.
 
-## Optional shared deployment quotas (new, not yet activated on the quarry project)
+## Shared deployment quotas
 
-A checked-in migration \`20261003143000_somman_global_public_quotas.sql\`
-adds a service-role-only atomic public action limit for assistant questions
+The checked-in migration `20261003143000_somman_global_public_quotas.sql`
+provides a service-role-only atomic public action limit for assistant questions
 (48/60s) and investor submissions (12/600s), aggregated across all app
 workers with no IP, prompt, identity or email stored.
 
-**Deployment flag defaults OFF**: \`SOMMAN_SHARED_QUOTA_ENABLED=true\`
-enables this only after the SQL migration has been verified in the **correct**
-project. The available Supabase connection does not show the project specified
-by this repository's config, so no live migration was attempted. With the flag
-enabled, database errors fail closed. See \`docs/SHARED_QUOTA_ROLLOUT.md\`.
+The matching production database, RLS and RPC privileges were verified.
+Production builds therefore default the shared quota **ON** when the optional
+server-only `SOMMAN_SHARED_QUOTA_ENABLED` override is blank/omitted.
+Development defaults OFF; explicit `true`/`false` remains available as an
+operational override. Database accounting failures fail closed before paid AI
+calls or inquiry inserts. See `docs/SHARED_QUOTA_ROLLOUT.md`.
 
-The separate investor form now has a per-worker burst cap (six/minute, two
-simultaneous writes) even when the shared flag is off. Its existing honeypot,
-Zod validation and RLS data restrictions remain in effect. This is not a
-per-person anti-spam guarantee.
+The investor form also keeps its per-worker burst cap (six/minute, two
+simultaneous writes), plus honeypot, Zod validation, explicit consent and
+RLS/service-role restrictions. This is still not a per-person identity or
+CAPTCHA guarantee.
 
 
 ## Drawer lifecycle and metered-stream cancellation
 
 The floating assistant remains mounted while closed so completed conversation
-context can survive reopening. Closing the drawer by its close icon, floating
+messages can survive reopening in the visitor's browser. Prior messages are not
+included in subsequent network requests. Closing the drawer by its close icon, floating
 assistant icon, or Escape now immediately aborts any in-flight browser fetch.
 The stream reader is cancelled and the unfinished assistant placeholder is
 removed; a late response cannot be appended after the drawer was closed.
@@ -47,7 +51,7 @@ and verifies that the busy state clears and no late assistant answer appears.
 That test never calls the paid provider.
 
 ## What this does NOT protect
-**Per-process memory is not an account-wide or distributed rate limit.** Deployments with multiple worker processes or autoscaling each get independent quotas, and process restarts reset the counters. For a public domain, configure a CDN/WAF/API gateway limit (or use a shared Redis/Postgres atomic counter) ahead of the app, set an OpenAI/Lovable spend budget, and alert on AI costs. Do not present the app as abuse-proof.
+The app combines per-worker admission control with the verified shared PostgreSQL action counter. This protects normal multi-worker bursts but is not a substitute for a provider billing ceiling or CDN/WAF controls. Set a Lovable/provider spend budget, alert on AI costs and add edge anti-abuse controls for broad public traffic. Do not present the app as abuse-proof.
 - This guard does not authenticate visitors, identify people or store behavioral history.
 - It does not provide a CAPTCHA or persistent spam control for the **separate** \`submitInquiry\` lead form. The Supabase investment inquiry table still relies on server-side Zod and service role/RLS restrictions. Consider an approved anti-spam service/WAF or a shared submission counter if volume warrants it.
 - Live model success cannot be established by CI without real production credentials. On a protected staging domain, manually test one allowed Arabic question, one allowed English question, a clearly off-topic question, provider outage and cancellation; do not log sensitive conversations.
@@ -57,7 +61,8 @@ That test never calls the paid provider.
 - [x] Locally refuse clearly off-topic requests without upstream spending.
 - [x] Apply per-worker request/concurrency budgets and release upon end/cancel.
 - [x] Add focused unit tests for quota, bad input, abort/cancel and oversized output.
-- [ ] Inspect deployment scaling and add **shared edge rate limit** for real public traffic.
+- [x] Verify the shared PostgreSQL quota across application workers.
+- [ ] Add a provider spending ceiling and CDN/WAF anti-abuse controls for broad public traffic.
 - [ ] Verify real Lovable gateway streaming on **staging**; set billing alerts.
 - [ ] Check the separate investment inquiry form's live Supabase write permission, spam protections and retention policy.
 - [ ] Security-review actual hosting secrets, lawful privacy text and document sources before broad public launch.
