@@ -47,12 +47,36 @@ export type Database = {
         }
         Relationships: []
       }
+      somman_public_usage_windows: {
+        Row: {
+          request_count: number
+          scope: string
+          window_started_at: string
+        }
+        Insert: {
+          request_count: number
+          scope: string
+          window_started_at: string
+        }
+        Update: {
+          request_count?: number
+          scope?: string
+          window_started_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      somman_try_public_action: {
+        Args: { p_scope: string }
+        Returns: {
+          allowed: boolean
+          retry_after_seconds: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
