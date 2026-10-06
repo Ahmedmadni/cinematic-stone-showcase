@@ -80,6 +80,16 @@ export function GalleryLightbox({
     if (first) touchStart.current = { x: first.clientX, y: first.clientY };
   }
 
+  function navigateNext() {
+    setManuallyPaused(true);
+    onNext();
+  }
+
+  function navigatePrevious() {
+    setManuallyPaused(true);
+    onPrevious();
+  }
+
   function handleTouchEnd(event: ReactTouchEvent<HTMLDivElement>) {
     const first = touchStart.current;
     touchStart.current = null;
@@ -88,20 +98,19 @@ export function GalleryLightbox({
     if (!touch) return;
     const step = gallerySwipeStep(touch.clientX - first.x, touch.clientY - first.y, language === "ar" ? "rtl" : "ltr");
     if (!step) return;
-    setManuallyPaused(true);
-    if (step === 1) onNext();
-    else onPrevious();
+    if (step === 1) navigateNext();
+    else navigatePrevious();
   }
 
   function handleKeyDown(event: KeyboardEvent<HTMLDialogElement>) {
     if (event.key === "ArrowLeft") {
       event.preventDefault();
-      if (language === "ar") onNext();
-      else onPrevious();
+      if (language === "ar") navigateNext();
+      else navigatePrevious();
     } else if (event.key === "ArrowRight") {
       event.preventDefault();
-      if (language === "ar") onPrevious();
-      else onNext();
+      if (language === "ar") navigatePrevious();
+      else navigateNext();
     }
   }
 
@@ -135,17 +144,17 @@ export function GalleryLightbox({
         </Button>
       </div>
       <div className="lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
-        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" />
+        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" width={1536} height={1024} />
         <div className="lightbox-caption">
           <div>
             <span>{t("صورة تجريبية ·")} {replacement}</span>
             <h3>{title} — {label}</h3>
           </div>
           <div className="lightbox-controls">
-            <Button type="button" variant="outline" aria-label={t("الصورة السابقة")} onClick={onPrevious}>
+            <Button type="button" variant="outline" aria-label={t("الصورة السابقة")} onClick={navigatePrevious}>
               <ArrowRight size={20} aria-hidden="true" />
             </Button>
-            <Button type="button" variant="outline" aria-label={t("الصورة التالية")} onClick={onNext}>
+            <Button type="button" variant="outline" aria-label={t("الصورة التالية")} onClick={navigateNext}>
               <ArrowLeft size={20} aria-hidden="true" />
             </Button>
           </div>

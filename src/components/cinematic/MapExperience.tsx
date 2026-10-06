@@ -4,6 +4,10 @@ import { ArrowUpLeft, Compass, ExternalLink, Layers3, MapPinned, MoveUpRight } f
 import quarryAerial from "@/assets/quarry-aerial.jpg";
 import { googleMapsOpenUrl, googleSatelliteEmbedSource, quarryReferenceCenter } from "@/data/quarry-map";
 
+const MAP_TILT_DAMPING = 0.08;
+const MAP_TILT_SETTLE_EPSILON = 0.006;
+const MAP_TILT_MAX_DEG = 1.6;
+
 const landmarks = [
   {
     id: "extraction",
@@ -40,38 +44,72 @@ export function MapExperience() {
   const { t, language } = useSiteLanguage();
   const sceneRef = useRef<HTMLDivElement>(null);
   const frame = useRef(0);
+  const tilt = useRef({ currentX: 0, currentY: 0, targetX: 0, targetY: 0 });
   const [focus, setFocus] = useState<(typeof landmarks)[number]["id"]>("production");
-  const [mapAllowed, setMapAllowed] = useState(true);
+  const [mapAllowed, setMapAllowed] = useState(false);
   const active = landmarks.find((item) => item.id === focus) ?? landmarks[1];
 
   useEffect(() => {
     const scene = sceneRef.current;
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const handleMotionPreference = () => {
+      if (!reducedMotion.matches) return;
+      tilt.current.currentX = 0;
+      tilt.current.currentY = 0;
+      tilt.current.targetX = 0;
+      tilt.current.targetY = 0;
+      if (frame.current) window.cancelAnimationFrame(frame.current);
+      frame.current = 0;
+      scene?.style.setProperty("--map-tilt-x", "0deg");
+      scene?.style.setProperty("--map-tilt-y", "0deg");
+    };
+
+    reducedMotion.addEventListener("change", handleMotionPreference);
+    handleMotionPreference();
+
     return () => {
+      reducedMotion.removeEventListener("change", handleMotionPreference);
       if (frame.current) window.cancelAnimationFrame(frame.current);
       scene?.style.setProperty("--map-tilt-x", "0deg");
       scene?.style.setProperty("--map-tilt-y", "0deg");
     };
   }, []);
 
+  function animateTilt() {
+    const state = tilt.current;
+    state.currentX += (state.targetX - state.currentX) * MAP_TILT_DAMPING;
+    state.currentY += (state.targetY - state.currentY) * MAP_TILT_DAMPING;
+
+    sceneRef.current?.style.setProperty("--map-tilt-x", (state.currentX * MAP_TILT_MAX_DEG).toFixed(2) + "deg");
+    sceneRef.current?.style.setProperty("--map-tilt-y", (state.currentY * MAP_TILT_MAX_DEG).toFixed(2) + "deg");
+
+    const settling =
+      Math.abs(state.targetX - state.currentX) > MAP_TILT_SETTLE_EPSILON ||
+      Math.abs(state.targetY - state.currentY) > MAP_TILT_SETTLE_EPSILON;
+
+    frame.current = settling ? window.requestAnimationFrame(animateTilt) : 0;
+  }
+
+  function scheduleTilt() {
+    if (!frame.current) frame.current = window.requestAnimationFrame(animateTilt);
+  }
+
   function onPointerMove(event: ReactPointerEvent<HTMLDivElement>) {
     if (event.pointerType !== "mouse" || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const rect = event.currentTarget.getBoundingClientRect();
     if (!rect.width || !rect.height) return;
+
     const px = Math.max(-1, Math.min(1, (event.clientX - rect.left) / rect.width * 2 - 1));
     const py = Math.max(-1, Math.min(1, (event.clientY - rect.top) / rect.height * 2 - 1));
-    if (frame.current) window.cancelAnimationFrame(frame.current);
-    frame.current = window.requestAnimationFrame(() => {
-      sceneRef.current?.style.setProperty("--map-tilt-x", (-py * 3).toFixed(2) + "deg");
-      sceneRef.current?.style.setProperty("--map-tilt-y", (px * 3).toFixed(2) + "deg");
-      frame.current = 0;
-    });
+    tilt.current.targetX = -py;
+    tilt.current.targetY = px;
+    scheduleTilt();
   }
 
   function resetTilt() {
-    if (frame.current) window.cancelAnimationFrame(frame.current);
-    frame.current = 0;
-    sceneRef.current?.style.setProperty("--map-tilt-x", "0deg");
-    sceneRef.current?.style.setProperty("--map-tilt-y", "0deg");
+    tilt.current.targetX = 0;
+    tilt.current.targetY = 0;
+    scheduleTilt();
   }
 
   return (

@@ -75,6 +75,10 @@ or production security checks have been completed.
       variable was found in the historical file; runtime `.env` remains removed.
 - [x] Synthetic transaction test confirmed the inquiry path can write through `service_role` to the intended protected table; `anon`/`authenticated` remain denied direct access and the test transaction was rolled back.
       Read-only browser CI intentionally never submits real investor personal information.
+- [x] Production catalog audit confirmed both public tables have RLS enabled, no
+      `anon`/`authenticated` table grants exist, there are no public views, and
+      the only public `SECURITY DEFINER` RPC is service-role-only with an empty
+      `search_path`.
 
 ## Constraints
 The build and automated tests cannot certify active permits, certificate

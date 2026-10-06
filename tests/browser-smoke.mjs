@@ -584,7 +584,7 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
   });
 
-  await caseRun("native gallery Escape/arrow keys and focus restoration", async () => {
+  await caseRun("native gallery keyboard navigation, focus trap and focus restoration", async () => {
     const button = desktopPage.locator(".gallery-image-button").first();
     await button.scrollIntoViewIfNeeded();
     await button.click();
@@ -592,12 +592,37 @@ try {
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
     assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
-    const initial = await dialog.locator(".lightbox-toolbar .latin").innerText();
+
+    // Native modal dialog must keep keyboard focus inside the enlarged gallery.
+    for (let step = 0; step < 8; step++) {
+      await desktopPage.keyboard.press("Tab");
+      assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
+        "Tab escaped the open modal lightbox");
+    }
+    await desktopPage.keyboard.press("Shift+Tab");
+    assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
+      "Shift+Tab escaped the open modal lightbox");
+
+    const initial = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+    await desktopPage.keyboard.press("ArrowRight");
     await desktopPage.waitForFunction(previous =>
-      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
-      initial, { timeout: 10500 });
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
+      initial, { timeout: 5000 });
+    const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+    assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused",
+      "manual keyboard navigation must pause autoplay");
+
+    await desktopPage.keyboard.press("ArrowLeft");
+    await desktopPage.waitForFunction(previous =>
+      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
+      afterRight, { timeout: 5000 });
+
+    await dialog.getByRole("button", { name: "تشغيل معرض الصور" }).click();
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
     await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
     assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
+
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
     assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
@@ -609,16 +634,51 @@ try {
     assert.ok(await location.getByRole("heading", { name: "خريطة القمر الصناعي" }).isVisible());
     assert.ok(await location.getByRole("heading", { name: "منظور مجسّم تصوري" }).isVisible());
     const iframe = location.locator('iframe[title*="Google Maps"]');
-    assert.ok(await iframe.count() === 1);
+    assert.equal(await iframe.count(), 0, "Google Maps must not load before visitor opt-in");
+    const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
+    assert.match(await externalLink.getAttribute("href") ?? "", /^https:\/\/www\.google\.com\/maps\/search\//);
+    const mapPrompt = location.locator(".somman-location-experience__map-prompt");
+    assert.ok(await mapPrompt.isVisible());
+    await mapPrompt.getByRole("button", { name: "تحميل Google Maps" }).click();
+    await iframe.waitFor({ state: "attached", timeout: 5000 });
     const src = await iframe.getAttribute("src");
     assert.ok(src?.includes("maps.google.com/maps?"));
     assert.match(src ?? "", /25\.515292%2C48\.362458/);
-    const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
-    assert.match(await externalLink.getAttribute("href") ?? "", /^https:\/\/www\.google\.com\/maps\/search\//);
     const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في المشهد التصوري" });
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
+
+    const conceptScene = location.locator(".somman-location-experience__scene");
+    const conceptCamera = location.locator(".somman-location-experience__scene-camera");
+    const conceptBox = await conceptScene.boundingBox();
+    assert.ok(conceptBox, "conceptual map scene should have measurable bounds");
+    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "auto");
+    await desktopPage.mouse.move(
+      conceptBox.x + conceptBox.width * 0.92,
+      conceptBox.y + conceptBox.height * 0.12,
+    );
+    await desktopPage.waitForTimeout(500);
+    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "transform");
+    const activeTilt = await conceptScene.evaluate((element) => ({
+      x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
+      y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
+    }));
+    assert.ok(Math.abs(activeTilt.x) <= 1.61 && Math.abs(activeTilt.y) <= 1.61,
+      "conceptual map tilt must stay restrained: " + JSON.stringify(activeTilt));
+    assert.ok(Math.abs(activeTilt.x) + Math.abs(activeTilt.y) > 0.2,
+      "fine-pointer map tilt should remain perceptible");
+
+    await desktopPage.mouse.move(0, 0);
+    await desktopPage.waitForTimeout(1100);
+    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "auto");
+    const restingTilt = await conceptScene.evaluate((element) => ({
+      x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
+      y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
+    }));
+    assert.ok(Math.abs(restingTilt.x) < 0.15 && Math.abs(restingTilt.y) < 0.15,
+      "conceptual map tilt should ease back to center: " + JSON.stringify(restingTilt));
+
     await desktopPage.screenshot({ path: output + "/desktop-google-map-and-concept.png", animations: "disabled" });
   });
 
@@ -800,6 +860,9 @@ try {
     const location = mobilePage.locator(".somman-location-experience");
     await location.scrollIntoViewIfNeeded();
     const iframe = location.locator('iframe[title*="Google Maps"]');
+    assert.equal(await iframe.count(), 0, "mobile map must stay unloaded until opt-in");
+    await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
+    await iframe.waitFor({ state: "attached", timeout: 5000 });
     assert.equal(await iframe.count(), 1);
     const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في المشهد التصوري" });
     await hotspot.tap();
@@ -848,8 +911,10 @@ try {
 
   await mobile.close();
 
-  await caseRun("short smartphone and narrow zoom layout preserve scroll chapter controls", async () => {
-    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [680, 450]]) {
+  await caseRun("phone, 200%-zoom-equivalent and tablet layouts preserve scroll chapter controls", async () => {
+    // 683 CSS px approximates the layout viewport seen at 200% browser zoom
+    // from a 1366px desktop, while 768px exercises the tablet breakpoint.
+    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [683, 450], [768, 1024]]) {
       const context = await browser.newContext({
         viewport: { width, height },
         reducedMotion: "no-preference",

@@ -16,7 +16,7 @@
   --cinema-cta-y: 0px;
   --cinema-fleet-mouse-x: 0px;
   --cinema-fleet-mouse-y: 0px;
-  --cinema-fog-strength: 0.12;
+  --cinema-fog-strength: 0.08;
   --cinema-ink: #20292c;
   --cinema-cream: #fff8e8;
   --cinema-gold: #f2c878;
@@ -194,38 +194,38 @@
   background:
     radial-gradient(ellipse 70% 28% at 12% 75%, rgba(220,220,205,.2), transparent 83%),
     radial-gradient(ellipse 60% 34% at 70% 84%, rgba(227,213,181,.20), transparent 84%);
-  opacity: .62;
+  opacity: .40;
   -webkit-mask-image: linear-gradient(180deg, transparent, black 28%, black 86%, transparent);
   mask-image: linear-gradient(180deg, transparent, black 28%, black 86%, transparent);
-  animation: cinema-fog-drift 21s ease-in-out infinite alternate;
+  animation: cinema-fog-drift 30s ease-in-out infinite alternate;
 }
 .cinema-atmosphere__haze--far {
   transform: translate3d(var(--cinema-fog-x), var(--cinema-fog-y), 0);
   background:
     radial-gradient(ellipse 80% 32% at 15% 80%, rgba(241,233,211,.17), transparent 82%),
     radial-gradient(ellipse 65% 29% at 87% 62%, rgba(239,218,172,.13), transparent 85%);
-  animation-duration: 25s;
+  animation-duration: 36s;
 }
 .cinema-atmosphere__haze--near {
   transform: translate3d(calc(var(--cinema-fog-x) * -0.5), calc(var(--cinema-fog-y) * -0.5), 0);
   background:
     radial-gradient(ellipse 66% 22% at 32% 88%, rgba(226,217,190,.24), transparent 90%),
     radial-gradient(ellipse 55% 20% at 83% 77%, rgba(236,220,197,.23), transparent 84%);
-  opacity: .65;
-  animation-duration: 17s;
+  opacity: .42;
+  animation-duration: 27s;
   animation-direction: alternate-reverse;
 }
 .cinema-atmosphere__light {
   inset: 0;
   background: radial-gradient(ellipse 45% 49% at var(--cinema-hero-pointer-x) var(--cinema-hero-pointer-y), rgba(255,200,106,.13), transparent 83%);
-  opacity: .7;
+  opacity: .48;
 }
 @keyframes cinema-fog-drift {
-  from { translate: -2% 0; }
-  to { translate: 2.5% -2%; }
+  from { translate: -.8% 0; }
+  to { translate: 1.1% -.7%; }
 }
-.cinema-atmosphere--hero { z-index: 0; opacity: .72; }
-.cinema-atmosphere--bridge { z-index: 1; opacity: calc(.52 + var(--cinema-fog-strength)); }
+.cinema-atmosphere--hero { z-index: 0; opacity: .50; }
+.cinema-atmosphere--bridge { z-index: 1; opacity: calc(.34 + var(--cinema-fog-strength)); }
 .cinema-atmosphere--bridge .cinema-atmosphere__haze--far {
   background: radial-gradient(ellipse 94% 36% at 27% 79%, rgba(225,213,184,.24), transparent 81%);
 }
@@ -235,7 +235,7 @@
 .cinema-atmosphere--bridge .cinema-atmosphere__light {
   background: radial-gradient(ellipse 40% 51% at var(--cinema-mask-x) 50%, rgba(243,173,65,.18), transparent 88%);
 }
-.cinema-atmosphere--fleet { z-index: 0; opacity: .42; }
+.cinema-atmosphere--fleet { z-index: 0; opacity: .28; }
 .cinema-atmosphere--fleet .cinema-atmosphere__light {
   background: radial-gradient(ellipse 53% 54% at var(--cinema-fleet-pointer-x) var(--cinema-fleet-pointer-y), rgba(255,218,130,.14), transparent 85%);
 }
@@ -282,13 +282,15 @@
 /* A mask on image-gallery reveals, while preserving the original accessibility
    semantics and leaving image labels unaffected. */
 .presentation .gallery-item.reveal .gallery-slider {
-  -webkit-mask-image: linear-gradient(110deg, transparent 0%, #000 16%, #000 100%);
-  mask-image: linear-gradient(110deg, transparent 0%, #000 16%, #000 100%);
+  clip-path: inset(0 0 7% 0);
+  -webkit-mask-image: linear-gradient(110deg, transparent 0%, #000 9%, #000 100%);
+  mask-image: linear-gradient(110deg, transparent 0%, #000 9%, #000 100%);
 }
 .presentation .gallery-item.reveal.is-visible .gallery-slider {
+  clip-path: inset(0);
   -webkit-mask-image: linear-gradient(110deg, #000, #000);
   mask-image: linear-gradient(110deg, #000, #000);
-  transition: clip-path 1.15s cubic-bezier(.2,.7,.2,1), -webkit-mask-image .6s ease;
+  transition: clip-path 1.35s cubic-bezier(.22,.61,.36,1), -webkit-mask-image .8s ease;
 }
 
 @media (max-width: 900px) {

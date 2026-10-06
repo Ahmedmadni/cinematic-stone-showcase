@@ -17,10 +17,10 @@ export function QuarryTransition() {
     >
       <div className="cinematic-bridge__sticky">
         <div className="cinematic-bridge__shot cinematic-bridge__shot--quarry" aria-hidden="true">
-          <img src={quarryAerial} alt="" loading="lazy" decoding="async" />
+          <img src={quarryAerial} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
         </div>
         <div className="cinematic-bridge__shot cinematic-bridge__shot--production" aria-hidden="true">
-          <img src={crushingPlant} alt="" loading="lazy" decoding="async" />
+          <img src={crushingPlant} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
         </div>
         <div className="cinematic-bridge__shadow" aria-hidden="true" />
         <AtmosphereLayers variant="bridge" />
