@@ -1,6 +1,6 @@
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+import { Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type GallerySlide = { image: string; label: string; origin?: "actual-site" | "supplementary" };
@@ -68,11 +68,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
         </span>
       </Button>
       <div className="gallery-slide-controls">
-        <div className="gallery-slide-arrows">
-          <Button type="button" variant="ghost" aria-label={`${t("الصورة السابقة")}: ${title}`} onClick={() => choose(active - 1)}><ArrowRight size={19} /></Button>
-          <Button type="button" variant="ghost" aria-label={`${t("الصورة التالية")}: ${title}`} onClick={() => choose(active + 1)}><ArrowLeft size={19} /></Button>
-          <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
-        </div>
+        <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "إيقاف/تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
         <span className="gallery-slide-count latin" dir="ltr">{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
       </div>
       <span className="gallery-slider__timeline" key={active} aria-hidden="true" style={{ animationDuration: interval + "ms", animationPlayState: playing ? "running" : "paused" }}/>
