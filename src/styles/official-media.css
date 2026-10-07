@@ -1,0 +1,99 @@
+/*
+ * Actual Al Somman site photography.
+ *
+ * Keep the grade deliberately restrained and non-destructive: source pixels stay
+ * untouched while the web presentation receives one coherent desert/industrial
+ * treatment. Supplementary editorial equipment visuals do not inherit this.
+ */
+.presentation .actual-site-photo,
+.presentation .actual-site-visual .auto-visual-frame[data-media-origin="actual-site"] {
+  filter: saturate(.94) contrast(1.08) brightness(.965) sepia(.035);
+  transition: filter .55s ease, opacity .55s ease, transform .8s ease;
+}
+
+.presentation .hero-cinematic .hero-gallery__photo--active.actual-site-photo {
+  filter: saturate(.96) contrast(1.09) brightness(.985) sepia(.03);
+}
+
+.presentation .hero-cinematic .hero-gallery__photo--outgoing.actual-site-photo {
+  filter: saturate(.84) contrast(1.06) brightness(.76) sepia(.035);
+}
+
+.presentation .gallery-slider .gallery-slide.actual-site-photo.active,
+.presentation .gallery-lightbox .actual-site-photo,
+.presentation .quarry-cards__site .actual-site-photo,
+.presentation .production-flow__photo.actual-site-photo.is-active {
+  filter: saturate(.95) contrast(1.09) brightness(.97) sepia(.035);
+}
+
+.presentation .fleet-experience__actual-evidence {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line-soft);
+}
+
+.presentation .fleet-experience__actual-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+  color: var(--text-dim);
+  font-size: 12px;
+}
+
+.presentation .fleet-experience__actual-label .latin {
+  color: var(--primary);
+  font-size: 10px;
+}
+
+.presentation .fleet-experience__actual-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.presentation .fleet-experience__actual-grid figure {
+  position: relative;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  background: var(--on-image-bg);
+  border-radius: 8px;
+}
+
+.presentation .fleet-experience__actual-grid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.presentation .fleet-experience__actual-grid figcaption {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  left: 8px;
+  padding: 6px 8px;
+  background: color-mix(in oklab, var(--on-image-bg) 86%, transparent);
+  color: var(--on-image-fg);
+  border: 1px solid var(--on-image-border);
+  border-radius: 4px;
+  font-size: 10px;
+  line-height: 1.5;
+  backdrop-filter: blur(6px);
+}
+
+@media (max-width: 760px) {
+  .presentation .fleet-experience__actual-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .presentation .actual-site-photo,
+  .presentation .actual-site-visual .auto-visual-frame[data-media-origin="actual-site"] {
+    transition: none !important;
+  }
+}
