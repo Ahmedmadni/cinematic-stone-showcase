@@ -120,7 +120,10 @@ try {
     assert.equal(await desktopPage.locator(".hero-media__breaker").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media__loading").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
-    assert.match(await desktopPage.locator(".hero-photo-label").innerText(), /illustrative/i);
+    assert.equal(await carousel.locator(".hero-gallery__photo--active").getAttribute("data-media-origin"), "actual-site");
+    const heroMediaNotice = await desktopPage.locator(".hero-photo-label").innerText();
+    assert.match(heroMediaNotice, /actual|فعلي/i);
+    assert.match(heroMediaNotice, /supplementary|مكمل/i);
     await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
   });
 
