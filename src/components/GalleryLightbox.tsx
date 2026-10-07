@@ -9,6 +9,7 @@ type GalleryLightboxProps = {
   replacement: string;
   image: string;
   label: string;
+  origin?: "actual-site" | "supplementary";
   position: number;
   total: number;
   onNext: () => void;
@@ -22,6 +23,7 @@ export function GalleryLightbox({
   replacement,
   image,
   label,
+  origin = "supplementary",
   position,
   total,
   onNext,
@@ -170,10 +172,10 @@ export function GalleryLightbox({
         </Button>
       </div>
       <div className="lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
-        <img key={image} src={image} alt={t("صورة تجريبية توضيحية:") + " " + label} decoding="async" width={1536} height={1024} />
+        <img key={image} className={origin === "actual-site" ? "actual-site-photo" : undefined} data-media-origin={origin} src={image} alt={(origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")) + " " + label} decoding="async" width={1600} height={900} />
         <div className="lightbox-caption">
           <div>
-            <span>{t("صورة تجريبية ·")} {replacement}</span>
+            <span>{origin === "actual-site" ? t("تصوير فعلي من موقع الصمان") : t("مشهد توضيحي مكمل")} · {replacement}</span>
             <h3>{title} — {label}</h3>
           </div>
           <div className="lightbox-controls">
