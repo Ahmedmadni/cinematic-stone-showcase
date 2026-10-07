@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
 import { GalleryLightbox } from "@/components/GalleryLightbox";
+import { SitePhotoArchive } from "@/components/SitePhotoArchive";
 import { AutoVisual } from "@/components/AutoVisual";
 import { HeroGallery } from "@/components/cinematic/HeroGallery";
 import { SplitHeadline, TypewriterHeadline, WordSlide } from "@/components/HeadlineMotion";
@@ -21,31 +22,22 @@ import { QuarryAtlas } from "@/components/cinematic/QuarryAtlas";
 import { MapExperience } from "@/components/cinematic/MapExperience";
 import { EvidenceStudio, InvestorJourney } from "@/components/cinematic/EvidenceStudio";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
-import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
-import quarryAerial from "@/assets/quarry-aerial.jpg";
-import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
-import crushingPlant from "@/assets/crushing-plant.jpg";
-import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
+import { officialMedia } from "@/data/official-media";
+import officialLogo from "@/assets/official/brand/alostool-logo.png";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
 import powerAndWeighbridge from "@/assets/generators-weighbridge.jpg";
-import officesAndWorkshop from "@/assets/offices-workshop.jpg";
-import siteRoads from "@/assets/site-roads.jpg";
-import housingAndRecreation from "@/assets/worker-housing-recreation.jpg";
 import excavatorsAlt from "@/assets/excavators-alt.jpg";
 import loadersAlt from "@/assets/loaders-maintenance-alt.jpg";
 import powerAlt from "@/assets/generators-weighbridge-alt.jpg";
-import officesAlt from "@/assets/offices-workshop-alt.jpg";
-import roadsAlt from "@/assets/site-roads-alt.jpg";
-import housingAlt from "@/assets/worker-housing-recreation-alt.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Al Somman Quarry & Crushing Plant | Al Ostool Investment Opportunity" },
-      { name: "description", content: "Explore the documented Al Somman quarry and crushing plant investment opportunity in Saudi Arabia: three quarry records, two production lines, excavators, loaders and support facilities. Images are illustrative." },
+      { name: "description", content: "Explore the documented Al Somman quarry and crushing plant investment opportunity in Saudi Arabia through actual-site photography, three quarry records, two production lines, equipment and support facilities." },
       { property: "og:title", content: "Al Somman Quarry & Crushing Plant | Al Ostool" },
-      { property: "og:description", content: "A bilingual investment presentation of the documented Al Somman quarry, crushing lines, equipment and facilities. Illustrative imagery only; current permit status requires verification." },
+      { property: "og:description", content: "A bilingual investment presentation using actual Al Somman site photography alongside supplementary equipment visuals. Current permit status remains subject to document verification." },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
       { property: "og:locale", content: "en_US" },
@@ -73,12 +65,73 @@ const facts = [
 ];
 
 const siteGallery = [
-  { slides: [{ image: excavators, label: "مشهد حفارات الاستخراج" }, { image: excavatorsAlt, label: "حفارات عند واجهة المحجر" }], title: "حفارات الاستخراج", description: "معدات الحفر واستخراج الحجر الخام وتغذية الكسارات في المحاجر الثلاثة.", replacement: "حفارات محاجر الصمان", number: "01" },
-  { slides: [{ image: loaders, label: "شيولات نقل المواد" }, { image: loadersAlt, label: "شيول تحميل الشاحنات" }], title: "الشيولات والتحميل", description: "شيولات لتحريك المواد وتحميل المنتج وتغذية الهوبر ضمن دورة التشغيل.", replacement: "شيولات التحميل بالموقع", number: "02" },
-  { slides: [{ image: powerAndWeighbridge, label: "مرافق الموازين والمولدات" }, { image: powerAlt, label: "ميزان الشاحنات والمولدات" }], title: "المولدات والموازين", description: "مولدات لدعم التشغيل وموازين شاحنات ضمن المرافق المساندة للإنتاج.", replacement: "مولدات الكهرباء وموازين الشاحنات", number: "03" },
-  { slides: [{ image: officesAndWorkshop, label: "مكاتب ومنطقة الصيانة" }, { image: officesAlt, label: "الورشة ومكاتب الإدارة" }], title: "المكاتب ومنطقة الصيانة", description: "مكاتب الإدارة وغرف المتابعة، مع مشهد توضيحي لمنطقة صيانة المعدات.", replacement: "مكاتب الإدارة والورشة إن توفرت صورتها", number: "04" },
-  { slides: [{ image: siteRoads, label: "الطرق الداخلية" }, { image: roadsAlt, label: "طرق نقل المواد والساحات" }], title: "الطرق والساحات", description: "تمهيدات الطرق والساحات التي تربط مناطق الاستخراج والخدمات داخل الموقع.", replacement: "الطرق والساحات الداخلية", number: "05" },
-  { slides: [{ image: housingAndRecreation, label: "السكن والمرافق الترفيهية" }, { image: housingAlt, label: "سكن العمال والملعب" }], title: "السكن والمرافق الترفيهية", description: "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.", replacement: "سكن العمال والملعب الترفيهي", number: "06" },
+  {
+    slides: [
+      { image: officialMedia.equipment.lineup.image, label: "معدات ثقيلة فعلية داخل الموقع", origin: "actual-site" as const },
+      { image: excavators, label: "مشهد حفارات الاستخراج", origin: "supplementary" as const },
+      { image: excavatorsAlt, label: "حفارات عند واجهة المحجر", origin: "supplementary" as const },
+    ],
+    title: "حفارات الاستخراج",
+    description: "مشاهد تحريرية احترافية لفئة الحفارات مدعومة بتصوير فعلي لمعدات الموقع.",
+    replacement: "معدات الاستخراج في الصمان",
+    number: "01",
+  },
+  {
+    slides: [
+      { image: officialMedia.equipment.loader.image, label: "شيول وحفار داخل موقع الصمان", origin: "actual-site" as const },
+      { image: officialMedia.equipment.front.image, label: "واجهة معدات التحميل والحفر", origin: "actual-site" as const },
+      { image: loaders, label: "شيولات نقل المواد", origin: "supplementary" as const },
+      { image: loadersAlt, label: "شيول تحميل الشاحنات", origin: "supplementary" as const },
+    ],
+    title: "الشيولات والتحميل",
+    description: "تصوير فعلي لمعدات التحميل والحفر بالموقع مع مشاهد معدات تحريرية مكملة.",
+    replacement: "شيولات التحميل بالموقع",
+    number: "02",
+  },
+  {
+    slides: [
+      { image: officialMedia.facilities.weighbridge.image, label: "ميزان الشاحنات الفعلي بالموقع", origin: "actual-site" as const },
+      { image: officialMedia.facilities.water.image, label: "خزانات المياه بالموقع", origin: "actual-site" as const },
+      { image: officialMedia.facilities.fuel.image, label: "خزانات الوقود بالموقع", origin: "actual-site" as const },
+      { image: powerAndWeighbridge, label: "مشهد تحريري للموازين والمولدات", origin: "supplementary" as const },
+      { image: powerAlt, label: "مشهد مرافق تشغيلي مكمل", origin: "supplementary" as const },
+    ],
+    title: "المولدات والموازين",
+    description: "تصوير فعلي لميزان الشاحنات مع مشاهد تحريرية مكملة للمرافق التشغيلية.",
+    replacement: "الموازين والمرافق التشغيلية",
+    number: "03",
+  },
+  {
+    slides: [
+      { image: officialMedia.facilities.office.image, label: "المكاتب الفعلية بالموقع", origin: "actual-site" as const },
+      { image: officialMedia.facilities.workshop.image, label: "الورشة الفعلية بالموقع", origin: "actual-site" as const },
+    ],
+    title: "المكاتب ومنطقة الصيانة",
+    description: "تصوير فعلي لمكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.",
+    replacement: "المكاتب والورشة",
+    number: "04",
+  },
+  {
+    slides: [
+      { image: officialMedia.facilities.entrance.image, label: "مدخل الموقع وطريق الدخول", origin: "actual-site" as const },
+      { image: officialMedia.facilities.access.image, label: "مدخل الكسارة والساحات", origin: "actual-site" as const },
+    ],
+    title: "الطرق والساحات",
+    description: "تصوير فعلي لمدخل الكسارة وطرق الدخول والساحات الداخلية.",
+    replacement: "الطرق والساحات الداخلية",
+    number: "05",
+  },
+  {
+    slides: [
+      { image: officialMedia.facilities.housing.image, label: "سكن العمال الفعلي بالموقع", origin: "actual-site" as const },
+      { image: officialMedia.facilities.additionalHousing.image, label: "السكن الإضافي للعاملين", origin: "actual-site" as const },
+      { image: officialMedia.facilities.prayer.image, label: "المصلى والاستراحة بالموقع", origin: "actual-site" as const },
+    ],
+    title: "سكن العمال والمرافق",
+    description: "تصوير فعلي لسكن العمال والسكن الإضافي والمصلى والاستراحة.",
+    replacement: "سكن العمال بالموقع",
+    number: "06",
+  },
 ];
 
 const investmentEmail = "a.elmadin@alostool.com.sa";
@@ -219,13 +272,16 @@ function Index() {
       <a className="skip-to-content" href="#main-content">{t("تجاوز إلى المحتوى الرئيسي")}</a>
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
-        <AutoVisual className="scene-visual" interval={9200} images={[{ image: quarryAerial, alt: "" }, { image: quarryAerialAlt, alt: "" }]} />
+        <AutoVisual className="scene-visual actual-site-visual" interval={9200} images={[
+          { image: officialMedia.hero[0].image, alt: "", origin: "actual-site", width: 1600, height: 899 },
+          { image: officialMedia.hero[2].image, alt: "", origin: "actual-site", width: 1600, height: 900 },
+        ]} />
         <div className="scene-shade" />
       </div>
 
       <header className="site-header">
         <a href="#البداية" className="brand" aria-label={t("العودة إلى بداية العرض")}>
-          <img className="brand-logo" src={logoAsset.url} width={1804} height={2338} alt={t("شعار شركة الأسطول الآلي")} /><span className="brand-project">{t("محجر الصمان")}</span>
+          <img className="brand-logo" src={officialLogo} width={420} height={544} alt={t("شعار شركة الأسطول الآلي")} /><span className="brand-project">{t("محجر الصمان")}</span>
         </a>
         <a className="header-contact" href="#التواصل">{t("تواصل للاستفسار")} <ArrowUpLeft size={17} strokeWidth={1.5} /></a>
       </header>
@@ -236,7 +292,7 @@ function Index() {
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
-            <span className="photo-placeholder hero-photo-label">{t("الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.")}</span>
+            <span className="photo-placeholder hero-photo-label">{t("تصوير فعلي من موقع الصمان، مع مشاهد معدات تحريرية مكملة ومميزة بوضوح.")}</span>
             <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
             <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em><SplitHeadline text={t("الصمان")} replayLabel={language === "ar" ? "أعد حركة العنوان" : "Replay headline animation"} /></em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
             <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
@@ -268,8 +324,11 @@ function Index() {
             <Eyebrow number="02 / 06">{t("القدرة التشغيلية")}</Eyebrow>
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">{t("من الحجر الخام")}<br /><span>{t("إلى قيمة تُبنى.")}</span></h2><p>{t("خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.")}</p></div>
             <figure className="image-feature reveal">
-              <div className="image-window"><span className="photo-placeholder">{t("صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان")}</span><AutoVisual interval={6800} images={[{ image: crushingPlant, alt: t("صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر") }, { image: crushingPlantAlt, alt: t("صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر") }]} /></div>
-              <figcaption><span className="latin" dir="ltr">FIG. 01 — PRODUCTION</span><span>{t("خطا الكسارات والفرز — مجمع كسارات الصمان")} <small>{t("صورة بديلة للتحديث")}</small></span></figcaption>
+              <div className="image-window"><span className="photo-placeholder">{t("تصوير فعلي · خطوط التكسير والسيور — مجمع كسارات الصمان")}</span><AutoVisual className="actual-site-visual" interval={6800} images={[
+                { image: officialMedia.production.crusher.image, alt: t("تصوير فعلي لخط التكسير في كسارة الصمان"), origin: "actual-site", width: 1600, height: 900 },
+                { image: officialMedia.production.conveyor.image, alt: t("تصوير فعلي لسيور وخطوط الإنتاج في الصمان"), origin: "actual-site", width: 1600, height: 900 },
+              ]} /></div>
+              <figcaption><span className="latin" dir="ltr">FIG. 01 — ACTUAL PRODUCTION</span><span>{t("خطوط الكسارات والفرز — مجمع كسارات الصمان")} <small>{t("تصوير فعلي من الموقع")}</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>{t("خطان للإنتاج")}</h3></div><p>{t("كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.")}</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
             <ProductionFlow />
@@ -283,13 +342,14 @@ function Index() {
         <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
           <div className="section-inner">
             <Eyebrow number="04 / 06">{t("مشاهد من المنظومة")}</Eyebrow>
-            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">{t("ما وراء خطوط الإنتاج.")}<br /><span>{t("موقعٌ متكامل.")}</span><WordSlide words={siteGallery.slice(0, 3).map(item => t(item.title))} replayLabel={language === "ar" ? "أعد حركة أسماء المعدات" : "Replay equipment names animation"} /></h2><p>{t("معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.")}</p></div>
+            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">{t("ما وراء خطوط الإنتاج.")}<br /><span>{t("موقعٌ متكامل.")}</span><WordSlide words={siteGallery.slice(0, 3).map(item => t(item.title))} replayLabel={language === "ar" ? "أعد حركة أسماء المعدات" : "Replay equipment names animation"} /></h2><p>{t("تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول، مع إبقاء بعض مشاهد المعدات الاحترافية كمادة تحريرية مكملة.")}</p></div>
             <div className="site-gallery">
               {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
                 <GallerySlides slides={item.slides.map(slide => ({ ...slide, label: t(slide.label) }))} title={t(item.title)} replacement={t(item.replacement)} interval={5900 + index * 480} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
-                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{t("تُستبدل بصورة:")} {t(item.replacement)}</small></figcaption>
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{item.slides.every(slide => slide.origin === "actual-site") ? t("تصوير فعلي من موقع الصمان") : t("ACTUAL SITE + CURATED EDITORIAL")} · {t(item.replacement)}</small></figcaption>
               </figure>)}
             </div>
+            <SitePhotoArchive />
           </div>
         </section>
 
@@ -362,6 +422,7 @@ function Index() {
           replacement={t(selectedGallery.replacement)}
           image={selectedSlide.image}
           label={t(selectedSlide.label)}
+          origin={selectedSlide.origin}
           position={selectedImage.slide + 1}
           total={selectedGallery.slides.length}
           onNext={() => setSelectedImage((current) => moveGallerySelection(current, 1))}
@@ -381,7 +442,7 @@ function Index() {
         <button type="button" className="somman-assistant-close" ref={assistantClose} aria-label={t("أغلق المساعد")} onClick={() => { setAssistantOpen(false); assistantTrigger.current?.focus(); }}><X size={20} aria-hidden="true"/></button>
         <ProjectAssistant active={assistantOpen} />
       </aside>
-      <footer className="site-footer"><span>{t("© شركة الأسطول الآلي")}</span><span>{t("الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.")}</span><a href="#البداية">{t("العودة للأعلى ↑")}</a></footer>
+      <footer className="site-footer"><span>{t("© شركة الأسطول الآلي")}</span><span>{t("يستخدم العرض تصويرًا فعليًا من موقع الصمان إلى جانب مشاهد معدات تحريرية مكملة عند الإشارة إليها.")}</span><a href="#البداية">{t("العودة للأعلى ↑")}</a></footer>
     </div>
     </SiteLanguageContext.Provider>
   );

@@ -12,11 +12,10 @@ Most other illustrative quarry/production/facility imagery should be replaced.
 ## Supplied real-photo inventory
 
 - 77 WebP site photographs
-- 54 production/crushing/conveyor photographs
-- 6 real equipment photographs
-- 13 facilities/infrastructure photographs
+- 56 production/crushing/conveyor photographs
+- 8 equipment photographs, including 2 mobile-equipment views
+- 11 facilities/infrastructure photographs
 - 2 raw-quarry photographs
-- 2 mobile-equipment photographs
 
 The separate supplied archive also contains licence/certificate images and a
 transparent logo. Those documents must remain evidence content, not decorative
@@ -63,16 +62,20 @@ all four.
 
 Do not preload all 77 photographs. The cinematic loader should wait only for:
 
-- hero poster / first hero video frame,
-- first 2–3 hero photographs,
+- the decoded first hero photograph,
 - critical fonts and UI assets.
+
+The hero prefetches only one next frame after readiness. The 77-photo archive
+is closed initially and mounts thumbnails eight at a time after opt-in. Only
+a selected full-size archive photograph loads into its lightbox.
 
 Everything else should be section-aware lazy loaded. Galleries should pause
 autoplay when not visible.
 
 ## Video integration
 
-The supplied ~2:56 WebM should remain the full-tour source and be cut into short
+The video has not yet been received in this photo delivery. Its provisional
+~2:56 WebM specification must be verified from the actual file. It should remain the full-tour source and be cut into short
 silent section loops for hero, production, equipment, facilities and quarry
 chapters. The full tour remains available as an explicit user-played experience.
 
@@ -82,3 +85,16 @@ Use restrained documentary color grading only: neutral limestone whites,
 controlled highlights, slightly deeper sky/contrast, natural equipment colors,
 and no generative content replacement. Site geometry, equipment and documentary
 details must remain truthful.
+
+## Implemented photo release
+
+- Every one of the 77 source photographs is accessible through a filtered archive.
+- Full web photographs total 11.01 MiB, down from 86.87 MiB of sources; thumbnails total 1.10 MiB.
+- Twelve previously corrupt curated assets are replaced. Four actual photographs lead the ten-frame hero; retained editorial frames remain labeled supplementary.
+- Production, quarry transitions and facilities use actual photography. Fleet combines supplied equipment photographs with the four retained editorial equipment assets.
+- The supplied transparent logo is local. Three certificate scans and three permit scans open on demand; original scan files are copied without modification.
+- ISO certificate identifiers are transcribed from the scans. Displaying documents does not establish present validity, surveillance completion or permit renewal. Historical permit status remains unchanged.
+- `scripts/prepare-official-media.py` reproduces resize/encoding from the source directory. CSS applies restrained reversible display grading; document scans are not graded.
+- Asset tests verify all 77 derivative hashes and delivery budgets. Browser checks cover opt-in batches, category filters, decode, document caveats and keyboard focus restoration.
+
+Video integration and video-specific loading behavior follow once the video file is supplied.

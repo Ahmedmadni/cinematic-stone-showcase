@@ -62,3 +62,24 @@ test("illustrative raster assets stay within sustainable loading budgets", async
   assert.ok(total <= 6 * 1024 * 1024, "illustrative image set exceeds 6 MiB: " + total);
   console.log("Raster images: " + images.length + "; total " + (total / 1024 / 1024).toFixed(2) + " MiB; largest " + largest.name + " (" + (largest.bytes / 1024).toFixed(0) + " KiB)");
 });
+
+test("all 77 supplied photographs match their verified derivative hashes and delivery budgets", async () => {
+  const { createHash } = await import("node:crypto");
+  const manifest = JSON.parse(await readFile(new URL("../docs/official-media-source-manifest.json", import.meta.url), "utf8"));
+  assert.equal(manifest.count, 77);
+  assert.equal(manifest.photos.length, 77);
+  assert.equal(new Set(manifest.photos.map(photo => photo.id)).size, 77);
+  assert.equal(new Set(manifest.photos.map(photo => photo.source)).size, 77);
+  assert.deepEqual(manifest.categories, { production: 56, facilities: 11, equipment: 8, quarry: 2 });
+  let total = 0;
+  for (const photo of manifest.photos) {
+    assert.match(photo.source_sha256, /^[a-f0-9]{64}$/);
+    const image = await readFile(new URL("../" + photo.web_path, import.meta.url));
+    assert.equal(createHash("sha256").update(image).digest("hex"), photo.web_sha256, photo.id + ": derivative was changed or truncated");
+    assert.equal(image.length, photo.web_bytes);
+    assert.ok(image.length <= 300 * 1024, photo.id + ": full web photo exceeds 300 KiB");
+    assert.ok(photo.thumbnail_bytes <= 40 * 1024, photo.id + ": thumbnail exceeds 40 KiB");
+    total += image.length;
+  }
+  assert.ok(total <= 13 * 1024 * 1024, "77-photo web set exceeds 13 MiB");
+});

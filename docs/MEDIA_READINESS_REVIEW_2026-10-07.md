@@ -4,16 +4,18 @@ Repository: `Ahmedmadni/cinematic-stone-showcase`.
 Reviewed main: `628736fcbad6b39c8ab6a3d2aa1ffc818f792f34`.
 Reviewed PR #42 head: `4872ccf759668124e9d2b9640b44984935454718`.
 
-## Blocking finding
+## Original blocking finding (resolved by supplied-photo integration)
 
 All twelve files under `src/assets/official/` in PR #42 contain only 16 bytes.
 They have neither the RIFF/WEBP header nor a decodable image payload. The failed
 hero readiness assertion in run `37583434891` is an asset corruption problem,
 not evidence that the 6500 ms readiness timeout should be increased.
 
-Do not merge PR #42 or publish its actual-site captions until the twelve assets
-have been replaced with verified photographs from the supplied source archive.
-The current main imagery remains explicitly illustrative.
+The twelve invalid binaries have now been replaced from the received archive.
+All 77 supplied photographs have decodable web derivatives and source/derivative
+SHA-256 hashes in `official-media-source-manifest.json`. The photo release also
+contains the supplied transparent logo and six original document scans.
+Integration must pass the browser and CI checks before merging PR #42.
 
 ## Foundation changes
 

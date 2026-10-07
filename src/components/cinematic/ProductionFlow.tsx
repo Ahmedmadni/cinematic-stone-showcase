@@ -4,10 +4,13 @@ import { ArrowDownLeft, Layers3, Mouse, Mountain, Truck } from "lucide-react";
 import { productionSteps } from "@/data/experience-data";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import extractionPhoto from "@/assets/excavators.jpg";
-import crushingPhoto from "@/assets/crushing-plant.jpg";
-import dispatchPhoto from "@/assets/loaders-maintenance.jpg";
+import { officialMedia } from "@/data/official-media";
 
-const stepPhotos = [extractionPhoto, crushingPhoto, dispatchPhoto] as const;
+const stepPhotos = [
+  { image: extractionPhoto, origin: "supplementary" as const },
+  { image: officialMedia.production.crusher.image, origin: "actual-site" as const },
+  { image: officialMedia.equipment.loader.image, origin: "actual-site" as const },
+] as const;
 const icons = [Mountain, Layers3, Truck] as const;
 const noteLabels = ["الاستخراج والتجهيز", "التكسير والفرز", "التحميل وضبط الكميات"] as const;
 const motionEvent = "somman:material-scene";
@@ -84,17 +87,17 @@ export function ProductionFlow() {
                 );
               })}
             </div>
-            <p className="production-flow__scroll-note">{t("الصور توضيحية لمراحل الإنتاج وليست لقطات موثقة للموقع.")}</p>
+            <p className="production-flow__scroll-note">{t("يعرض هذا الفصل تصويرًا فعليًا من موقع الصمان، مع إبقاء مشهد معدات توضيحي مكمل لمرحلة الاستخراج.")}</p>
           </div>
 
           <div className="production-flow__visual" aria-live="polite" aria-atomic="true">
             {productionSteps.map((step, index) => (
               <img
-                src={stepPhotos[index]}
+                src={(stepPhotos[index] ?? stepPhotos[0]).image}
                 key={step.id}
-                alt={active === index ? t("تصوير توضيحي لمرحلة") + " " + t(step.title) + " — " + t("وليس صورة من الموقع") : ""}
+                alt={active === index ? ((stepPhotos[index] ?? stepPhotos[0]).origin === "actual-site" ? t("تصوير فعلي من موقع الصمان لمرحلة") : t("مشهد معدات توضيحي مكمل لمرحلة")) + " " + t(step.title) : ""}
                 aria-hidden={active !== index}
-                className={"production-flow__photo production-flow__photo--" + index + (index === active ? " is-active" : index === active - 1 ? " is-underlay" : "")}
+                className={"production-flow__photo production-flow__photo--" + index + ((stepPhotos[index] ?? stepPhotos[0]).origin === "actual-site" ? " actual-site-photo" : "") + (index === active ? " is-active" : index === active - 1 ? " is-underlay" : "")}
                 loading="lazy"
                 decoding="async"
                 width={1536}

@@ -2,16 +2,18 @@ import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpLeft, FileCheck2, MapPin, Mountain, Pause, Play } from "lucide-react";
 import { quarrySites, totalQuarryArea } from "@/data/experience-data";
-import aerialOne from "@/assets/quarry-aerial.jpg";
-import aerialTwo from "@/assets/quarry-aerial-alt.jpg";
-import roads from "@/assets/site-roads.jpg";
+import { officialMedia } from "@/data/official-media";
 
-const images = [aerialOne, aerialTwo, roads] as const;
+const images = [
+  officialMedia.hero[2].image,
+  officialMedia.hero[0].image,
+  officialMedia.hero[1].image,
+] as const;
 
 /**
- * Three document-supported quarry records, rendered against clearly
- * illustrative aerial photography. These photos do not assert the actual
- * location, shape or legal boundaries of any of the licensed parcels.
+ * Three document-supported quarry records, rendered against actual Al Somman
+ * site photography. The photos provide site context only and do not assert
+ * which licensed parcel is shown, its legal boundary or its current status.
  */
 export function QuarryAtlas() {
   const { t, language } = useSiteLanguage();
@@ -81,7 +83,7 @@ export function QuarryAtlas() {
               aria-label={t("عرض ملف") + " " + t(entry.name)}
               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
-              <img src={images[index]} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
+              <img className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
               <span className="quarry-cards__shade" aria-hidden="true" />
               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
               <span className="quarry-cards__site-label">
@@ -119,7 +121,7 @@ export function QuarryAtlas() {
       </div>
 
       <div className="quarry-cards__footer">
-        <span><Mountain size={17} aria-hidden="true"/> {t("الصور الجوية توضيحية فقط، ولا تمثل صورًا أو حدودًا أو ترتيبًا جغرافيًا موثقًا لكل محجر.")}</span>
+        <span><Mountain size={17} aria-hidden="true"/> {t("الصور من موقع الصمان الفعلي، لكنها لا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.")}</span>
         <a href="#location-title">{t("مراجعة الموقع الاسترشادي في Google Maps")} <MapPin size={16} aria-hidden="true"/></a>
       </div>
     </div>

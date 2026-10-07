@@ -18,6 +18,7 @@
 @import "./styles/inquiry-privacy.css";
 @import "./styles/headline-motion.css";
 @import "./styles/release-accessibility.css";
+@import "./styles/official-media.css";
 
 @custom-variant dark (&:is(.dark *));
 
