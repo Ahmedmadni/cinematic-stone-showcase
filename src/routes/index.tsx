@@ -294,7 +294,7 @@ function Index() {
           <div className="hero-content">
             <span className="photo-placeholder hero-photo-label">{t("تصوير فعلي من موقع الصمان، مع مشاهد معدات تحريرية مكملة ومميزة بوضوح.")}</span>
             <div className="hero-kicker"><span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")} <span className="kicker-rule" /></div>
-            <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em><SplitHeadline text={t("الصمان")} replayLabel={language === "ar" ? "أعد حركة العنوان" : "Replay headline animation"} /></em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
+            <h1 id="hero-title"><span className="cinema-title-line">{t("محجر")} <em><SplitHeadline text={t("الصمان")} /></em></span><span className="hero-title-second cinema-title-line">{t("قوّةٌ من الأرض.")}</span></h1>
             <p className="hero-lead">{t("فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.")}</p>
             <a className="hero-discover" data-cinema-magnetic="true" href="#الفرصة"><span className="discover-icon"><MoveDownRight size={21} strokeWidth={1.4} /></span><span>{t("استكشف الفرصة")}</span></a>
           </div>
@@ -342,7 +342,7 @@ function Index() {
         <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
           <div className="section-inner">
             <Eyebrow number="04 / 06">{t("مشاهد من المنظومة")}</Eyebrow>
-            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">{t("ما وراء خطوط الإنتاج.")}<br /><span>{t("موقعٌ متكامل.")}</span><WordSlide words={siteGallery.slice(0, 3).map(item => t(item.title))} replayLabel={language === "ar" ? "أعد حركة أسماء المعدات" : "Replay equipment names animation"} /></h2><p>{t("تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول، مع إبقاء بعض مشاهد المعدات الاحترافية كمادة تحريرية مكملة.")}</p></div>
+            <div className="gallery-intro reveal"><h2 className="section-heading" id="site-gallery-title">{t("ما وراء خطوط الإنتاج.")}<br /><span>{t("موقعٌ متكامل.")}</span><WordSlide words={siteGallery.slice(0, 3).map(item => t(item.title))} /></h2><p>{t("تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول، مع إبقاء بعض مشاهد المعدات الاحترافية كمادة تحريرية مكملة.")}</p></div>
             <div className="site-gallery">
               {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
                 <GallerySlides slides={item.slides.map(slide => ({ ...slide, label: t(slide.label) }))} title={t(item.title)} replacement={t(item.replacement)} interval={5900 + index * 480} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
@@ -369,7 +369,7 @@ function Index() {
 
         <section className="assistant-chapter section-pad" id="اسأل" aria-labelledby="assistant-title">
           <div className="section-inner assistant-layout reveal">
-            <div><Eyebrow number="Q / A">{t("اسأل عن المشروع")}</Eyebrow><h2 className="section-heading" id="assistant-title">{t("لديك سؤال؟")}<br /><span><TypewriterHeadline text={t("اسأل مباشرة.")} language={language} replayLabel={language === "ar" ? "أعد حركة كتابة العنوان" : "Replay typing animation"} /></span></h2><p className="assistant-intro">{t("اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.")}</p></div>
+            <div><Eyebrow number="Q / A">{t("اسأل عن المشروع")}</Eyebrow><h2 className="section-heading" id="assistant-title">{t("لديك سؤال؟")}<br /><span><TypewriterHeadline text={t("اسأل مباشرة.")} language={language} /></span></h2><p className="assistant-intro">{t("اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.")}</p></div>
             <div className="assistant-inline-cta"><Bot size={34} strokeWidth={1.4} aria-hidden="true" /><p>{t("مساعد الصمان")} — {t("يجيب من معلومات المشروع المعتمدة فقط")}</p><button type="button" onClick={() => setAssistantOpen(true)}>{t("اسأل مساعد الصمان")} <ArrowUpLeft size={18} aria-hidden="true" /></button></div>
           </div>
         </section>
