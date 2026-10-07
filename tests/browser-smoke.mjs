@@ -138,13 +138,13 @@ try {
     const page = await context.newPage();
     try {
       let deferredRoutes = 0;
-      await page.route("**/excavators.jpg*", async route => {
+      await page.route("**/hero-tunnel-integration-01*.webp*", async route => {
         deferredRoutes += 1;
         await new Promise(resolve => setTimeout(resolve, 2600));
         await route.continue();
       });
       await openWithRetry(page, baseURL);
-      const preload = page.locator('link[rel="preload"][as="image"][href*="quarry-aerial"]');
+      const preload = page.locator('link[rel="preload"][as="image"][href*="hero-crusher-aerial-01"]');
       assert.equal(await preload.count(), 1, "first hero photo must be discoverable as an image preload");
       await page.waitForFunction(() =>
         document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
