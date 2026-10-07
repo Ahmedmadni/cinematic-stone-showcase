@@ -23,22 +23,14 @@ import { EvidenceStudio, InvestorJourney } from "@/components/cinematic/Evidence
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import { officialMedia } from "@/data/official-media";
 import logoAsset from "@/assets/alostool-official-logo.png.asset.json";
-import quarryAerial from "@/assets/quarry-aerial.jpg";
-import quarryAerialAlt from "@/assets/quarry-aerial-alt.jpg";
-import crushingPlant from "@/assets/crushing-plant.jpg";
-import crushingPlantAlt from "@/assets/crushing-plant-alt.jpg";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
 import powerAndWeighbridge from "@/assets/generators-weighbridge.jpg";
-import officesAndWorkshop from "@/assets/offices-workshop.jpg";
 import siteRoads from "@/assets/site-roads.jpg";
-import housingAndRecreation from "@/assets/worker-housing-recreation.jpg";
 import excavatorsAlt from "@/assets/excavators-alt.jpg";
 import loadersAlt from "@/assets/loaders-maintenance-alt.jpg";
 import powerAlt from "@/assets/generators-weighbridge-alt.jpg";
-import officesAlt from "@/assets/offices-workshop-alt.jpg";
 import roadsAlt from "@/assets/site-roads-alt.jpg";
-import housingAlt from "@/assets/worker-housing-recreation-alt.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({
