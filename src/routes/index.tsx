@@ -346,7 +346,7 @@ function Index() {
             <div className="site-gallery">
               {siteGallery.map((item, index) => <figure className="gallery-item reveal" key={item.number}>
                 <GallerySlides slides={item.slides.map(slide => ({ ...slide, label: t(slide.label) }))} title={t(item.title)} replacement={t(item.replacement)} interval={5900 + index * 480} isPaused={selectedImage !== null} onOpen={(slide) => setSelectedImage({ item: index, slide })} />
-                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{t("ACTUAL SITE + CURATED EDITORIAL")} · {t(item.replacement)}</small></figcaption>
+                <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{item.slides.every(slide => slide.origin === "actual-site") ? t("تصوير فعلي من موقع الصمان") : t("ACTUAL SITE + CURATED EDITORIAL")} · {t(item.replacement)}</small></figcaption>
               </figure>)}
             </div>
             <SitePhotoArchive />
