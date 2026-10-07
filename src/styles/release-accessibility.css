@@ -27,6 +27,15 @@
 .presentation #main-content:focus {
   outline: none;
 }
+/* Short landscape/zoom viewports can make chapter captions taller than their
+   pinned row. Keep every selector reachable even while fonts are loading. */
+@media (max-width: 760px) {
+  .presentation .production-flow--story .production-flow__navigation,
+  .presentation .fleet-experience__scroll .fleet-experience__console {
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .presentation .skip-to-content { transition: none; }
 }
