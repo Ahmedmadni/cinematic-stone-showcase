@@ -975,7 +975,7 @@ try {
     const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
     await firstGallery.scrollIntoViewIfNeeded();
     assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
-    assert.ok(await firstGallery.locator(".gallery-slide-arrows button").last().isDisabled(), "gallery autoplay is disabled when motion is reduced");
+    assert.ok(await firstGallery.locator(".gallery-slide-controls button").first().isDisabled(), "gallery autoplay is disabled when motion is reduced");
     const quarries = mobilePage.locator(".quarry-cards");
     await quarries.scrollIntoViewIfNeeded();
     assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");

@@ -1,6 +1,6 @@
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+import { Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type GallerySlide = { image: string; label: string; origin?: "actual-site" | "supplementary" };
@@ -53,11 +53,6 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
     return () => window.clearTimeout(timer);
   }, [playing, slides.length, active, interval]);
 
-  const choose = (index: number) => {
-    setActive((index + slides.length) % slides.length);
-
-  };
-
   return (
     <div className="gallery-slider" data-gallery-autoplay={playing ? "playing" : "paused"} data-gallery-interaction={paused ? "hover-paused" : manuallyPaused ? "manual-paused" : "idle"} data-gallery-active={active} ref={frame} onPointerEnter={(event) => { if (event.pointerType === "mouse") setPaused(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setPaused(false); }} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
       <Button type="button" variant="ghost" className="gallery-image-button" aria-label={language === "en" ? `View ${title}, ${slides[active]?.label ?? title} larger` : `عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
@@ -68,11 +63,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
         </span>
       </Button>
       <div className="gallery-slide-controls">
-        <div className="gallery-slide-arrows">
-          <Button type="button" variant="ghost" aria-label={`${t("الصورة السابقة")}: ${title}`} onClick={() => choose(active - 1)}><ArrowRight size={19} /></Button>
-          <Button type="button" variant="ghost" aria-label={`${t("الصورة التالية")}: ${title}`} onClick={() => choose(active + 1)}><ArrowLeft size={19} /></Button>
-          <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
-        </div>
+        <Button type="button" variant="ghost" disabled={!motionAllowed || slides.length < 2} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={(manuallyPaused ? (language === "en" ? "Resume " : "إيقاف/تشغيل عرض ") : (language === "en" ? "Pause " : "إيقاف عرض ")) + title + (language === "en" ? " slideshow" : "")} onClick={() => setManuallyPaused((previous) => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</Button>
         <span className="gallery-slide-count latin" dir="ltr">{String(active + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</span>
       </div>
       <span className="gallery-slider__timeline" key={active} aria-hidden="true" style={{ animationDuration: interval + "ms", animationPlayState: playing ? "running" : "paused" }}/>
