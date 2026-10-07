@@ -269,6 +269,7 @@ function Index() {
   return (
     <SiteLanguageContext.Provider value={{ language, t }}>
     <div className="presentation" dir={language === "ar" ? "rtl" : "ltr"} data-language={language}>
+      <SiteLoader language={language} />
       <a className="skip-to-content" href="#main-content">{t("تجاوز إلى المحتوى الرئيسي")}</a>
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
