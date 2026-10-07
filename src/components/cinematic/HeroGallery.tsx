@@ -2,33 +2,32 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
 import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
-import quarryWide from "@/assets/quarry-aerial.jpg";
 import breaker from "@/assets/excavators.jpg";
 import loader from "@/assets/loaders-maintenance.jpg";
-import crushingLine from "@/assets/crushing-plant.jpg";
-import haulRoad from "@/assets/site-roads.jpg";
-import quarryAlternate from "@/assets/quarry-aerial-alt.jpg";
 import breakerAlternate from "@/assets/excavators-alt.jpg";
 import loaderAlternate from "@/assets/loaders-maintenance-alt.jpg";
-import processingAlternate from "@/assets/crushing-plant-alt.jpg";
 import powerSite from "@/assets/generators-weighbridge.jpg";
+import equipmentOverview from "@/assets/equipment.jpg";
+import { officialMedia } from "@/data/official-media";
 
 /**
- * Exactly ten distinct full-frame illustrative scenes. Never splice several
- * machines into one invented activity: every photo is its own slide.
- * Original site photography has not been supplied/verified.
+ * Ten full-frame scenes: actual Al Somman site photography leads the story,
+ * while the strongest existing equipment visuals remain as supplementary
+ * editorial scenes. The two origins stay explicitly distinguishable.
  */
 const scenes = [
-  { src: quarryWide, en: "Quarry panorama", ar: "مشهد بانورامي للمحجر" },
-  { src: breaker, en: "Rock-breaking excavator", ar: "حفار تكسير الصخور" },
-  { src: loader, en: "Loader and truck handling", ar: "الشيول وتحميل الشاحنات" },
-  { src: crushingLine, en: "Crushing and screening", ar: "الكسارات والفرز" },
-  { src: haulRoad, en: "Quarry haul roads", ar: "طرق نقل المواد" },
-  { src: quarryAlternate, en: "Limestone benches", ar: "مدرجات الحجر الجيري" },
-  { src: breakerAlternate, en: "Excavation operations", ar: "عمليات الاستخراج" },
-  { src: loaderAlternate, en: "Aggregate handling", ar: "مناولة المواد" },
-  { src: processingAlternate, en: "Production conveyors", ar: "سيور الإنتاج" },
-  { src: powerSite, en: "Site utilities", ar: "مرافق الموقع" },
+  ...officialMedia.hero.map((item) => ({
+    src: item.image,
+    en: item.en,
+    ar: item.ar,
+    origin: item.origin,
+  })),
+  { src: breaker, en: "Excavator — supplementary equipment visual", ar: "حفار — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+  { src: loader, en: "Loader — supplementary equipment visual", ar: "شيول — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+  { src: breakerAlternate, en: "Excavation — supplementary equipment visual", ar: "أعمال الحفر — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+  { src: loaderAlternate, en: "Material handling — supplementary equipment visual", ar: "مناولة المواد — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+  { src: powerSite, en: "Site utilities — supplementary visual", ar: "مرافق التشغيل — مشهد توضيحي مكمل", origin: "supplementary" },
+  { src: equipmentOverview, en: "Equipment fleet — supplementary visual", ar: "أسطول المعدات — مشهد توضيحي مكمل", origin: "supplementary" },
 ] as const;
 
 const HERO_SCENE_COUNT = scenes.length;
@@ -202,7 +201,7 @@ export function HeroGallery() {
       >
         {previous && (
           <img
-            className="hero-gallery__photo hero-gallery__photo--outgoing"
+            className={"hero-gallery__photo hero-gallery__photo--outgoing" + (previous.origin === "actual-site" ? " actual-site-photo" : "")}
             key={"old-" + outgoing + "-" + sequence}
             src={previous.src}
             alt=""
@@ -214,8 +213,9 @@ export function HeroGallery() {
         <img
           key={"current-" + active + "-" + sequence}
           ref={activeImageRef}
-          className={"hero-gallery__photo hero-gallery__photo--active" + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
+          className={"hero-gallery__photo hero-gallery__photo--active" + (current.origin === "actual-site" ? " actual-site-photo" : "") + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
           data-reveal={["lower-right", "centre", "upper-left", "soft-wipe"][active % 4]}
+          data-media-origin={current.origin}
           src={current.src}
           alt=""
           fetchPriority={active === 0 ? "high" : "auto"}
