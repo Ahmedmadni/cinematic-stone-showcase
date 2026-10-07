@@ -4,6 +4,7 @@ import { ArrowDownLeft, Gauge, Mouse, Pickaxe, Truck, Zap } from "lucide-react";
 import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import { fleetFacts } from "@/data/experience-data";
+import { officialMedia } from "@/data/official-media";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
 import weighbridges from "@/assets/generators-weighbridge.jpg";
@@ -89,7 +90,7 @@ export function FleetExperience() {
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
             <AtmosphereLayers variant="fleet" />
-            <span className="fleet-experience__photo-note">{t("صور توضيحية — تُستبدل بتصوير المعدات الفعلية")}</span>
+            <span className="fleet-experience__photo-note">{t("مشاهد المعدات الرئيسية محفوظة كتصوير تحريري مكمل؛ الصور الفعلية للموقع موضحة أدناه.")}</span>
             <div className="fleet-experience__headline">
               <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
               <strong key={current.id}>{t(current.name)}</strong>
@@ -123,6 +124,25 @@ export function FleetExperience() {
                   </button>
                 );
               })}
+            </div>
+            <div className="fleet-experience__actual-evidence" aria-label={t("تصوير فعلي لمعدات موقع الصمان")}>
+              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">ACTUAL SITE / 02</span>{t("تصوير فعلي للمعدات")}</span>
+              <div className="fleet-experience__actual-grid">
+                {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
+                  <figure key={item.image}>
+                    <img
+                      className="actual-site-photo"
+                      src={item.image}
+                      alt={language === "en" ? item.en : item.ar}
+                      loading="lazy"
+                      decoding="async"
+                      width={1600}
+                      height={900}
+                    />
+                    <figcaption>{language === "en" ? item.en : item.ar}</figcaption>
+                  </figure>
+                ))}
+              </div>
             </div>
             <div className="fleet-experience__detail" aria-live="polite" aria-atomic="true">
               <div key={current.id} className="fleet-experience__detail-inner">
