@@ -1,7 +1,7 @@
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type TouchEvent as ReactTouchEvent } from "react";
 import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
-import { ArrowLeft, ArrowRight, Pause, Play, X } from "lucide-react";
+import { Pause, Play, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type GalleryLightboxProps = {
@@ -177,16 +177,8 @@ export function GalleryLightbox({
           <div>
             <span>{origin === "actual-site" ? t("تصوير فعلي من موقع الصمان") : t("مشهد توضيحي مكمل")} · {replacement}</span>
             <h3>{title} — {label}</h3>
-          </div>
-          <div className="lightbox-controls">
-            <Button type="button" variant="outline" aria-label={t("الصورة السابقة")} onClick={navigatePrevious}>
-              <ArrowRight size={20} aria-hidden="true" />
-            </Button>
-            <Button type="button" variant="outline" aria-label={t("الصورة التالية")} onClick={navigateNext}>
-              <ArrowLeft size={20} aria-hidden="true" />
-            </Button>
-          </div>
         </div>
+      </div>
       </div>
     </dialog>
   );
