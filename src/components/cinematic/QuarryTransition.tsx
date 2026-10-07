@@ -1,10 +1,9 @@
 import { useSiteLanguage } from "@/lib/site-language";
-import quarryAerial from "@/assets/quarry-aerial.jpg";
-import crushingPlant from "@/assets/crushing-plant.jpg";
+import { officialMedia } from "@/data/official-media";
 import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 
 /**
- * Two real image layers using the project's clearly marked illustrative assets.
+ * Two actual-site photographic layers from Al Somman.
  * Progress is provided by CinematicDirector as CSS variables.
  */
 export function QuarryTransition() {
@@ -17,10 +16,10 @@ export function QuarryTransition() {
     >
       <div className="cinematic-bridge__sticky">
         <div className="cinematic-bridge__shot cinematic-bridge__shot--quarry" aria-hidden="true">
-          <img src={quarryAerial} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
+          <img className="actual-site-photo" src={officialMedia.hero[2].image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
         </div>
         <div className="cinematic-bridge__shot cinematic-bridge__shot--production" aria-hidden="true">
-          <img src={crushingPlant} alt="" loading="lazy" decoding="async" width={1536} height={1024} />
+          <img className="actual-site-photo" src={officialMedia.production.crusher.image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
         </div>
         <div className="cinematic-bridge__shadow" aria-hidden="true" />
         <AtmosphereLayers variant="bridge" />
@@ -42,7 +41,7 @@ export function QuarryTransition() {
           </a>
         </div>
         <div className="cinematic-bridge__footer">
-          <span>{t("مشاهد توضيحية وليست تصويرًا للموقع الفعلي")}</span>
+          <span>{t("تصوير فعلي من موقع محجر وكسارة الصمان")}</span>
           <span className="latin" dir="ltr">02 — PRODUCTION</span>
         </div>
         <div className="cinematic-bridge__meter" aria-hidden="true"><span /></div>
