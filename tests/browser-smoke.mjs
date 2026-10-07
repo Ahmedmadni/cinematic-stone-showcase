@@ -125,48 +125,101 @@ try {
   });
 
 
-  await caseRun("first hero image preloaded and outgoing scene stays until new image loads", async () => {
-    // Dedicated context avoids cached assets from prior scroll tests. Slow only
-    // the *second* scene; never globally throttle site hydration or vital CSS.
+  await caseRun("first hero image preloaded and outgoing scene stays until new image decodes", async () => {
     const context = await browser.newContext({
-      viewport: { width: 1240, height: 780 },
-      reducedMotion: "no-preference",
+      viewport: { width: 1240, height: 780 }, reducedMotion: "no-preference",
     });
     const page = await context.newPage();
+    let releaseSecond;
+    let releaseThird;
+    const secondGate = new Promise(resolve => { releaseSecond = resolve; });
+    const thirdGate = new Promise(resolve => { releaseThird = resolve; });
+    let deferredRoutes = 0;
+    // Gates exercise genuinely pending images without depending on CI speed.
+    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, async route => {
+      if (route.request().resourceType() !== "image") return route.continue();
+      deferredRoutes++;
+      await secondGate;
+      await route.continue();
+    });
+    await page.route(/\/(?:loaders-maintenance\.jpg|hero-quarry-site-01[^/]*\.webp)(?:\?.*)?$/, async route => {
+      if (route.request().resourceType() !== "image") return route.continue();
+      await thirdGate;
+      await route.continue();
+    });
     try {
-      let deferredRoutes = 0;
-      await page.route("**/excavators.jpg*", async route => {
-        deferredRoutes += 1;
-        await new Promise(resolve => setTimeout(resolve, 2600));
-        await route.continue();
-      });
       await openWithRetry(page, baseURL);
-      const preload = page.locator('link[rel="preload"][as="image"][href*="quarry-aerial"]');
-      assert.equal(await preload.count(), 1, "first hero photo must be discoverable as an image preload");
-      await page.waitForFunction(() =>
-        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
+      const firstSrc = await page.locator(".hero-gallery__photo--active").getAttribute("src");
+      const preload = page.locator('link[rel="preload"][as="image"]');
+      assert.ok((await preload.evaluateAll(links => links.map(link => link.getAttribute("href")))).includes(firstSrc),
+        "first hero photo must be discoverable as an image preload");
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
         null, { timeout: 6500 });
       await page.locator(".hero-gallery__dots button").nth(1).click();
-      await page.waitForFunction(() => 
-        document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") === "1",
-        null, {timeout:4500});
-      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 1);
-      // While the new network image is pending, preserve previous decoded
-      // pixels under a transparent incoming layer.
-      if ((await page.locator(".hero-gallery").getAttribute("data-hero-image-ready")) === "false") {
-        assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
-      }
-      await page.waitForFunction(() =>
-        document.querySelector(".hero-gallery")?.getAttribute("data-hero-image-ready") === "true",
-        null, {timeout:10000});
-      assert.ok(deferredRoutes >= 1, "test must actually delay the second hero image");
-      await page.waitForTimeout(1450);
-      assert.equal(await page.locator(".hero-gallery__photo--outgoing").count(), 0);
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "1");
+      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
+      assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"), firstSrc);
+      assert.ok(await page.locator(".hero-gallery__photo--outgoing").evaluate(image => image.complete && image.naturalWidth > 0));
+      // Skip the pending second scene. It must never replace the valid backdrop.
+      await page.locator(".hero-gallery__dots button").nth(2).click();
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "2");
+      assert.equal(await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"), firstSrc);
+      assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
+      releaseSecond();
+      releaseThird();
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
+        null, { timeout: 10000 });
+      assert.ok(deferredRoutes >= 1, "test must actually hold the second hero image");
+      await page.waitForFunction(() => !document.querySelector(".hero-gallery__photo--outgoing"),
+        null, { timeout: 4000 });
       assert.equal(await page.locator(".hero-gallery__photo--active").count(), 1);
-      await page.screenshot({path:output+"/hero-loaded-no-flash.png", animations:"disabled"});
+      await page.screenshot({ path: output + "/hero-loaded-no-flash.png", animations: "disabled" });
     } finally {
+      releaseSecond();
+      releaseThird();
       await context.close();
     }
+  });
+
+  await caseRun("failed later hero image returns to the last decoded visitor selection", async () => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
+      ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
+    try {
+      await openWithRetry(page, baseURL);
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true");
+      await page.locator(".hero-gallery__dots button").nth(3).click();
+      await page.waitForFunction(() => {
+        const hero = document.querySelector(".hero-gallery");
+        return hero?.dataset.heroActive === "3" && hero.dataset.heroImageReady === "true";
+      });
+      await page.locator(".hero-gallery__dots button").nth(1).click();
+      await page.waitForFunction(() => {
+        const hero = document.querySelector(".hero-gallery");
+        return hero?.dataset.heroActive === "3" && hero.dataset.heroImageReady === "true";
+      });
+      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+      assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(image => image.complete && image.naturalWidth > 0));
+    } finally { await context.close(); }
+  });
+
+  await caseRun("failed initial hero image never reports ready or starts autoplay", async () => {
+    const context = await browser.newContext({ reducedMotion: "no-preference" });
+    const page = await context.newPage();
+    await page.route(/\/(?:quarry-aerial\.jpg|hero-crusher-aerial-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
+      ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
+    try {
+      await openWithRetry(page, baseURL);
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageError === "true");
+      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
+      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+      assert.ok(await page.locator("#hero-title").isVisible());
+      await page.locator(".hero-gallery__dots button").nth(2).click();
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true");
+      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-error"), "false");
+    } finally { await context.close(); }
   });
 
   await caseRun("floating language control translates the entire site and persists choice", async () => {
