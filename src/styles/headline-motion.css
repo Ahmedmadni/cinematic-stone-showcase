@@ -39,3 +39,13 @@
   .presentation .typewriter-headline__caret { animation: none !important; opacity: 1; transform: none; }
   .presentation .typewriter-headline__caret { display: none; }
 }
+.site-loader { position: fixed; inset: 0; z-index: 9999; display: grid; place-content: center; justify-items: center; gap: 22px; background: var(--background); transition: opacity .9s cubic-bezier(.32,.72,0,1), visibility .9s; }
+.site-loader.is-leaving { opacity: 0; visibility: hidden; }
+.site-loader__logo { width: 92px; height: auto; animation: site-loader-breathe 1.8s ease-in-out infinite; }
+.site-loader__bar { width: min(240px, 60vw); height: 2px; background: var(--line-soft, var(--border)); overflow: hidden; }
+.site-loader__bar span { display: block; height: 100%; background: var(--primary); transform-origin: inline-start; transition: transform .4s ease-out; }
+[dir="rtl"] .site-loader__bar span { transform-origin: right; }
+[dir="ltr"] .site-loader__bar span { transform-origin: left; }
+.site-loader__label { font-size: 12px; letter-spacing: .08em; color: var(--muted-foreground); }
+@keyframes site-loader-breathe { 50% { opacity: .55; transform: scale(.96); } }
+@media (prefers-reduced-motion: reduce) { .site-loader__logo { animation: none; } .site-loader, .site-loader__bar span { transition: none; } }
