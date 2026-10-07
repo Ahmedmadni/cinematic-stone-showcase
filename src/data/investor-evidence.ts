@@ -1,15 +1,15 @@
 /**
  * Public-facing, document-derived metadata only.
  * Source: "عرض استثماري - كسارة الصمان (1).docx", p. 9 and pp. 6–8.
- * Original certificates, permit scans and private financial records are not
- * included in this repository. These records do not verify present validity.
+ * Supplied scans are linked separately. ISO identifiers below are transcribed
+ * from those scans; neither scan nor summary verifies present validity.
  */
 export const isoEvidence = [
   {
     id: "quality",
     standard: "ISO 9001:2015",
     title: "إدارة الجودة",
-    number: "39/0825F/3QCC",
+    number: "QCC/3F39/0825",
     issue: "18/08/2025",
     expires: "17/08/2028",
     description: "شهادة إدارة الجودة المشار إليها في العرض الاستثماري.",
@@ -18,7 +18,7 @@ export const isoEvidence = [
     id: "environment",
     standard: "ISO 14001:2015",
     title: "الإدارة البيئية",
-    number: "37/0825F/3QCC",
+    number: "QCC/3F37/0825",
     issue: "18/08/2025",
     expires: "17/08/2028",
     description: "شهادة الإدارة البيئية المشار إليها في العرض الاستثماري.",
@@ -27,16 +27,16 @@ export const isoEvidence = [
     id: "safety",
     standard: "ISO 45001:2018",
     title: "الصحة والسلامة المهنية",
-    number: "30/0825FD/QCC",
+    number: "QCC/FD30/0825",
     issue: "18/08/2025",
     expires: "17/08/2028",
     description: "شهادة الصحة والسلامة المهنية المشار إليها في العرض الاستثماري.",
   },
 ] as const;
 
-export const evidenceIssuer = "QCC (Certification Control Quality)";
+export const evidenceIssuer = "QCC (Quality Control Certification)";
 export const evidenceDisclaimers = {
-  iso: "هذه البيانات من نسخة العرض الاستثماري، وليست نسخًا أصلية للشهادات أو تحققًا من استمرار سريانها أو نتائج المراجعات الدورية. يلزم طلب النسخ والتحقق لدى جهة المنح.",
+  iso: "تُعرض نسخ الشهادات المرفقة وبياناتها المرجعية؛ وهي ليست نسخًا أصلية معتمدة، ولا يمثل عرضها تحققًا من استمرار السريان أو نتائج مراجعات المتابعة. يلزم التحقق لدى جهة المنح.",
   permits: "حالة كل رخصة مأخوذة من المستند التاريخي؛ يلزم الاستعلام الرسمي عن التجديد، والمرخص له، وحقوق النقل والتشغيل قبل أي اتفاق.",
   documents: "قائمة إرشادية لما يمكن طلبه أثناء الفحص النافي للجهالة، ولا تفيد بأن جميع الوثائق جاهزة أو معتمدة للإفصاح.",
 } as const;

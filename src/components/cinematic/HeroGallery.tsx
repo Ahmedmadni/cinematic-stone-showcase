@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
 import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
@@ -38,10 +38,12 @@ export function HeroGallery() {
   const { language } = useSiteLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
   const activeImageRef = useRef<HTMLImageElement>(null);
+  const lastReadyIndex = useRef<number | null>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const [active, setActive] = useState(0);
   const [outgoing, setOutgoing] = useState<number | null>(null);
   const [loadedScene, setLoadedScene] = useState<string | null>(null);
+  const [failedScene, setFailedScene] = useState<string | null>(null);
   const [sequence, setSequence] = useState(0);
   const [inView, setInView] = useState(true); // first viewport contains the hero
   const [pageVisible, setPageVisible] = useState(true);
@@ -73,22 +75,44 @@ export function HeroGallery() {
     };
   }, []);
 
-  const playing = inView && pageVisible && motionAllowed && !paused && !controlsFocused;
+  const currentSrc = (scenes[active] ?? scenes[0]).src;
+  const imageReady = loadedScene === currentSrc && failedScene !== currentSrc;
+  const playing = imageReady && inView && pageVisible && motionAllowed && !paused && !controlsFocused;
+
+  const recoverImage = useCallback((index: number) => {
+    setFailedScene((scenes[index] ?? scenes[0]).src);
+    setPaused(true);
+    // A failed image never becomes ready. Return to the last decoded scene,
+    // rather than assuming scene zero was successfully downloaded.
+    if (lastReadyIndex.current !== null && lastReadyIndex.current !== index) {
+      setActive(lastReadyIndex.current);
+      setOutgoing(null);
+    }
+  }, []);
+
+  const settleImage = useCallback((image: HTMLImageElement, index: number) => {
+    void image.decode().then(() => {
+      // A rapid selection may replace this element before decode completes.
+      if (activeImageRef.current !== image) return;
+      lastReadyIndex.current = index;
+      setFailedScene(null);
+      setLoadedScene((scenes[index] ?? scenes[0]).src);
+    }).catch(() => {
+      if (activeImageRef.current === image) recoverImage(index);
+    });
+  }, [recoverImage]);
 
   useEffect(() => {
     if (!playing) return;
     const timer = window.setTimeout(() => {
       setActive(current => {
-        setOutgoing(current);
+        setOutgoing(lastReadyIndex.current);
         return (current + 1) % scenes.length;
       });
       setSequence(current => current + 1);
     }, HERO_INTERVAL_MS);
     return () => window.clearTimeout(timer);
   }, [playing, active]);
-
-  const currentSrc = (scenes[active] ?? scenes[0]).src;
-  const imageReady = loadedScene === currentSrc;
 
   useEffect(() => {
     // React 19 may stream/high-priority preload the first image before the
@@ -97,13 +121,11 @@ export function HeroGallery() {
     const image = activeImageRef.current;
     if (!image?.complete) return;
     if (image.naturalWidth > 0) {
-      setLoadedScene(currentSrc);
-    } else if (active !== 0) {
-      setActive(0);
-      setOutgoing(null);
-      setPaused(true);
+      settleImage(image, active);
+    } else {
+      recoverImage(active);
     }
-  }, [active, currentSrc]);
+  }, [active, currentSrc, sequence, settleImage, recoverImage]);
 
   useEffect(() => {
     // Never remove the last valid frame before the incoming image finishes.
@@ -144,7 +166,7 @@ export function HeroGallery() {
       );
       if (!step) return;
       setActive(current => {
-        setOutgoing(current);
+        setOutgoing(lastReadyIndex.current);
         return (current + step + scenes.length) % scenes.length;
       });
       setSequence(current => current + 1);
@@ -165,7 +187,7 @@ export function HeroGallery() {
   function choose(index: number) {
     const nextIndex = (index + scenes.length) % scenes.length;
     if (nextIndex === active) return;
-    setOutgoing(active);
+    setOutgoing(lastReadyIndex.current);
     setActive(nextIndex);
     setSequence(value => value + 1);
     // A visitor's deliberate selection remains visible until Play is pressed.
@@ -177,18 +199,6 @@ export function HeroGallery() {
   const label = language === "en" ? current.en : current.ar;
   const isMotionPaused = !motionAllowed || paused;
 
-  function handleImageError() {
-    // Keep the page readable even if a later local image fails to download.
-    // Do not endlessly retry a missing asset while the gallery timer runs.
-    if (active !== 0) {
-      setActive(0);
-      setPaused(true);
-      setOutgoing(null);
-    } else {
-      setLoadedScene(currentSrc);
-    }
-  }
-
   return (
     <>
       <div
@@ -197,6 +207,7 @@ export function HeroGallery() {
         data-hero-active={active}
         data-hero-playing={playing}
         data-hero-image-ready={imageReady}
+        data-hero-image-error={failedScene === currentSrc}
         aria-hidden="true"
       >
         {previous && (
@@ -223,8 +234,8 @@ export function HeroGallery() {
           decoding="async"
           width={1536}
           height={1024}
-          onLoad={() => setLoadedScene(currentSrc)}
-          onError={handleImageError}
+          onLoad={event => settleImage(event.currentTarget, active)}
+          onError={() => recoverImage(active)}
         />
         <span className="hero-gallery__film-grain" aria-hidden="true" />
       </div>

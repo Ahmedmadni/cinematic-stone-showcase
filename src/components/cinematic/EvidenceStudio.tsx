@@ -1,6 +1,8 @@
 import { useSiteLanguage } from "@/lib/site-language";
 import { useState } from "react";
 import { ArrowDownLeft, ArrowUpLeft, Award, ClipboardCheck, FileText, Leaf, LockKeyhole, ShieldCheck } from "lucide-react";
+import { EvidenceDocument } from "@/components/EvidenceDocument";
+import { certificateScans, permitScans } from "@/data/official-documents";
 import { quarrySites } from "@/data/experience-data";
 import { diligenceChecklist, evidenceDisclaimers, evidenceIssuer, investorJourney, isoEvidence } from "@/data/investor-evidence";
 
@@ -15,8 +17,8 @@ const evidenceNavigation = [
 const evidenceIcons = [Award, Leaf, ShieldCheck] as const;
 
 /**
- * This is an editorial evidence viewer, not an image of an issued certificate.
- * The private originals and financial records are deliberately not bundled.
+ * Reference cards remain distinct from the supplied document scans.
+ * Displaying a scan never implies live validity or verified surveillance.
  */
 export function EvidenceStudio() {
   const { t, language } = useSiteLanguage();
@@ -65,7 +67,7 @@ export function EvidenceStudio() {
             ))}
             <div className="evidence-studio__policy">
               <LockKeyhole size={19} aria-hidden="true" />
-              <p>{t("الملفات الأصلية والبيانات المالية التفصيلية غير منشورة على الموقع. طلبها يخضع لموافقة الجهة المسؤولة.")}</p>
+              <p>{t("يعرض الموقع نسخ المستندات المرفقة للاطلاع؛ البيانات المالية التفصيلية وطلبات التحقق تخضع لموافقة الجهة المسؤولة.")}</p>
             </div>
           </div>
           <div className="evidence-studio__stage">
@@ -95,6 +97,7 @@ export function EvidenceStudio() {
                     <div><dt>{t("تاريخ الانتهاء المذكور")}</dt><dd dir="ltr">{certificate.expires}</dd></div>
                   </dl>
                 </div>
+                <EvidenceDocument document={certificateScans[certificate.id]} title={certificate.standard} />
                 <p className="evidence-studio__disclaimer">{t(evidenceDisclaimers.iso)}</p>
               </div>
             )}
@@ -119,6 +122,7 @@ export function EvidenceStudio() {
                     <div><dt>{t("الحالة بالمستند")}</dt><dd>{t(permit.documentStatus)}</dd></div>
                   </dl>
                 </div>
+                <EvidenceDocument document={permitScans[permit.license]} title={t(permit.name) + " / " + permit.license} />
                 <p className="evidence-studio__disclaimer">{t(permit.note)} {t(evidenceDisclaimers.permits)}</p>
               </div>
             )}
