@@ -21,3 +21,4 @@
 - Respect actual image readiness on the ten-photo hero: keep the prior valid image until the incoming image has finished loading, and fall back safely if the file is missing.
 - Pause six subject galleries on real mouse hover, not synthesized touch hover; keep independent timers and reduced-motion/keyboard pauses.
 - Keep headline motion isolated to the hero split title, gallery subject rotator and Q&A typing line, with bilingual labels, replay controls and reduced-motion static rendering; this keeps decorative animation out of factual content.
+- Uploaded site media lives in a private storage bucket plus a public-read media table; only admins (role table, first signup or listed email) write, and sections prepend uploads to their built-in photos so the site never goes empty.
