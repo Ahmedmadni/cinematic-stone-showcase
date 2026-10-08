@@ -11,6 +11,12 @@ const base = process.env.BASE_URL ?? "http://127.0.0.1:4173";
 const output = (process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts") + "/video-" + engine;
 const results = [];
 await mkdir(output, { recursive: true });
+function isFilmRequest(request) {
+  // WebKit labels native media requests as "other". Vite's ?import requests
+  // are URL-export modules, so exclude those without weakening byte checks.
+  const url = new URL(request.url());
+  return /\.(?:mp4|webm)$/.test(url.pathname) && !url.searchParams.has("import");
+}
 async function fresh(options = {}) {
   const context = await mediaContext(browser, { viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference", ...options });
   const page = await context.newPage();
@@ -52,7 +58,7 @@ try {
   await check("hero decodes; only hero video requested at entry; section films pause offscreen", async () => {
     const { context, page } = await fresh();
     const requests = [];
-    page.on("request", request => { if (request.resourceType() === "media") requests.push(request.url()); });
+    page.on("request", request => { if (isFilmRequest(request)) requests.push(request.url()); });
     await visit(page);
     const hero = page.locator('[data-video-section="hero"]');
     await decoded(hero.locator("video"));
@@ -83,7 +89,7 @@ try {
   await check("reduced motion has no automatic video requests; explicit full tour decodes and restores focus", async () => {
     const { context, page } = await fresh({ reducedMotion: "reduce" });
     const requests = [];
-    page.on("request", request => { if (request.resourceType() === "media") requests.push(request.url()); });
+    page.on("request", request => { if (isFilmRequest(request)) requests.push(request.url()); });
     await visit(page);
     assert.equal(await page.locator("video").count(), 0);
     await page.locator(".site-tour").scrollIntoViewIfNeeded();
@@ -104,7 +110,7 @@ try {
 
   await check("blocked video preserves decoded photographs and leaves a closable tour", async () => {
     const { context, page } = await fresh();
-    await page.route(/\.(?:mp4|webm)(?:\?|$)/, route => route.request().resourceType() === "media" ? route.abort() : route.continue());
+    await page.route(/\.(?:mp4|webm)(?:\?|$)/, route => isFilmRequest(route.request()) ? route.abort() : route.continue());
     await visit(page);
     await page.waitForFunction(() => document.querySelector('[data-video-section="hero"]')?.getAttribute("data-video-failed") === "true");
     assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(node => node.complete && node.naturalWidth > 0));
