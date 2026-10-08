@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      site_media: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          section: string
+          sort_order: number
+          storage_path: string
+          title_ar: string
+          title_en: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          section: string
+          sort_order?: number
+          storage_path: string
+          title_ar?: string
+          title_en?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          section?: string
+          sort_order?: number
+          storage_path?: string
+          title_ar?: string
+          title_en?: string
+        }
+        Relationships: []
+      }
       somman_public_usage_windows: {
         Row: {
           request_count: number
@@ -65,11 +98,36 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       somman_try_public_action: {
         Args: { p_scope: string }
         Returns: {
@@ -79,7 +137,7 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -206,6 +264,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
