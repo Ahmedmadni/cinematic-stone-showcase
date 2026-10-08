@@ -7,6 +7,7 @@
  * interaction timing, long tasks and representative scroll frame pacing.
  */
 import assert from "node:assert/strict";
+import { mediaContext } from "./site-media-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
@@ -17,7 +18,7 @@ const output = process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts";
 await mkdir(output, { recursive: true });
 
 const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
-const context = await browser.newContext({
+const context = await mediaContext(browser, {
   viewport: { width: 390, height: 844 },
   deviceScaleFactor: 1,
   isMobile: true,

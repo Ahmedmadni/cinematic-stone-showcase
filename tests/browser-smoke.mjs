@@ -6,6 +6,7 @@
  * existing package manager lockfile. Screenshots help manual sign-off.
  */
 import assert from "node:assert/strict";
+import { mediaContext } from "./site-media-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
@@ -44,7 +45,7 @@ async function caseRun(name, run) {
 }
 
 try {
-  const desktop = await browser.newContext({
+  const desktop = await mediaContext(browser, {
     viewport: { width: 1366, height: 900 },
     deviceScaleFactor: 1,
     reducedMotion: "no-preference",
@@ -130,7 +131,7 @@ try {
 
 
   await caseRun("first hero image preloaded and outgoing scene stays until new image decodes", async () => {
-    const context = await browser.newContext({
+    const context = await mediaContext(browser, {
       viewport: { width: 1240, height: 780 }, reducedMotion: "no-preference",
     });
     const page = await context.newPage();
@@ -187,7 +188,7 @@ try {
   });
 
   await caseRun("failed later hero image returns to the last decoded visitor selection", async () => {
-    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const context = await mediaContext(browser, { reducedMotion: "reduce" });
     const page = await context.newPage();
     await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
       ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
@@ -210,7 +211,7 @@ try {
   });
 
   await caseRun("failed initial hero image never reports ready or starts autoplay", async () => {
-    const context = await browser.newContext({ reducedMotion: "no-preference" });
+    const context = await mediaContext(browser, { reducedMotion: "no-preference" });
     const page = await context.newPage();
     await page.route(/\/(?:quarry-aerial\.jpg|hero-crusher-aerial-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
       ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
@@ -354,7 +355,7 @@ try {
 
   await caseRun("assistant handles success, upstream failures, truncated SSE and rate limits", async () => {
     // These are synthetic responses; no paid AI calls or real user data are sent.
-    const chatContext = await browser.newContext({
+    const chatContext = await mediaContext(browser, {
       viewport: { width: 1050, height: 820 },
       reducedMotion: "reduce",
       locale: "en-US",
@@ -644,7 +645,7 @@ try {
   await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
     // Use a clean page instead of inheriting several scroll chapters, focus
     // targets and browser history changes from preceding visual tests.
-    const isolatedHeroContext = await browser.newContext({ viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference" });
+    const isolatedHeroContext = await mediaContext(browser, { viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference" });
     const heroPage = await isolatedHeroContext.newPage();
     try {
     await openWithRetry(heroPage, baseURL);
@@ -856,7 +857,7 @@ try {
 
   await desktop.close();
 
-  const fullMotionMobile = await browser.newContext({
+  const fullMotionMobile = await mediaContext(browser, {
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
     isMobile: true,
@@ -945,7 +946,7 @@ try {
 
   await fullMotionMobile.close();
 
-  const mobile = await browser.newContext({
+  const mobile = await mediaContext(browser, {
     viewport: { width: 390, height: 844 },
     deviceScaleFactor: 1,
     isMobile: true,
@@ -1078,7 +1079,7 @@ try {
     // 683 CSS px approximates the layout viewport seen at 200% browser zoom
     // from a 1366px desktop, while 768px exercises the tablet breakpoint.
     for (const [width, height] of [[320, 568], [360, 640], [390, 720], [683, 450], [768, 1024]]) {
-      const context = await browser.newContext({
+      const context = await mediaContext(browser, {
         viewport: { width, height },
         reducedMotion: "no-preference",
         hasTouch: width < 400,

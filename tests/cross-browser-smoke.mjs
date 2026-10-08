@@ -6,6 +6,7 @@
  * Playwright is installed in a throwaway CI directory to preserve bun.lock.
  */
 import assert from "node:assert/strict";
+import { mediaContext } from "./site-media-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
@@ -55,7 +56,7 @@ async function check(name, fn) {
 }
 
 try {
-  const desktop = await browser.newContext({
+  const desktop = await mediaContext(browser, {
     viewport: { width: 1280, height: 800 },
     reducedMotion: "reduce",
     locale: "en-US",
@@ -148,7 +149,7 @@ try {
   });
   await desktop.close();
 
-  const mobile = await browser.newContext({
+  const mobile = await mediaContext(browser, {
     viewport: { width: 360, height: 780 },
     // Firefox Playwright does not implement isMobile; viewport + touch are
     // still tested. WebKit supports full mobile layout emulation.

@@ -1,5 +1,6 @@
 /** Real decoding, request boundaries, visibility, failure and explicit tour QA. */
 import assert from "node:assert/strict";
+import { mediaContext, mediaCors } from "./site-media-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
@@ -11,10 +12,10 @@ const output = (process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts") + 
 const results = [];
 await mkdir(output, { recursive: true });
 async function fresh(options = {}) {
-  const context = await browser.newContext({ viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference", ...options });
+  const context = await mediaContext(browser, { viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference", ...options });
   const page = await context.newPage();
   // Preserve the real admin hooks but isolate public media from live uploads.
-  await page.route("**/rest/v1/site_media**", route => route.fulfill({ status: 200, contentType: "application/json", body: "[]" }));
+  await page.route("**/rest/v1/site_media**", route => route.fulfill({ status: route.request().method() === "OPTIONS" ? 204 : 200, contentType: "application/json", headers: mediaCors(route), body: route.request().method() === "OPTIONS" ? "" : "[]" }));
   return { context, page };
 }
 async function visit(page) {
@@ -122,13 +123,15 @@ try {
     let reads = 0;
     await page.unroute("**/rest/v1/site_media**");
     await page.route("**/rest/v1/site_media**", route => {
+      if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204, headers: mediaCors(route), body: "" });
       reads += 1;
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(["hero", "production"].map(section => ({ id: "qa-upload-" + section, section, kind: "video", storage_path: section + "/broken.webm", title_en: "Uploaded " + section + " film", title_ar: "فيديو مرفوع", sort_order: 0, created_at: "2026-10-08T00:00:00Z" }))) });
+      return route.fulfill({ status: 200, contentType: "application/json", headers: mediaCors(route), body: JSON.stringify(["hero", "production"].map(section => ({ id: "qa-upload-" + section, section, kind: "video", storage_path: section + "/broken.webm", title_en: "Uploaded " + section + " film", title_ar: "فيديو مرفوع", sort_order: 0, created_at: "2026-10-08T00:00:00Z" }))) });
     });
     await page.route("**/storage/v1/object/sign/site-media**", async route => {
+      if (route.request().method() === "OPTIONS") return route.fulfill({ status: 204, headers: mediaCors(route), body: "" });
       if (route.request().method() !== "POST") return route.abort();
       const { paths } = route.request().postDataJSON();
-      return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(paths.map(path => ({ path, signedURL: "/object/sign/site-media/" + path + "?token=qa", error: null }))) });
+      return route.fulfill({ status: 200, contentType: "application/json", headers: mediaCors(route), body: JSON.stringify(paths.map(path => ({ path, signedURL: "/object/sign/site-media/" + path + "?token=qa", error: null }))) });
     });
     await visit(page);
     assert.equal(reads, 1, "shared hook should perform one mocked metadata read");
