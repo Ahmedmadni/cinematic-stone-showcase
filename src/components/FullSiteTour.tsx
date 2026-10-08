@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
 import { Play, X } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
 import { officialVideo } from "@/data/official-video";
 
-function TourDialog({ onClose }: { onClose: () => void }) {
+function TourDialog({ onClose, opener }: { onClose: () => void; opener: RefObject<HTMLButtonElement | null> }) {
   const { language } = useSiteLanguage();
   const dialog = useRef<HTMLDialogElement>(null);
   const close = useRef<HTMLButtonElement>(null);
@@ -14,12 +14,12 @@ function TourDialog({ onClose }: { onClose: () => void }) {
   const video = officialVideo.fullTour;
   useEffect(() => {
     const node = dialog.current;
-    const opener = document.activeElement;
+    const focusTarget = opener.current ?? document.activeElement;
     const overflow = document.body.style.overflow;
     if (!node) return;
     node.showModal(); document.body.style.overflow = "hidden"; close.current?.focus({ preventScroll: true });
-    return () => { node.querySelector("video")?.pause(); if (node.open) node.close(); document.body.style.overflow = overflow; if (opener instanceof HTMLElement && opener.isConnected) opener.focus({ preventScroll: true }); };
-  }, []);
+    return () => { node.querySelector("video")?.pause(); if (node.open) node.close(); document.body.style.overflow = overflow; if (focusTarget instanceof HTMLElement && focusTarget.isConnected) focusTarget.focus({ preventScroll: true }); };
+  }, [opener]);
   function trap(event: KeyboardEvent<HTMLDialogElement>) {
     if (event.key !== "Tab") return;
     const node = event.currentTarget;
@@ -30,7 +30,7 @@ function TourDialog({ onClose }: { onClose: () => void }) {
   }
   return <dialog ref={dialog} className="site-tour-dialog" aria-label={en ? video.en : video.ar} onKeyDown={trap} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <header><strong>{en ? video.en : video.ar}</strong><button ref={close} type="button" aria-label={en ? "Close site tour" : "إغلاق جولة الموقع"} onClick={onClose}><X size={24} aria-hidden="true" /></button></header>
-    <video poster={video.poster} controls autoPlay playsInline preload="metadata" aria-label={en ? "Complete supplied site tour, without audio" : "الجولة الكاملة المرفقة للموقع، دون صوت"} onError={() => setFailed(true)}><source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} /><source src={video.src} type='video/mp4; codecs="avc1.64001f"' onError={sourceError} /></video>
+    <video poster={video.poster} controls autoPlay playsInline preload="metadata" aria-label={en ? "Complete supplied site tour, without audio" : "الجولة الكاملة المرفقة للموقع، دون صوت"} onError={event => { if (event.target === event.currentTarget) setFailed(true); }}><source src={video.src} type='video/mp4; codecs="avc1.64001f"' onError={sourceError} /><source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} /></video>
     <p>{failed ? (en ? "The film could not play. You can still browse the site photographs." : "تعذّر تشغيل الفيديو. يمكنك متابعة صور الموقع.") : (en ? "2:57 · Actual site footage · Original recording has no audio." : "٢:٥٧ · تصوير فعلي للموقع · التسجيل الأصلي دون صوت.")}</p>
   </dialog>;
 }
@@ -39,11 +39,12 @@ function TourDialog({ onClose }: { onClose: () => void }) {
 export function FullSiteTour() {
   const { language } = useSiteLanguage();
   const [open, setOpen] = useState(false);
+  const opener = useRef<HTMLButtonElement>(null);
   const en = language === "en";
   const video = officialVideo.fullTour;
   return <section className="site-tour" aria-labelledby="site-tour-title" data-tour-open={open}>
     <div><span className="latin">INSIDE AL SOMMAN / THE FILM</span><h3 id="site-tour-title">{en ? "Inside Al Somman." : "داخل الصمان."}</h3><p>{en ? "The complete filmed route through the plant, equipment, facilities and quarry." : "الجولة المصوّرة الكاملة بين خطوط الكسارة والمعدات والمرافق والمحجر."}</p></div>
-    <button className="site-tour__open" type="button" onClick={() => setOpen(true)} aria-label={en ? "Watch the full site tour" : "مشاهدة الجولة الكاملة للموقع"}><img src={video.poster} alt="" width={1280} height={720} loading="lazy" decoding="async" /><span><Play size={24} aria-hidden="true" />{en ? "Watch full tour · 2:57" : "مشاهدة الجولة الكاملة · ٢:٥٧"}</span></button>
-    {open && <TourDialog onClose={() => setOpen(false)} />}
+    <button ref={opener} className="site-tour__open" type="button" onClick={() => setOpen(true)} aria-label={en ? "Watch the full site tour" : "مشاهدة الجولة الكاملة للموقع"}><img src={video.poster} alt="" width={1280} height={720} loading="lazy" decoding="async" /><span><Play size={24} aria-hidden="true" />{en ? "Watch full tour · 2:57" : "مشاهدة الجولة الكاملة · ٢:٥٧"}</span></button>
+    {open && <TourDialog opener={opener} onClose={() => setOpen(false)} />}
   </section>;
 }

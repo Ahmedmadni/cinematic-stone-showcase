@@ -149,7 +149,6 @@ jobs:
 
   cross-browser-release:
     name: ${{ matrix.engine }} cross-engine staging QA
-    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 18
     strategy:

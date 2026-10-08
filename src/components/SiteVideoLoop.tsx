@@ -52,12 +52,12 @@ export function SiteVideoLoop({ video, language, hero = false, enabled = true, o
   function fail() { setFailed(true); setReady(false); setActuallyPlaying(false); onUnavailable?.(); }
   function sourceError() { failedSources.current += 1; if (failedSources.current >= (video.webm ? 2 : 1)) fail(); }
   function toggle() { if (failed) return; setManuallyStarted(true); setRequested(true); setPaused(actuallyPlaying); }
-  return <figure ref={stage} className={"site-video" + (hero ? " site-video--hero" : "")} data-video-section={video.id} data-video-requested={requested} data-video-playing={actuallyPlaying} data-video-ready={ready} data-video-failed={failed}>
+  return <figure ref={stage} className={"site-video" + (hero ? " site-video--hero" : "")} data-video-section={video.id} data-video-visible={visible} data-video-should-play={shouldPlay} data-video-requested={requested} data-video-playing={actuallyPlaying} data-video-ready={ready} data-video-failed={failed}>
     <div className="site-video__stage">
       {!hero && <img className="actual-site-photo" src={video.poster} alt={title} width={1280} height={720} loading="lazy" decoding="async" />}
-      {requested && <video ref={player} key={video.src} className={"actual-site-video" + (covered ? " is-ready" : "")} poster={hero ? undefined : video.poster} muted playsInline loop={!onEnded} onEnded={onEnded} preload="none" aria-label={title}
-        onLoadedData={() => setReady(true)} onPlaying={() => setActuallyPlaying(true)} onPause={() => setActuallyPlaying(false)} onError={fail}>
-        {video.webm && <source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} />}<source src={video.src} type={video.webm ? 'video/mp4; codecs="avc1.64001f"' : undefined} onError={sourceError} />
+      {requested && <video ref={player} key={video.src} className={"actual-site-video" + (covered ? " is-ready" : "")} poster={hero ? undefined : video.poster} muted playsInline autoPlay={shouldPlay} loop={!onEnded} onEnded={onEnded} preload="metadata" aria-label={title}
+        onLoadedData={() => setReady(true)} onPlaying={() => setActuallyPlaying(true)} onPause={() => setActuallyPlaying(false)} onError={event => { if (event.target === event.currentTarget) fail(); }}>
+        <source src={video.src} type={video.webm ? 'video/mp4; codecs="avc1.64001f"' : undefined} onError={sourceError} />{video.webm && <source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} />}
       </video>}
       <button type="button" className="site-video__toggle" onClick={toggle} disabled={failed || !enabled} aria-label={actuallyPlaying ? (en ? "Pause site video" : "إيقاف فيديو الموقع") : (en ? "Play site video" : "تشغيل فيديو الموقع")} aria-pressed={actuallyPlaying}>
         {actuallyPlaying ? <Pause size={17} aria-hidden="true" /> : <Play size={17} aria-hidden="true" />}<span>{actuallyPlaying ? (en ? "Pause film" : "إيقاف المقطع") : (en ? "Play film" : "تشغيل المقطع")}</span>
