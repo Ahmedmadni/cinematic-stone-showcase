@@ -80,12 +80,12 @@ export function HeroGallery() {
     };
   }, []);
 
-  const currentSrc = (scenes[active] ?? scenes[0]).src;
+  const currentSrc = (scenes[active] ?? baseScenes[0]).src;
   const imageReady = loadedScene === currentSrc && failedScene !== currentSrc;
   const playing = imageReady && inView && pageVisible && motionAllowed && !paused && !controlsFocused;
 
   const recoverImage = useCallback((index: number) => {
-    setFailedScene((scenes[index] ?? scenes[0]).src);
+    setFailedScene((scenes[index] ?? baseScenes[0]).src);
     setPaused(true);
     // A failed image never becomes ready. Return to the last decoded scene,
     // rather than assuming scene zero was successfully downloaded.
@@ -101,7 +101,7 @@ export function HeroGallery() {
       if (activeImageRef.current !== image) return;
       lastReadyIndex.current = index;
       setFailedScene(null);
-      setLoadedScene((scenes[index] ?? scenes[0]).src);
+      setLoadedScene((scenes[index] ?? baseScenes[0]).src);
     }).catch(() => {
       if (activeImageRef.current === image) recoverImage(index);
     });
@@ -144,7 +144,7 @@ export function HeroGallery() {
     // Preload only the next frame, not all ten large hero photos.
     if (!playing) return;
     const next = new Image();
-    next.src = (scenes[(active + 1) % scenes.length] ?? scenes[0]).src;
+    next.src = (scenes[(active + 1) % scenes.length] ?? baseScenes[0]).src;
   }, [active, playing]);
 
   useEffect(() => {
@@ -199,7 +199,7 @@ export function HeroGallery() {
     setPaused(true);
   }
 
-  const current = scenes[active] ?? scenes[0];
+  const current = scenes[active] ?? baseScenes[0];
   const previous = outgoing === null ? null : (scenes[outgoing] ?? null);
   const label = language === "en" ? current.en : current.ar;
   const isMotionPaused = !motionAllowed || paused;
