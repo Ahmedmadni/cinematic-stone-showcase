@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSiteMedia } from "@/lib/site-media";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
 import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
@@ -15,7 +16,7 @@ import { officialMedia } from "@/data/official-media";
  * while the strongest existing equipment visuals remain as supplementary
  * editorial scenes. The two origins stay explicitly distinguishable.
  */
-const scenes = [
+const baseScenes = [
   ...officialMedia.hero.map((item) => ({
     src: item.image,
     en: item.en,
@@ -30,7 +31,6 @@ const scenes = [
   { src: equipmentOverview, en: "Equipment fleet — supplementary visual", ar: "أسطول المعدات — مشهد توضيحي مكمل", origin: "supplementary" },
 ] as const;
 
-const HERO_SCENE_COUNT = scenes.length;
 const HERO_INTERVAL_MS = 5800;
 const REVEAL_MS = 1300;
 
@@ -50,6 +50,11 @@ export function HeroGallery() {
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [paused, setPaused] = useState(false);
   const [controlsFocused, setControlsFocused] = useState(false);
+  const uploaded = useSiteMedia("hero");
+  const scenes = useMemo(() => [
+    ...uploaded.filter(i => i.kind === "image").map(i => ({ src: i.url, en: i.title_en || "Actual site photograph", ar: i.title_ar || "تصوير فعلي من الموقع", origin: "actual-site" as const })),
+    ...baseScenes,
+  ], [uploaded]);
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -75,12 +80,12 @@ export function HeroGallery() {
     };
   }, []);
 
-  const currentSrc = (scenes[active] ?? scenes[0]).src;
+  const currentSrc = (scenes[active] ?? baseScenes[0]).src;
   const imageReady = loadedScene === currentSrc && failedScene !== currentSrc;
   const playing = imageReady && inView && pageVisible && motionAllowed && !paused && !controlsFocused;
 
   const recoverImage = useCallback((index: number) => {
-    setFailedScene((scenes[index] ?? scenes[0]).src);
+    setFailedScene((scenes[index] ?? baseScenes[0]).src);
     setPaused(true);
     // A failed image never becomes ready. Return to the last decoded scene,
     // rather than assuming scene zero was successfully downloaded.
@@ -96,7 +101,7 @@ export function HeroGallery() {
       if (activeImageRef.current !== image) return;
       lastReadyIndex.current = index;
       setFailedScene(null);
-      setLoadedScene((scenes[index] ?? scenes[0]).src);
+      setLoadedScene((scenes[index] ?? baseScenes[0]).src);
     }).catch(() => {
       if (activeImageRef.current === image) recoverImage(index);
     });
@@ -139,7 +144,7 @@ export function HeroGallery() {
     // Preload only the next frame, not all ten large hero photos.
     if (!playing) return;
     const next = new Image();
-    next.src = (scenes[(active + 1) % scenes.length] ?? scenes[0]).src;
+    next.src = (scenes[(active + 1) % scenes.length] ?? baseScenes[0]).src;
   }, [active, playing]);
 
   useEffect(() => {
@@ -194,7 +199,7 @@ export function HeroGallery() {
     setPaused(true);
   }
 
-  const current = scenes[active] ?? scenes[0];
+  const current = scenes[active] ?? baseScenes[0];
   const previous = outgoing === null ? null : (scenes[outgoing] ?? null);
   const label = language === "en" ? current.en : current.ar;
   const isMotionPaused = !motionAllowed || paused;
@@ -279,7 +284,7 @@ export function HeroGallery() {
           ))}
         </div>
         <button type="button" className="hero-gallery__nav hero-gallery__nav--next" aria-label={language === "en" ? "Next hero photo" : "الصورة التالية للهيرو"} onClick={() => choose(active + 1)}><ArrowRight size={17} aria-hidden="true" /></button>
-        <span className="hero-gallery__counter latin" dir="ltr">{String(active + 1).padStart(2, "0")}/{HERO_SCENE_COUNT}</span>
+        <span className="hero-gallery__counter latin" dir="ltr">{String(active + 1).padStart(2, "0")}/{scenes.length}</span>
         <span className="hero-gallery__caption">{label}</span>
       </div>
     </>
