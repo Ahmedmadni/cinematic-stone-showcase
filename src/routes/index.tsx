@@ -24,6 +24,8 @@ import { MapExperience } from "@/components/cinematic/MapExperience";
 import { EvidenceStudio, InvestorJourney } from "@/components/cinematic/EvidenceStudio";
 import { inquirySchema, submitInquiry, type InquiryInput } from "@/lib/inquiries.functions";
 import { officialMedia } from "@/data/official-media";
+import { useSiteMedia } from "@/lib/site-media";
+import { SiteMediaReel } from "@/components/SiteMediaReel";
 import officialLogo from "@/assets/official/brand/alostool-logo.png";
 import excavators from "@/assets/excavators.jpg";
 import loaders from "@/assets/loaders-maintenance.jpg";
@@ -186,6 +188,7 @@ function Index() {
   const assistantTrigger = useRef<HTMLButtonElement>(null);
   const assistantClose = useRef<HTMLButtonElement>(null);
   const t = (value: string) => translateSite(value, language);
+  const productionUploads = useSiteMedia("production");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [readyInquiry, setReadyInquiry] = useState<InquiryInput | null>(null);
@@ -327,18 +330,21 @@ function Index() {
             <div className="chapter-top reveal"><h2 className="section-heading" id="production-title">{t("من الحجر الخام")}<br /><span>{t("إلى قيمة تُبنى.")}</span></h2><p>{t("خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.")}</p></div>
             <figure className="image-feature reveal">
               <div className="image-window"><span className="photo-placeholder">{t("تصوير فعلي · خطوط التكسير والسيور — مجمع كسارات الصمان")}</span><AutoVisual className="actual-site-visual" interval={6800} images={[
+                ...productionUploads.filter(i => i.kind === "image").map(i => ({ image: i.url, alt: (language === "ar" ? i.title_ar : i.title_en) || t("تصوير فعلي من الموقع"), origin: "actual-site" as const })),
                 { image: officialMedia.production.crusher.image, alt: t("تصوير فعلي لخط التكسير في كسارة الصمان"), origin: "actual-site", width: 1600, height: 900 },
                 { image: officialMedia.production.conveyor.image, alt: t("تصوير فعلي لسيور وخطوط الإنتاج في الصمان"), origin: "actual-site", width: 1600, height: 900 },
               ]} /></div>
               <figcaption><span className="latin" dir="ltr">FIG. 01 — ACTUAL PRODUCTION</span><span>{t("خطوط الكسارات والفرز — مجمع كسارات الصمان")} <small>{t("تصوير فعلي من الموقع")}</small></span></figcaption>
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>{t("خطان للإنتاج")}</h3></div><p>{t("كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.")}</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
+            <SiteMediaReel section="production" language={language} videosOnly />
+            <SiteMediaReel section="hero" language={language} videosOnly />
             <ProductionFlow />
           </div>
         </section>
 
         <section className="equipment-chapter section-pad" aria-labelledby="equipment-title">
-          <div className="section-inner"><FleetExperience /></div>
+          <div className="section-inner"><SiteMediaReel section="fleet" language={language} /><FleetExperience /></div>
         </section>
 
         <section className="site-gallery-chapter section-pad" aria-labelledby="site-gallery-title">
@@ -351,6 +357,8 @@ function Index() {
                 <figcaption><div><span className="gallery-number latin" dir="ltr">FIG. {item.number}</span><h3>{t(item.title)}</h3><p>{t(item.description)}</p></div><small>{item.slides.every(slide => slide.origin === "actual-site") ? t("تصوير فعلي من موقع الصمان") : t("ACTUAL SITE + CURATED EDITORIAL")} · {t(item.replacement)}</small></figcaption>
               </figure>)}
             </div>
+            <SiteMediaReel section="facilities" language={language} />
+            <SiteMediaReel section="quarry" language={language} />
             <SitePhotoArchive />
           </div>
         </section>
