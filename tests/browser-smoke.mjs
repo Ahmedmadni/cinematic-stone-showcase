@@ -24,6 +24,7 @@ async function openWithRetry(page, url) {
       const response = await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12000 });
       if (response && response.status() < 500) {
         await page.locator('[data-cinema-ready="true"]').waitFor({ timeout: 30000 });
+        await page.locator(".site-loader").waitFor({ state: "hidden", timeout: 10000 });
         return response;
       }
       lastError = new Error("HTTP " + (response?.status() ?? "no response"));
@@ -647,6 +648,8 @@ try {
     const heroPage = await isolatedHeroContext.newPage();
     try {
     await openWithRetry(heroPage, baseURL);
+    await heroPage.getByRole("button", { name: "Show photographs", exact: true }).click();
+    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
     const carousel = heroPage.locator(".hero-gallery");
     await heroPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await heroPage.mouse.move(0, 0);

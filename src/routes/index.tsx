@@ -11,7 +11,8 @@ import { GallerySlides } from "@/components/GallerySlides";
 import { GalleryLightbox } from "@/components/GalleryLightbox";
 import { SitePhotoArchive } from "@/components/SitePhotoArchive";
 import { AutoVisual } from "@/components/AutoVisual";
-import { HeroGallery } from "@/components/cinematic/HeroGallery";
+import { HeroSiteFilm } from "@/components/cinematic/HeroSiteFilm";
+import { FullSiteTour } from "@/components/FullSiteTour";
 import { SplitHeadline, TypewriterHeadline, WordSlide } from "@/components/HeadlineMotion";
 import { ProjectAssistant } from "@/components/ProjectAssistant";
 import { CinematicDirector } from "@/components/cinematic/CinematicDirector";
@@ -183,6 +184,7 @@ function Eyebrow({ number, children }: { number: string; children: React.ReactNo
 
 function Index() {
   const [language, setLanguage] = useState<SiteLanguage>("en");
+  const [entered, setEntered] = useState(false);
   const [localeReady, setLocaleReady] = useState(false);
   const [assistantOpen, setAssistantOpen] = useState(false);
   const assistantTrigger = useRef<HTMLButtonElement>(null);
@@ -273,7 +275,7 @@ function Index() {
   return (
     <SiteLanguageContext.Provider value={{ language, t }}>
     <div className="presentation" dir={language === "ar" ? "rtl" : "ltr"} data-language={language}>
-      <SiteLoader language={language} />
+      <SiteLoader language={language} onEntered={() => setEntered(true)} />
       <a className="skip-to-content" href="#main-content">{t("تجاوز إلى المحتوى الرئيسي")}</a>
       <CinematicDirector />
       <div className="scene-backdrop" aria-hidden="true">
@@ -293,7 +295,7 @@ function Index() {
 
       <main id="main-content" tabIndex={-1}>
         <section className="hero hero-cinematic" id="البداية" aria-labelledby="hero-title">
-          <HeroGallery />
+          <HeroSiteFilm entered={entered} />
           <div className="hero-side-note latin" dir="ltr">AL SOMMAN  /  INVESTMENT OPPORTUNITY</div>
           <span className="hero-cinematic__chapter latin" dir="ltr" aria-hidden="true">CHAPTER 01 / THE AWAKENING</span>
           <div className="hero-content">
@@ -338,7 +340,7 @@ function Index() {
             </figure>
             <div className="production-detail reveal"><div><span className="detail-index latin">01 — 02</span><h3>{t("خطان للإنتاج")}</h3></div><p>{t("كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.")}</p><ArrowDownLeft size={29} strokeWidth={1} aria-hidden="true" /></div>
             <SiteMediaReel section="production" language={language} videosOnly />
-            <SiteMediaReel section="hero" language={language} videosOnly />
+
             <ProductionFlow />
           </div>
         </section>
@@ -360,6 +362,7 @@ function Index() {
             <SiteMediaReel section="facilities" language={language} />
             <SiteMediaReel section="quarry" language={language} />
             <SitePhotoArchive />
+            <FullSiteTour />
           </div>
         </section>
 

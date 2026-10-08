@@ -38,6 +38,7 @@ async function visit(page) {
         state: "attached",
         timeout: 24000,
       });
+      await page.locator(".site-loader").waitFor({ state: "hidden", timeout: 10000 });
       return;
     } catch (error) {
       previousError = error;

@@ -74,27 +74,8 @@ autoplay when not visible.
 
 ## Video integration
 
-The video has not yet been received in this photo delivery. Its provisional
-~2:56 WebM specification must be verified from the actual file. It should remain the full-tour source and be cut into short
-silent section loops for hero, production, equipment, facilities and quarry
-chapters. The full tour remains available as an explicit user-played experience.
-
-## Color treatment
-
-Use restrained documentary color grading only: neutral limestone whites,
-controlled highlights, slightly deeper sky/contrast, natural equipment colors,
-and no generative content replacement. Site geometry, equipment and documentary
-details must remain truthful.
-
-## Implemented photo release
-
-- Every one of the 77 source photographs is accessible through a filtered archive.
-- Full web photographs total 11.01 MiB, down from 86.87 MiB of sources; thumbnails total 1.10 MiB.
-- Twelve previously corrupt curated assets are replaced. Four actual photographs lead the ten-frame hero; retained editorial frames remain labeled supplementary.
-- Production, quarry transitions and facilities use actual photography. Fleet combines supplied equipment photographs with the four retained editorial equipment assets.
-- The supplied transparent logo is local. Three certificate scans and three permit scans open on demand; original scan files are copied without modification.
-- ISO certificate identifiers are transcribed from the scans. Displaying documents does not establish present validity, surveillance completion or permit renewal. Historical permit status remains unchanged.
-- `scripts/prepare-official-media.py` reproduces resize/encoding from the source directory. CSS applies restrained reversible display grading; document scans are not graded.
-- Asset tests verify all 77 derivative hashes and delivery budgets. Browser checks cover opt-in batches, category filters, decode, document caveats and keyboard focus restoration.
-
-Video integration and video-specific loading behavior follow once the video file is supplied.
+Completed by the verified video integration on 2026-10-08. The supplied
+176.984-second 1080p VP9 recording has no audio. Five continuous scene cuts,
+bilingual controls, an explicit full tour and a bounded critical-media loader
+are documented in `OFFICIAL_VIDEO_INTEGRATION_2026-10-08.md`. Exact source and
+derivative hashes are in `official-video-source-manifest.json`.

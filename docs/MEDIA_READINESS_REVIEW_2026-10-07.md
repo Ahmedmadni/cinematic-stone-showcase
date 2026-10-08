@@ -53,3 +53,13 @@ Integration must pass the browser and CI checks before merging PR #42.
 Video specifications and photo-category counts in the handoff are provisional
 until the newly supplied files are inspected. No production database changes
 are part of this foundation repair.
+
+## Follow-through — 2026-10-08
+
+Photo integration and its complete main release matrix succeeded after PR #42.
+The source video has also been recovered and inspected. The video release adds
+five verified continuous cuts, an opt-in uncut tour and a bounded entry dialog;
+see `OFFICIAL_VIDEO_INTEGRATION_2026-10-08.md` and its source manifest. Newer
+Lovable admin and private-bucket media support is preserved. The steps above
+record the original review sequence, rather than pending requests to resend
+already received media.
