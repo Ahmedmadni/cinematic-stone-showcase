@@ -1,0 +1,245 @@
+{
+  "source_name": "فيديو كسارة الصمان Al-Summan Crusher Video(1).webm",
+  "source_sha256": "78f0ff16d87045d35f943273895c6994ebf3e296b4d54d8cefb6f59d4a44cb74",
+  "source": {
+    "programs": [],
+    "streams": [
+      {
+        "codec_name": "vp9",
+        "codec_type": "video",
+        "width": 1920,
+        "height": 1080,
+        "avg_frame_rate": "30/1"
+      }
+    ],
+    "format": {
+      "duration": "176.984000",
+      "size": "55344203"
+    }
+  },
+  "treatment": "Continuous source cuts, scaling, frame-rate conversion and compression only. No fabricated or replaced scene content; reversible CSS display grading.",
+  "videos": [
+    {
+      "id": "hero",
+      "start_seconds": 40,
+      "duration_seconds": 9.0,
+      "path": "src/assets/official/video/hero.mp4",
+      "bytes": 980424,
+      "sha256": "f05c641b858c06eddb9b3d2cd2a405a3869dca0fb107bfdc436b317d8391abd9",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/hero-poster.webp",
+        "bytes": 119576,
+        "sha256": "09f2a6e639fdfc7fcf8094cf2c73d091a2b792f8f740002e7df9a7707a49abaa",
+        "source_seconds": 40
+      },
+      "webm": {
+        "path": "src/assets/official/video/hero.webm",
+        "bytes": 957931,
+        "sha256": "3f35a9a394b9faa6e71261230f62e423a208c5b81881f0d520a7931ea6142da2",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "production",
+      "start_seconds": 64,
+      "duration_seconds": 9.0,
+      "path": "src/assets/official/video/production.mp4",
+      "bytes": 980246,
+      "sha256": "65ffbb74153d2919dc3f8af9a3a9c8cc8496c54c75b5fa811a730a6a710cfab1",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/production-poster.webp",
+        "bytes": 137294,
+        "sha256": "ecf4bbede9f1b2424fd9abb1be0bfcc0f79197fcb93f489cb92aeedb0ab7e412",
+        "source_seconds": 64
+      },
+      "webm": {
+        "path": "src/assets/official/video/production.webm",
+        "bytes": 1040116,
+        "sha256": "7767e5a93e0a736831ec0db5ced3e4698e973c7c202780ba4ce26557c651d2c9",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "fleet",
+      "start_seconds": 136,
+      "duration_seconds": 8.0,
+      "path": "src/assets/official/video/fleet.mp4",
+      "bytes": 867202,
+      "sha256": "43d277517e30aa6548ca6cc7d79249766b479c11fe96b9214aac2eb1ccb5915f",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/fleet-poster.webp",
+        "bytes": 66510,
+        "sha256": "1f46ef390c452af90d67161b8fea4f0bd1fd2144ff4618a17aa5fc767bce2cd3",
+        "source_seconds": 136
+      },
+      "webm": {
+        "path": "src/assets/official/video/fleet.webm",
+        "bytes": 702704,
+        "sha256": "d3e8a2144e6439da8def1285bbddd79fdfecf16a818e2e8ac6829fb722e760af",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "facilities",
+      "start_seconds": 108,
+      "duration_seconds": 9.0,
+      "path": "src/assets/official/video/facilities.mp4",
+      "bytes": 975298,
+      "sha256": "1d889e7fcb2f7dd36733cb4929b3f08771b2e06ce63e8dbf4c0294086622768d",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/facilities-poster.webp",
+        "bytes": 91954,
+        "sha256": "fe3b27445c5fab1b8d8d30b6799ce66fb679693d43773cf24193bfd5388da7a5",
+        "source_seconds": 108
+      },
+      "webm": {
+        "path": "src/assets/official/video/facilities.webm",
+        "bytes": 924476,
+        "sha256": "a77aff11bd57faa0b2d6990f5e6d3638b4b0390e1440b3816ea8797baf56a92d",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "quarry",
+      "start_seconds": 167,
+      "duration_seconds": 9.0,
+      "path": "src/assets/official/video/quarry.mp4",
+      "bytes": 754258,
+      "sha256": "b368058a236ad39e472089c936e1307559576fe4cfcbdd7237b65e253767cd88",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 1280,
+          "height": 720,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/quarry-poster.webp",
+        "bytes": 101726,
+        "sha256": "098a88848de76faa1b68e396f4fc8635a39d04f79d847bb1ceb587a537d7e1e5",
+        "source_seconds": 167
+      },
+      "webm": {
+        "path": "src/assets/official/video/quarry.webm",
+        "bytes": 799581,
+        "sha256": "b378a167325682e636bae5eb65429ed8b8cd742335587892cc117e0d79bd1593",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 1280,
+            "height": 720,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    },
+    {
+      "id": "full-tour",
+      "start_seconds": 0,
+      "duration_seconds": 177.0,
+      "path": "src/assets/official/video/full-tour.mp4",
+      "bytes": 10906821,
+      "sha256": "61b22ba08471ec3c6c1d052f7b97ce6b8518b617829ae42fccfcc91057b32a18",
+      "streams": [
+        {
+          "codec_name": "h264",
+          "codec_type": "video",
+          "width": 960,
+          "height": 540,
+          "avg_frame_rate": "24/1"
+        }
+      ],
+      "poster": {
+        "path": "src/assets/official/video/full-tour-poster.webp",
+        "bytes": 106758,
+        "sha256": "9fe84ed81008fb791854a9ca5774b29155ed1edf0a651a06d7732d7b8db0138f",
+        "source_seconds": 16
+      },
+      "webm": {
+        "path": "src/assets/official/video/full-tour.webm",
+        "bytes": 11879975,
+        "sha256": "f3feee33edb931de99e8e23d5d601eaf50bd2f27d84e647e85f1b934530d5141",
+        "streams": [
+          {
+            "codec_name": "vp9",
+            "codec_type": "video",
+            "width": 960,
+            "height": 540,
+            "avg_frame_rate": "24/1"
+          }
+        ]
+      }
+    }
+  ]
+}

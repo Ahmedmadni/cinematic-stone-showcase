@@ -34,7 +34,7 @@ const baseScenes = [
 const HERO_INTERVAL_MS = 5800;
 const REVEAL_MS = 1300;
 
-export function HeroGallery() {
+export function HeroGallery({ suspended = false, onRequestPhotographs }: { suspended?: boolean; onRequestPhotographs?: () => void }) {
   const { language } = useSiteLanguage();
   const heroRef = useRef<HTMLDivElement>(null);
   const activeImageRef = useRef<HTMLImageElement>(null);
@@ -82,7 +82,7 @@ export function HeroGallery() {
 
   const currentSrc = (scenes[active] ?? baseScenes[0]).src;
   const imageReady = loadedScene === currentSrc && failedScene !== currentSrc;
-  const playing = imageReady && inView && pageVisible && motionAllowed && !paused && !controlsFocused;
+  const playing = !suspended && imageReady && inView && pageVisible && motionAllowed && !paused && !controlsFocused;
 
   const recoverImage = useCallback((index: number) => {
     setFailedScene((scenes[index] ?? baseScenes[0]).src);
@@ -93,7 +93,7 @@ export function HeroGallery() {
       setActive(lastReadyIndex.current);
       setOutgoing(null);
     }
-  }, []);
+  }, [scenes]);
 
   const settleImage = useCallback((image: HTMLImageElement, index: number) => {
     void image.decode().then(() => {
@@ -105,7 +105,7 @@ export function HeroGallery() {
     }).catch(() => {
       if (activeImageRef.current === image) recoverImage(index);
     });
-  }, [recoverImage]);
+  }, [recoverImage, scenes]);
 
   useEffect(() => {
     if (!playing) return;
@@ -117,7 +117,7 @@ export function HeroGallery() {
       setSequence(current => current + 1);
     }, HERO_INTERVAL_MS);
     return () => window.clearTimeout(timer);
-  }, [playing, active]);
+  }, [playing, active, scenes.length]);
 
   useEffect(() => {
     // React 19 may stream/high-priority preload the first image before the
@@ -145,7 +145,7 @@ export function HeroGallery() {
     if (!playing) return;
     const next = new Image();
     next.src = (scenes[(active + 1) % scenes.length] ?? baseScenes[0]).src;
-  }, [active, playing]);
+  }, [active, playing, scenes]);
 
   useEffect(() => {
     const section = heroRef.current?.closest<HTMLElement>(".hero-cinematic");
@@ -170,6 +170,7 @@ export function HeroGallery() {
         language === "ar" ? "rtl" : "ltr",
       );
       if (!step) return;
+      onRequestPhotographs?.();
       setActive(current => {
         setOutgoing(lastReadyIndex.current);
         return (current + step + scenes.length) % scenes.length;
@@ -187,9 +188,10 @@ export function HeroGallery() {
       section.removeEventListener("touchend", finish);
       section.removeEventListener("touchcancel", cancel);
     };
-  }, [language]);
+  }, [language, onRequestPhotographs, scenes.length]);
 
   function choose(index: number) {
+    onRequestPhotographs?.();
     const nextIndex = (index + scenes.length) % scenes.length;
     if (nextIndex === active) return;
     setOutgoing(lastReadyIndex.current);
@@ -215,10 +217,10 @@ export function HeroGallery() {
         data-hero-image-error={failedScene === currentSrc}
         aria-hidden="true"
       >
-        {previous && (
+        {previous && previous.src !== current.src && (
           <img
             className={"hero-gallery__photo hero-gallery__photo--outgoing" + (previous.origin === "actual-site" ? " actual-site-photo" : "")}
-            key={"old-" + outgoing + "-" + sequence}
+            key={previous.src}
             src={previous.src}
             alt=""
             width={1536}
@@ -227,7 +229,7 @@ export function HeroGallery() {
           />
         )}
         <img
-          key={"current-" + active + "-" + sequence}
+          key={current.src}
           ref={activeImageRef}
           className={"hero-gallery__photo hero-gallery__photo--active" + (current.origin === "actual-site" ? " actual-site-photo" : "") + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
           data-reveal={["lower-right", "centre", "upper-left", "soft-wipe"][active % 4]}
@@ -261,6 +263,7 @@ export function HeroGallery() {
           onClick={() => {
             // Explicit Play should work even while focus remains on this button.
             // Moving focus to a different gallery control pauses it again.
+            onRequestPhotographs?.();
             setPaused(current => !current);
             setControlsFocused(false);
           }}
