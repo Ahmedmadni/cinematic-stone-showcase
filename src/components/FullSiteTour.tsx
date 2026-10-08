@@ -30,7 +30,7 @@ function TourDialog({ onClose, opener }: { onClose: () => void; opener: RefObjec
   }
   return <dialog ref={dialog} className="site-tour-dialog" aria-label={en ? video.en : video.ar} onKeyDown={trap} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <header><strong>{en ? video.en : video.ar}</strong><button ref={close} type="button" aria-label={en ? "Close site tour" : "إغلاق جولة الموقع"} onClick={onClose}><X size={24} aria-hidden="true" /></button></header>
-    <video poster={video.poster} controls autoPlay playsInline preload="metadata" aria-label={en ? "Complete supplied site tour, without audio" : "الجولة الكاملة المرفقة للموقع، دون صوت"} onError={() => setFailed(true)}><source src={video.src} type='video/mp4; codecs="avc1.64001f"' onError={sourceError} /><source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} /></video>
+    <video poster={video.poster} controls autoPlay playsInline preload="metadata" aria-label={en ? "Complete supplied site tour, without audio" : "الجولة الكاملة المرفقة للموقع، دون صوت"} onError={event => { if (event.target === event.currentTarget) setFailed(true); }}><source src={video.src} type='video/mp4; codecs="avc1.64001f"' onError={sourceError} /><source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} /></video>
     <p>{failed ? (en ? "The film could not play. You can still browse the site photographs." : "تعذّر تشغيل الفيديو. يمكنك متابعة صور الموقع.") : (en ? "2:57 · Actual site footage · Original recording has no audio." : "٢:٥٧ · تصوير فعلي للموقع · التسجيل الأصلي دون صوت.")}</p>
   </dialog>;
 }
