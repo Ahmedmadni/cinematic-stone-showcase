@@ -29,6 +29,13 @@ format and downloads only that source. This addresses the decoder gap found in
 the Chromium QA runtime. Each cut is bounded to 1.2 MiB per format and the
 opt-in tour to 11.5 MiB per format. Posters remain under 200 KiB.
 
+H.264 MP4 is offered first, consistent with Apple's
+[Safari delivery guidance](https://developer.apple.com/documentation/webkit/delivering-video-content-for-safari);
+engines without H.264 select the VP9 fallback. Metadata preparation and the
+native autoplay flag are enabled only after the same visibility/entry/motion
+guards that mount a film. Closing the tour restores focus to its explicit
+trigger even on engines that do not focus a button on mouse click.
+
 ## Playback and entry
 
 - The entry dialog waits for the first hero photograph's decode and document

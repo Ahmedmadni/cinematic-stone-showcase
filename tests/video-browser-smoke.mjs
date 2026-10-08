@@ -43,7 +43,7 @@ async function decoded(locator) {
   await locator.evaluate(node => new Promise((resolve, reject) => {
     if (node.error) return reject(new Error("Existing decoder error " + node.error.code));
     if (node.readyState >= 2 && node.videoWidth > 0) return resolve(true);
-    const timer = setTimeout(() => reject(new Error("Video did not decode; error=" + node.error?.code)), 15000);
+    const timer = setTimeout(() => reject(new Error("Video did not decode: " + JSON.stringify({ error: node.error?.code, src: node.currentSrc, paused: node.paused, ready: node.readyState, network: node.networkState, stage: node.closest("figure")?.dataset, bounds: node.getBoundingClientRect().toJSON(), viewport: { height: innerHeight, width: innerWidth } }))), 15000);
     node.addEventListener("loadeddata", () => { clearTimeout(timer); resolve(true); }, { once: true });
     node.addEventListener("error", () => { clearTimeout(timer); reject(new Error("Video decoder error " + node.error?.code)); }, { once: true });
   }));
@@ -72,6 +72,7 @@ try {
       const stage = page.locator('[data-video-section="' + id + '"]');
       assert.equal(await stage.locator("video").count(), 0, id + " must remain unloaded before intersection");
       await stage.scrollIntoViewIfNeeded();
+      console.log("[VIDEO " + engine + "] decoding section " + id);
       await decoded(stage.locator("video"));
       await page.waitForFunction(section => document.querySelector('[data-video-section="' + section + '"]')?.getAttribute("data-video-playing") === "true", id);
       assert.equal(await hero.locator("video").evaluate(node => node.paused), true);
