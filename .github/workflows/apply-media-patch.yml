@@ -1,0 +1,30 @@
+name: Apply media studio patch
+
+on:
+  push:
+    branches:
+      - feature/media-studio
+    paths:
+      - media-studio-remaining.patch
+      - .github/workflows/apply-media-patch.yml
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply verified media studio changes
+        shell: bash
+        run: |
+          git apply --index media-studio-remaining.patch
+          rm -f media-studio-remaining.patch .github/workflows/apply-media-patch.yml
+          git add -A
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "feat: complete managed media studio"
+          git push
