@@ -19,6 +19,7 @@
 @import "./styles/headline-motion.css";
 @import "./styles/release-accessibility.css";
 @import "./styles/official-media.css";
+@import "./styles/media-studio.css";
 
 @custom-variant dark (&:is(.dark *));
 

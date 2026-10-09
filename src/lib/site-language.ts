@@ -8,6 +8,12 @@ export type SiteLanguage = "ar" | "en";
  * Source originals and all brand imagery stay intact.
  */
 const english: Record<string, string> = {
+  "صور وفيديوهات فعلية من موقع الصمان.": "Actual photographs and film from Al Somman.",
+  "تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول.": "Actual photographs of the offices, workshop, weighbridge, housing, equipment and access roads.",
+  "يعرض هذا الفصل الصور الفعلية للمحجر والتكسير ومعدات التحميل.": "This chapter uses actual photographs of the quarry, crushing plant and loading equipment.",
+  "تصوير فعلي للمعدات بالموقع، دون إضافة معدات افتراضية.": "Actual site equipment photography, with no invented machinery.",
+  "تصوير فعلي للموازين وخزانات المياه والوقود.": "Actual photographs of the weighbridge, water tanks and fuel tanks.",
+  "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.": "The permit names Bir Zeit, an Al Ostool subsidiary according to the owner. The historic presentation lists it as expired; request current renewal and ownership documents before contracting.",
   "محجر الصمان": "Al Somman Quarry",
   "شركة الأسطول الآلي": "Al Ostool Alaali Company",
   "شركة الأسطول الآلي للمقاولات": "Al Ostool Alaali Contracting",

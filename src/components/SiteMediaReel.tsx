@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSiteMedia, type SiteMediaItem, type SiteMediaSection } from "@/lib/site-media";
 import { officialVideo } from "@/data/official-video";
@@ -37,6 +38,6 @@ export function SiteMediaReel({ section, language, videosOnly = false, interval 
   if (!current) return null;
   const title = language === "ar" ? current.title_ar || "تصوير فعلي من الموقع" : current.title_en || "Actual site footage";
   return <div className="site-media-reel reveal is-visible" ref={frame}>
-    {current.kind === "video" ? <SiteVideoLoop key={current.id} video={{ id: section, src: current.url, ...(current.webm ? { webm: current.webm } : {}), poster: current.poster ?? officialVideo[section].poster, ar: current.title_ar || officialVideo[section].ar, en: current.title_en || officialVideo[section].en }} language={language} onUnavailable={() => { if (!current.id.startsWith("builtin-")) setActive(items.length - 1); }} onEnded={items.length > 1 ? () => setActive(value => (value + 1) % items.length) : undefined} /> : <figure className="site-media-reel__stage"><img src={current.url} alt={title} className="site-media-reel__frame active actual-site-photo" loading="lazy" decoding="async" onError={() => setActive(items.length - 1)} /><figcaption className="photo-placeholder">{title}</figcaption></figure>}
+    {current.kind === "video" ? <SiteVideoLoop key={current.id} video={{ id: section, src: current.url, ...(current.webm ? { webm: current.webm } : {}), poster: current.poster ?? officialVideo[section].poster, ar: current.title_ar || officialVideo[section].ar, en: current.title_en || officialVideo[section].en }} language={language} onUnavailable={() => { if (!current.id.startsWith("builtin-")) setActive(items.length - 1); }} onEnded={items.length > 1 ? () => setActive(value => (value + 1) % items.length) : undefined} /> : <figure className="site-media-reel__stage"><ManagedImage mediaContext="SiteMediaReel" src={current.url} alt={title} className="site-media-reel__frame active actual-site-photo" loading="lazy" decoding="async" onError={() => setActive(items.length - 1)} /><figcaption className="photo-placeholder">{title}</figcaption></figure>}
   </div>;
 }

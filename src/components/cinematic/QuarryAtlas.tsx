@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
 import { ArrowUpLeft, FileCheck2, MapPin, Mountain, Pause, Play } from "lucide-react";
@@ -5,8 +6,8 @@ import { quarrySites, totalQuarryArea } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
 
 const images = [
-  officialMedia.hero[2].image,
   officialMedia.hero[0].image,
+  officialMedia.hero[2].image,
   officialMedia.hero[1].image,
 ] as const;
 
@@ -83,7 +84,7 @@ export function QuarryAtlas() {
               aria-label={t("عرض ملف") + " " + t(entry.name)}
               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
-              <img className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
               <span className="quarry-cards__shade" aria-hidden="true" />
               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
               <span className="quarry-cards__site-label">
@@ -109,6 +110,7 @@ export function QuarryAtlas() {
             </div>
           </div>
           <dl>
+            <div className="quarry-operation"><dt>{language === 'en' ? 'Operating use · owner supplied' : 'الاستخدام التشغيلي · وفق المالك'}</dt><dd>{language === 'en' ? current.operationEn : current.operationAr}</dd></div>
             <div><dt>{t("رقم الرخصة بالمستند")}</dt><dd dir="ltr">{current.license}</dd></div>
             <div><dt>{t("المرخص له")}</dt><dd>{t(current.permitHolder)}</dd></div>
             <div><dt>{t("الحالة الواردة بالمستند")}</dt><dd>{t(current.documentStatus)}</dd></div>

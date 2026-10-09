@@ -1,0 +1,464 @@
+{
+  "photo-001": {
+    "file": "DJI_0085.webp",
+    "sha256": "75004bed3299d33d93e8b55e5fa8d4ba6d152af7e442b707e91811170bc2fbf8",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-002": {
+    "file": "DJI_0086.webp",
+    "sha256": "8198d123be098b180526641a3455853b2f39f98e9b50a6ff384dd1184e7b2027",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-003": {
+    "file": "DJI_0087.webp",
+    "sha256": "d354fa249dd41efadf8b51c5aa7e8e4eb77f7b3d014cdc74314a8b68a63f2549",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-004": {
+    "file": "DJI_0098.webp",
+    "sha256": "083b3a3ac8e5fe7d7569a5c4e4d22aeae73d14a3c29bdacaeae53cde6cf0474a",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-005": {
+    "file": "DJI_0099.webp",
+    "sha256": "b75e8be1cf3c11611ccabf348100814de18cf4db6db64beda52d03caedac3c6b",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-006": {
+    "file": "DJI_0100.webp",
+    "sha256": "b7250ca809d78ac08e6c76c86bc7328c8944c7fdd9d3d7123baf2564545c870a",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-007": {
+    "file": "DJI_0101.webp",
+    "sha256": "a4abd8b5f10ded5316d79526ed4cdc7467487b9bcd846699a89d6cda7e7f1374",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-008": {
+    "file": "DJI_0105.webp",
+    "sha256": "59064b569ac759851ee70720ea7fc92aed290f802ec3d2a8b05785526a4c8d07",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-009": {
+    "file": "DJI_0107.webp",
+    "sha256": "7c01d9d336316cd1859abd13682a8b686c553cf167f91407de346f22ff07169d",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-010": {
+    "file": "DJI_0110.webp",
+    "sha256": "b5a462ae1037c47c07b981bd25d78e24670395d0a31cdf29deda769102d0d6ec",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-011": {
+    "file": "DJI_0111.webp",
+    "sha256": "fe87d47606e1cfd487048831420731a4f37742124d111a9031e2b39e6171b8cf",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-012": {
+    "file": "DJI_0113.webp",
+    "sha256": "7d110e5f28717796c2b9141cab028fce43f1a9dbf017c003d20d3e865257617a",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-013": {
+    "file": "DJI_0115.webp",
+    "sha256": "75db698c14694a01051ce2b02c960169395c2b0f3bb8f7045281f6c1a95ac210",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-014": {
+    "file": "DJI_0116.webp",
+    "sha256": "7d40858a17e1b34fbef8a765ca43e99f9c57d8235c2b052f57b0361c7ae97da2",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-015": {
+    "file": "DJI_0117.webp",
+    "sha256": "fef5d4840b488cfa8eeb39d22df5a46980a7ac2345fda87e1d71726649a2cb57",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-016": {
+    "file": "DJI_0119.webp",
+    "sha256": "cb4c8253ba89a7eb430e029c7c0fefef3cb17691704979976c42d2f12d4c6a0a",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-017": {
+    "file": "DJI_0121.webp",
+    "sha256": "d92f01c797364a7a92a548c29f8c1eb067ec6e3c0d9d5f7be4b38d0147c0e02f",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-018": {
+    "file": "DJI_0126.webp",
+    "sha256": "e4c47142815f53a45dd16d4c34787e721837473c0b1d48211af57f13b7674ce0",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-019": {
+    "file": "DJI_0127.webp",
+    "sha256": "9f2b6439c58142b0913b86cfe9609a77311901acb7a5c2b2ca66624895f55ada",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-020": {
+    "file": "DJI_0128.webp",
+    "sha256": "c5f3543666e6d2413c323b345391c4a68e2665ed5439810b08d651a4a1311b7d",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-021": {
+    "file": "DJI_0129.webp",
+    "sha256": "97bd4ff5bca8027118fe249e7868290f44ce522ca0a94fd64da3cb715df33a59",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-022": {
+    "file": "DJI_0130.webp",
+    "sha256": "1af9741d539263def5425405a0df5757e699045e510664ffffe63a8bcbec2b8e",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-023": {
+    "file": "DJI_0131.webp",
+    "sha256": "5806ec5d42dbdd030d63c4ce42f5703258beee88ce3c0a75c1bef3808c3f107d",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-024": {
+    "file": "DJI_0132.webp",
+    "sha256": "72a27eae99ef242c2489812271538ee6ae96c21410952707ac1763d3f5ab38f0",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-025": {
+    "file": "DJI_0146.webp",
+    "sha256": "78fd6bcf6f500d87031aaa3259c09d1799306942b4ad180594f4190638014eca",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-026": {
+    "file": "DJI_0147.webp",
+    "sha256": "03d4a265c978c43e980a2a241b5bfee00dcb3aed8f4368e6adb7294d06bc9b00",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-027": {
+    "file": "DJI_0174.webp",
+    "sha256": "775b3318b00437d7758b453d3f6bb326a40a7ae18ffc8234ea0e2a8e821efd37",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-028": {
+    "file": "DJI_0176.webp",
+    "sha256": "2da514a4b2ed2301ab1795f22ebb4cc40286f3fe52fe89aa61462cd60d5771bd",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-029": {
+    "file": "DJI_0178.webp",
+    "sha256": "5f2ca968e3b7f308caf2289c24f34eb86497e43ea240ba10a642e35efc21e73d",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-030": {
+    "file": "DJI_0179.webp",
+    "sha256": "2b142b85007ef3f58e31b175e3cd697ed6fa5425951bab5812758f4829d88044",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-031": {
+    "file": "DJI_0183.webp",
+    "sha256": "0cd76e0a927a90ba22d8727022d1d2557499b1f62034ecbb6c46c0b57c35757d",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-032": {
+    "file": "DJI_0190.webp",
+    "sha256": "f147009dc5545ef43864d5a64f6eeb02ecc86b49638b7054268181441d69ca2c",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-033": {
+    "file": "DJI_0191.webp",
+    "sha256": "abfdd20b029f68e02ba83e035d39ef3ad90f81802880f4c4171b8b9175ede90b",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-034": {
+    "file": "DJI_0192.webp",
+    "sha256": "dca5bc15e402a5a5e4e9f653107770009fe620caadb131ae601fe0514e66c6e9",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-035": {
+    "file": "DJI_0193.webp",
+    "sha256": "417400db6be48ffea0c34206948ccbbe343c9793b5ac8c1309d174d93a20fc46",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-036": {
+    "file": "DJI_0194.webp",
+    "sha256": "e6c6ac8bd16a6800b32ae9d2d5a999db8d4ca086261fda2e157397335993db9b",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-037": {
+    "file": "DJI_0195.webp",
+    "sha256": "089a91250865e5d1c31463929ea6b33d83639967dd5e53d8b4bae1a178e9d61f",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-038": {
+    "file": "DJI_0196.webp",
+    "sha256": "80e27ca9cca35d0c7140dc7c14765d976fda1ace3bc25130c176eacd7e6ccfb5",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-039": {
+    "file": "DJI_0197.webp",
+    "sha256": "d170d51f927c2288a0e35c40f125be3787f09d9c8679ef62e1af64942adde1a8",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-040": {
+    "file": "DJI_0198.webp",
+    "sha256": "44880f0c56156bd878ef4c4a444b179697d423fc7b941b3c1dfac41fa55bb2fb",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-041": {
+    "file": "DJI_0204.webp",
+    "sha256": "462422c32929938ef351185d0401512ff3002284af69d8370daf9b96afacb326",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-042": {
+    "file": "DJI_0166.webp",
+    "sha256": "0a0c49d0cd9def969ea2663b9efb9d554225718e333d4d9e4aa128f1218f072c",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-043": {
+    "file": "DJI_0167.webp",
+    "sha256": "d29dfd1f1106d2ee7912915c2996bf186fae47da09a085bf3cb27d348dbc72eb",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-044": {
+    "file": "DJI_0168.webp",
+    "sha256": "a3b5a479168be3c57579793246690ce74f2e5c67f9637c31764e8f1c08bccc80",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-045": {
+    "file": "DJI_0169.webp",
+    "sha256": "c63462d247f8eafabe95b7627679a873ab4e705a369719127a2254c5cc81a160",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-046": {
+    "file": "DJI_0172.webp",
+    "sha256": "adae8dd0f53262ae8b4ed56eb02b620e8a5a84f15998b7b46111dc697a93f3d8",
+    "width": 8000,
+    "height": 5760
+  },
+  "photo-047": {
+    "file": "DJI_0173.webp",
+    "sha256": "c9b3680b1a0ae346771e2dc7dfd94e0640921eb026b4e0ba1e2ae41308c84405",
+    "width": 8000,
+    "height": 5760
+  },
+  "photo-048": {
+    "file": "DJI_0063.webp",
+    "sha256": "eadf12f4f8077e0145ae0d4d86f2fe97932ade830d339137588b9732b7b6536e",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-049": {
+    "file": "DJI_0064.webp",
+    "sha256": "9a66199844dc1520b2a1e5d9eadd40cba79f179b9164f554d71cf0892fa07b31",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-050": {
+    "file": "DJI_0065.webp",
+    "sha256": "7999be7fc30568daee37bbcf5b469a2b32bf4c98f1b7d47c9382652a3b21e86b",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-051": {
+    "file": "DJI_0066.webp",
+    "sha256": "bfde31cbed65ddaa6f368e31977b7645ecca6e8dde8120e57123b1fc6a455949",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-052": {
+    "file": "DJI_0067.webp",
+    "sha256": "1ada4fe1f51ec6b563fc32c52b13b36a97eeca89c3c53e543a948923d90d2d73",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-053": {
+    "file": "DJI_0070.webp",
+    "sha256": "b3506b64bb9d6f1882e2fa35fba8ca32a6c9b8bffac67e8fa43d70371eb89822",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-054": {
+    "file": "DJI_0075.webp",
+    "sha256": "f6dd5c716a4cb4a6e46e036a7406fbdaa4ba3bd57f75b6dc2f5e04e06472267f",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-055": {
+    "file": "DJI_0076.webp",
+    "sha256": "d8536641e4410b076c60b8176deb0c3880adcbdd0471beb7a666ab4b38a5ebc3",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-056": {
+    "file": "DJI_0077.webp",
+    "sha256": "bd907d48ac55cef6a7a1548d47070a326211fd2cacc100d8d067e993571dce29",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-057": {
+    "file": "DJI_0078.webp",
+    "sha256": "20b7e2d8ef63376f9c94b79f5107287f51630180c4d75e46f0b3704bf74dad86",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-058": {
+    "file": "DJI_0079.webp",
+    "sha256": "953f9994b2f7b57187cc6556161cbaa9f1ad00eebdd6695963b0feccde64be06",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-059": {
+    "file": "DJI_0080.webp",
+    "sha256": "aef32e58465737a0e2c0a4d08c33adfdf3350ac08472ab57367012480bc0d6fe",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-060": {
+    "file": "DJI_0082.webp",
+    "sha256": "87b11a2fc4ebcd6d3c9a323ba6374878581c37950430da4922b1c6646018b4ab",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-061": {
+    "file": "DJI_0083.webp",
+    "sha256": "53722869a32a823e46e5151fa77f9019d77fe749dc0d20b179f2233422a01a75",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-062": {
+    "file": "المصلى والاستراحة.webp",
+    "sha256": "475018833078b869c098a8546337f0625d8cad8c01a1cbf952efdd0078e3f047",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-063": {
+    "file": "المكاتب.webp",
+    "sha256": "64f838e35cefdd6183dd40c2b9e86286f296d64a61a4f7db46ac116382d15f32",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-064": {
+    "file": "الموازين.webp",
+    "sha256": "aef23290e43c4458eb2e5cf5e617829d145a411e902021cc1b12c5adc4dbc46b",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-065": {
+    "file": "الورشة.webp",
+    "sha256": "5a0ca387fc4ec18aa0a8511f69fd3044371e7f8bc27d3393c2d13c98ec8066a3",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-066": {
+    "file": "تكامل النفق والجدار الاستنادي مع خط الانتاج 2.webp",
+    "sha256": "d00d773de40d117e8036da9eef76227b824caf53b0bd08dc68d60dc21b93d8db",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-067": {
+    "file": "تكامل النفق والجدار الاستنادي مع خط الانتاج.webp",
+    "sha256": "e10cb9a84086a91df8840f4d9060fbce5b472217751fad6d7c522de4a23c7589",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-068": {
+    "file": "خزانات المياه.webp",
+    "sha256": "ae67e9345d4f1c62d10b55c84733dbc303529bb5f69683b84adacffd74cac7ca",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-069": {
+    "file": "خزانات الوقود.webp",
+    "sha256": "26ee40e1302a1df8ae102d8e68062d096eacf8b7240f0c4a645822b30578f3e6",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-070": {
+    "file": "سكن اخر.webp",
+    "sha256": "004a1ab51bac6c789f4cd42ebba1d2db42ba18bdf369a54ce1ca7acfba7455c5",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-071": {
+    "file": "سكن العمال.webp",
+    "sha256": "6b2e2ad50f1347ee6d03ee253111863e13db34b960f8d2c4d0ee3aa4fa122946",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-072": {
+    "file": "سيور متنقلة.webp",
+    "sha256": "08a0a3b7d652cadcba53e592713c6291cfe39a6dddafe840635748b8450ab93a",
+    "width": 5272,
+    "height": 2962
+  },
+  "photo-073": {
+    "file": "صورة للمحجر.webp",
+    "sha256": "671342846df362c48923c163f70410999633477bc919a6962ff3f1643e642581",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-074": {
+    "file": "كسارات متنقلة.webp",
+    "sha256": "e1c45af610d0cfc10f46fcca135512a0604678bba7e0d120e66352dbfde0f42d",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-075": {
+    "file": "مدخل 2.webp",
+    "sha256": "6f9b9746ab2d82edb55eb831fc5c7e372a7d42c71cc3542ed21d770269bcf35c",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-076": {
+    "file": "مدخل الكسارة.webp",
+    "sha256": "aee6133387d5712f52a5fe1a7d97db708c704bd50cbb18988aa8c7daf3d88783",
+    "width": 5280,
+    "height": 2970
+  },
+  "photo-077": {
+    "file": "موقع المحجر.webp",
+    "sha256": "6570f75cb6d47c8652bc33092e2191e15e46d48021efab81e2a43b7ed5fb6cd0",
+    "width": 5280,
+    "height": 2970
+  }
+}

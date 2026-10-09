@@ -14,6 +14,12 @@ export type Database = {
   }
   public: {
     Tables: {
+      media_overrides: {
+        Row: { target_key: string; replacement_id: string; title_ar: string; title_en: string; fit: 'cover' | 'contain'; focal_x: number; focal_y: number; updated_at: string }
+        Insert: { target_key: string; replacement_id: string; title_ar?: string; title_en?: string; fit?: 'cover' | 'contain'; focal_x?: number; focal_y?: number; updated_at?: string }
+        Update: { replacement_id?: string; title_ar?: string; title_en?: string; fit?: 'cover' | 'contain'; focal_x?: number; focal_y?: number; updated_at?: string }
+        Relationships: []
+      }
       investment_inquiries: {
         Row: {
           company: string | null
@@ -43,39 +49,6 @@ export type Database = {
           message?: string | null
           name?: string
           phone?: string | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      media_overrides: {
-        Row: {
-          fit: string
-          focal_x: number
-          focal_y: number
-          replacement_id: string
-          target_key: string
-          title_ar: string
-          title_en: string
-          updated_at: string
-        }
-        Insert: {
-          fit?: string
-          focal_x?: number
-          focal_y?: number
-          replacement_id: string
-          target_key: string
-          title_ar?: string
-          title_en?: string
-          updated_at?: string
-        }
-        Update: {
-          fit?: string
-          focal_x?: number
-          focal_y?: number
-          replacement_id?: string
-          target_key?: string
-          title_ar?: string
-          title_en?: string
           updated_at?: string
         }
         Relationships: []
@@ -154,6 +127,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       somman_try_public_action: {
         Args: { p_scope: string }
         Returns: {

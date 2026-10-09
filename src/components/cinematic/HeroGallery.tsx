@@ -1,14 +1,9 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSiteMedia } from "@/lib/site-media";
 import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
 import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
-import breaker from "@/assets/excavators.jpg";
-import loader from "@/assets/loaders-maintenance.jpg";
-import breakerAlternate from "@/assets/excavators-alt.jpg";
-import loaderAlternate from "@/assets/loaders-maintenance-alt.jpg";
-import powerSite from "@/assets/generators-weighbridge.jpg";
-import equipmentOverview from "@/assets/equipment.jpg";
 import { officialMedia } from "@/data/official-media";
 
 /**
@@ -17,18 +12,16 @@ import { officialMedia } from "@/data/official-media";
  * editorial scenes. The two origins stay explicitly distinguishable.
  */
 const baseScenes = [
-  ...officialMedia.hero.map((item) => ({
+  { src: officialMedia.hero[0].image, en: officialMedia.hero[0].en, ar: officialMedia.hero[0].ar, origin: officialMedia.hero[0].origin },
+  ...officialMedia.hero.slice(1).map((item) => ({
     src: item.image,
     en: item.en,
     ar: item.ar,
     origin: item.origin,
   })),
-  { src: breaker, en: "Excavator — supplementary equipment visual", ar: "حفار — مشهد معدات توضيحي مكمل", origin: "supplementary" },
-  { src: loader, en: "Loader — supplementary equipment visual", ar: "شيول — مشهد معدات توضيحي مكمل", origin: "supplementary" },
-  { src: breakerAlternate, en: "Excavation — supplementary equipment visual", ar: "أعمال الحفر — مشهد معدات توضيحي مكمل", origin: "supplementary" },
-  { src: loaderAlternate, en: "Material handling — supplementary equipment visual", ar: "مناولة المواد — مشهد معدات توضيحي مكمل", origin: "supplementary" },
-  { src: powerSite, en: "Site utilities — supplementary visual", ar: "مرافق التشغيل — مشهد توضيحي مكمل", origin: "supplementary" },
-  { src: equipmentOverview, en: "Equipment fleet — supplementary visual", ar: "أسطول المعدات — مشهد توضيحي مكمل", origin: "supplementary" },
+  ...[officialMedia.equipment.loader, officialMedia.equipment.front, officialMedia.production.crusher,
+    officialMedia.production.conveyor, officialMedia.facilities.weighbridge, officialMedia.facilities.office]
+    .map(item => ({ src: item.image, en: item.en, ar: item.ar, origin: item.origin })),
 ] as const;
 
 const HERO_INTERVAL_MS = 5800;
@@ -218,7 +211,7 @@ export function HeroGallery({ suspended = false, onRequestPhotographs }: { suspe
         aria-hidden="true"
       >
         {previous && previous.src !== current.src && (
-          <img
+          <ManagedImage mediaContext="HeroGallery"
             className={"hero-gallery__photo hero-gallery__photo--outgoing" + (previous.origin === "actual-site" ? " actual-site-photo" : "")}
             key={previous.src}
             src={previous.src}
@@ -228,7 +221,7 @@ export function HeroGallery({ suspended = false, onRequestPhotographs }: { suspe
             decoding="async"
           />
         )}
-        <img
+        <ManagedImage mediaContext="HeroGallery"
           key={current.src}
           ref={activeImageRef}
           className={"hero-gallery__photo hero-gallery__photo--active" + (current.origin === "actual-site" ? " actual-site-photo" : "") + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}

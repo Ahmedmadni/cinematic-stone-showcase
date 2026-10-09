@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useState } from "react";
 import { ArrowDownLeft, ArrowUpLeft, Images } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
@@ -48,7 +49,7 @@ export function SitePhotoArchive() {
         </div>
         <div className="site-photo-archive__grid">
           {filtered.slice(0, limit).map(photo => <button className="site-photo-archive__photo" type="button" key={photo.id} onClick={() => setSelected(photo.id)} aria-label={(en ? "View photograph: " : "عرض الصورة: ") + (en ? photo.en : photo.ar)}>
-            <img className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
+            <ManagedImage mediaContext="SitePhotoArchive" className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
             <span><small className="latin">{photo.id.replace("photo-", "")}</small>{en ? photo.en : photo.ar}</span>
           </button>)}
         </div>

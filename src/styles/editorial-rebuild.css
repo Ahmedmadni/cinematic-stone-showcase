@@ -1,38 +1,96 @@
 /* The opening photograph owns its own layer: the pale fixed background cannot wash it out. */
-.presentation .hero-cinematic { background: var(--foreground); min-height: min(900px, 93svh); }
-.hero-media { position: absolute; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
-.hero-media picture, .hero-media img { display: block; width: 100%; height: 100%; }
-.hero-media img { object-fit: cover; object-position: 50% 49%; filter: contrast(1.07) saturate(1.03); }
+.presentation .hero-cinematic {
+  background: var(--foreground);
+  min-height: min(900px, 93svh);
+}
+.hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+  pointer-events: none;
+}
+.hero-media picture,
+.hero-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.hero-media img {
+  object-fit: cover;
+  object-position: 50% 49%;
+  filter: contrast(1.07) saturate(1.03);
+}
 .presentation .hero-cinematic::before {
   z-index: -1;
-  background: linear-gradient(270deg, oklch(0.14 0.014 194 / 88%) 0%, oklch(0.14 0.014 194 / 59%) 30%, oklch(0.14 0.014 194 / 12%) 67%, transparent 100%),
-    linear-gradient(0deg, oklch(0.12 0.01 194 / 57%) 0%, transparent 29%, transparent 76%, oklch(0.12 0.01 194 / 18%) 100%);
+  background:
+    linear-gradient(
+      270deg,
+      oklch(0.14 0.014 194 / 88%) 0%,
+      oklch(0.14 0.014 194 / 59%) 30%,
+      oklch(0.14 0.014 194 / 12%) 67%,
+      transparent 100%
+    ),
+    linear-gradient(
+      0deg,
+      oklch(0.12 0.01 194 / 57%) 0%,
+      transparent 29%,
+      transparent 76%,
+      oklch(0.12 0.01 194 / 18%) 100%
+    );
 }
-.presentation .hero-cinematic::after { display: none; }
-.presentation .hero-cinematic .hero-content { max-width: min(820px, 67%); }
-.presentation .hero-cinematic h1 { font-size: clamp(65px, 8vw, 132px); text-shadow: 0 4px 24px oklch(0.1 0 0 / 52%); }
-.presentation .hero-cinematic h1 em { background: none; color: var(--gold-bright); -webkit-text-fill-color: currentColor; filter: none; }
-.presentation .hero-cinematic .hero-title-second { color: var(--on-image-fg); }
-.presentation .hero-cinematic .hero-lead { max-width: 580px; }
-.presentation .hero-cinematic .photo-placeholder { background: var(--on-image-bg); color: var(--on-image-fg); }
+.presentation .hero-cinematic::after {
+  display: none;
+}
+.presentation .hero-cinematic .hero-content {
+  max-width: min(820px, 67%);
+}
+.presentation .hero-cinematic h1 {
+  font-size: clamp(65px, 8vw, 132px);
+  text-shadow: 0 4px 24px oklch(0.1 0 0 / 52%);
+}
+.presentation .hero-cinematic h1 em {
+  background: none;
+  color: var(--gold-bright);
+  -webkit-text-fill-color: currentColor;
+  filter: none;
+}
+.presentation .hero-cinematic .hero-title-second {
+  color: var(--on-image-fg);
+}
+.presentation .hero-cinematic .hero-lead {
+  max-width: 580px;
+}
+.presentation .hero-cinematic .photo-placeholder {
+  background: var(--on-image-bg);
+  color: var(--on-image-fg);
+}
 
 /* Local scroll progress comes from the existing passive director. React only changes chapter at boundaries.
    The old image stays visible below the incoming image so reversing scroll reverses the same cut. */
 .presentation .fleet-experience__scroll .fleet-experience__image,
-.production-flow--story .production-flow__photo { transition: none; }
+.production-flow--story .production-flow__photo {
+  transition: none;
+}
 .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
 .production-flow--story .production-flow__photo.is-underlay {
-  opacity: 1; visibility: visible; z-index: -2;
-  clip-path: none; filter: saturate(.75) brightness(.8);
+  opacity: 1;
+  visibility: visible;
+  z-index: -2;
+  clip-path: none;
+  filter: saturate(0.75) brightness(0.8);
   transform: scale(1.035);
 }
 .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
 .production-flow--story .production-flow__photo.is-active {
   --chapter-wipe: clamp(0, calc(var(--cinema-fleet-local-progress, 0) * 1.85), 1);
-  z-index: -1; visibility: visible; opacity: 1;
+  z-index: -1;
+  visibility: visible;
+  opacity: 1;
   filter: saturate(1) contrast(1.05);
   transition: none;
-  transform: translate3d(var(--cinema-fleet-mouse-x, 0px), var(--cinema-fleet-mouse-y, 0px), 0) scale(var(--cinema-fleet-scale, 1.05));
+  transform: translate3d(var(--cinema-fleet-mouse-x, 0px), var(--cinema-fleet-mouse-y, 0px), 0)
+    scale(var(--cinema-fleet-scale, 1.05));
 }
 .production-flow--story .production-flow__photo.is-active {
   --chapter-wipe: clamp(0, calc(var(--cinema-material-local, 0) * 1.85), 1);
@@ -41,105 +99,281 @@
 /* 01: diagonal descent from lower right, with a stepped strata-like boundary. */
 .presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
 .production-flow__photo--0.is-active {
-  clip-path: polygon(100% 100%, calc(105% - var(--chapter-wipe) * 130%) 100%, calc(117% - var(--chapter-wipe) * 130%) 77%, calc(112% - var(--chapter-wipe) * 130%) 73%, calc(131% - var(--chapter-wipe) * 130%) 47%, calc(125% - var(--chapter-wipe) * 130%) 43%, calc(146% - var(--chapter-wipe) * 160%) 0, 100% 0);
+  clip-path: polygon(
+    100% 100%,
+    calc(105% - var(--chapter-wipe) * 130%) 100%,
+    calc(117% - var(--chapter-wipe) * 130%) 77%,
+    calc(112% - var(--chapter-wipe) * 130%) 73%,
+    calc(131% - var(--chapter-wipe) * 130%) 47%,
+    calc(125% - var(--chapter-wipe) * 130%) 43%,
+    calc(146% - var(--chapter-wipe) * 160%) 0,
+    100% 0
+  );
 }
 /* Keep scene 01's entry mask: it was accidentally cancelled by a reset. */
 /* 02: a stepped central aperture expands outwards. */
 .presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
 .production-flow__photo--1.is-active {
-  clip-path: polygon(calc(50% - var(--chapter-wipe) * 62%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(44% + var(--chapter-wipe) * 20%), calc(50% - var(--chapter-wipe) * 58%) calc(44% + var(--chapter-wipe) * 20%));
+  clip-path: polygon(
+    calc(50% - var(--chapter-wipe) * 62%) calc(50% - var(--chapter-wipe) * 58%),
+    calc(50% + var(--chapter-wipe) * 58%) calc(50% - var(--chapter-wipe) * 58%),
+    calc(50% + var(--chapter-wipe) * 58%) calc(48% - var(--chapter-wipe) * 17%),
+    calc(50% + var(--chapter-wipe) * 65%) calc(48% - var(--chapter-wipe) * 17%),
+    calc(50% + var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%),
+    calc(50% - var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%),
+    calc(50% - var(--chapter-wipe) * 65%) calc(44% + var(--chapter-wipe) * 20%),
+    calc(50% - var(--chapter-wipe) * 58%) calc(44% + var(--chapter-wipe) * 20%)
+  );
 }
 /* 03: upper-left entry in staggered diagonal bands. */
 .presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
 .production-flow__photo--2.is-active {
-  clip-path: polygon(0 0, calc(var(--chapter-wipe) * 155%) 0, calc(var(--chapter-wipe) * 140% - 19%) 26%, calc(var(--chapter-wipe) * 140% - 14%) 30%, calc(var(--chapter-wipe) * 140% - 35%) 57%, calc(var(--chapter-wipe) * 140% - 29%) 61%, calc(var(--chapter-wipe) * 155% - 49%) 100%, 0 100%);
+  clip-path: polygon(
+    0 0,
+    calc(var(--chapter-wipe) * 155%) 0,
+    calc(var(--chapter-wipe) * 140% - 19%) 26%,
+    calc(var(--chapter-wipe) * 140% - 14%) 30%,
+    calc(var(--chapter-wipe) * 140% - 35%) 57%,
+    calc(var(--chapter-wipe) * 140% - 29%) 61%,
+    calc(var(--chapter-wipe) * 155% - 49%) 100%,
+    0 100%
+  );
 }
 /* 04: a fractured right-middle seam, stepping toward both corners. */
 .presentation .fleet-experience__scroll .fleet-experience__image--3.is-active {
-  clip-path: polygon(100% 0, calc(109% - var(--chapter-wipe) * 135%) 0, calc(118% - var(--chapter-wipe) * 135%) 30%, calc(110% - var(--chapter-wipe) * 135%) 34%, calc(112% - var(--chapter-wipe) * 135%) 54%, calc(103% - var(--chapter-wipe) * 135%) 58%, calc(118% - var(--chapter-wipe) * 145%) 100%, 100% 100%);
+  clip-path: polygon(
+    100% 0,
+    calc(109% - var(--chapter-wipe) * 135%) 0,
+    calc(118% - var(--chapter-wipe) * 135%) 30%,
+    calc(110% - var(--chapter-wipe) * 135%) 34%,
+    calc(112% - var(--chapter-wipe) * 135%) 54%,
+    calc(103% - var(--chapter-wipe) * 135%) 58%,
+    calc(118% - var(--chapter-wipe) * 145%) 100%,
+    100% 100%
+  );
 }
 /* Feather the seam lightly without blurring entire photos; clip-path still works without masks. */
 @supports (mask-image: linear-gradient(#000, transparent)) {
   .presentation .fleet-experience__scroll .fleet-experience__image--3.is-active,
   .production-flow__photo--0.is-active:not(:first-child) {
-    -webkit-mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
-    mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
+    -webkit-mask-image: linear-gradient(
+      270deg,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 100% + 12%),
+      transparent calc(var(--chapter-wipe) * 100% + 20%)
+    );
+    mask-image: linear-gradient(
+      270deg,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 100% + 12%),
+      transparent calc(var(--chapter-wipe) * 100% + 20%)
+    );
   }
   .presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
   .production-flow__photo--2.is-active {
-    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
-    mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
+    -webkit-mask-image: linear-gradient(
+      90deg,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 100% + 12%),
+      transparent calc(var(--chapter-wipe) * 100% + 20%)
+    );
+    mask-image: linear-gradient(
+      90deg,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 100% + 12%),
+      transparent calc(var(--chapter-wipe) * 100% + 20%)
+    );
   }
   .presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
   .production-flow__photo--1.is-active {
-    -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
-    mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
+    -webkit-mask-image: radial-gradient(
+      ellipse at center,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 85% + 9%),
+      transparent calc(var(--chapter-wipe) * 85% + 18%)
+    );
+    mask-image: radial-gradient(
+      ellipse at center,
+      #000 0%,
+      #000 calc(var(--chapter-wipe) * 85% + 9%),
+      transparent calc(var(--chapter-wipe) * 85% + 18%)
+    );
   }
 }
 
 /* Three authored engineering drawings. Background only, never through interactive content. */
-.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey) { position: relative; isolation: isolate; }
-.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey)::before {
-  content: ""; position: absolute; z-index: -1; pointer-events: none;
-  background-repeat: no-repeat; background-size: contain; opacity: .065;
+.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey) {
+  position: relative;
+  isolation: isolate;
 }
-.presentation .overview::before { background-image: url("../assets/limestone-strata.svg"); width: min(58vw, 760px); aspect-ratio: 780 / 420; left: -4%; top: 3%; }
-.presentation .visual-chapter::before { background-image: url("../assets/crusher-flow.svg"); width: min(53vw, 720px); aspect-ratio: 800 / 370; left: 1%; top: 1%; opacity: .048; }
-.presentation .assistant-chapter::before { background-image: url("../assets/quarry-contours.svg"); width: min(45vw, 610px); aspect-ratio: 750 / 490; left: 0; bottom: 0; opacity: .052; }
-.presentation .investor-journey::before { background-image: url("../assets/limestone-strata.svg"); width: min(42vw, 570px); aspect-ratio: 780 / 420; left: 0; bottom: 0; opacity: .045; }
+.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+  opacity: 0.065;
+}
+.presentation .overview::before {
+  background-image: var(--motif-limestone);
+  width: min(58vw, 760px);
+  aspect-ratio: 780 / 420;
+  left: -4%;
+  top: 3%;
+}
+.presentation .visual-chapter::before {
+  background-image: var(--motif-crusher);
+  width: min(53vw, 720px);
+  aspect-ratio: 800 / 370;
+  left: 1%;
+  top: 1%;
+  opacity: 0.048;
+}
+.presentation .assistant-chapter::before {
+  background-image: var(--motif-contours);
+  width: min(45vw, 610px);
+  aspect-ratio: 750 / 490;
+  left: 0;
+  bottom: 0;
+  opacity: 0.052;
+}
+.presentation .investor-journey::before {
+  background-image: var(--motif-limestone);
+  width: min(42vw, 570px);
+  aspect-ratio: 780 / 420;
+  left: 0;
+  bottom: 0;
+  opacity: 0.045;
+}
 @media (max-width: 760px) {
-  .presentation .hero-cinematic { min-height: 90svh; }
-  .hero-media img { object-position: 58% center; }
-  .presentation .hero-cinematic::before { background: linear-gradient(0deg, oklch(0.12 0.01 194 / 90%) 0%, oklch(0.12 0.01 194 / 65%) 37%, oklch(0.12 0.01 194 / 8%) 85%), linear-gradient(270deg, oklch(0.12 0.01 194 / 22%), transparent 78%); }
-  .presentation .hero-cinematic { align-items: flex-end; }
-  .presentation .hero-cinematic .hero-content { max-width: 100%; padding-bottom: 24px; }
-  .presentation .hero-cinematic h1 { font-size: clamp(49px, 10vw, 74px); }
-  .presentation .hero-cinematic .hero-title-second { font-size: clamp(33px, 8vw, 50px); }
-  .presentation .overview::before, .presentation .visual-chapter::before, .presentation .assistant-chapter::before, .presentation .investor-journey::before { width: 90%; opacity: .035; }
+  .presentation .hero-cinematic {
+    min-height: 90svh;
+  }
+  .hero-media img {
+    object-position: 58% center;
+  }
+  .presentation .hero-cinematic::before {
+    background:
+      linear-gradient(
+        0deg,
+        oklch(0.12 0.01 194 / 90%) 0%,
+        oklch(0.12 0.01 194 / 65%) 37%,
+        oklch(0.12 0.01 194 / 8%) 85%
+      ),
+      linear-gradient(270deg, oklch(0.12 0.01 194 / 22%), transparent 78%);
+  }
+  .presentation .hero-cinematic {
+    align-items: flex-end;
+  }
+  .presentation .hero-cinematic .hero-content {
+    max-width: 100%;
+    padding-bottom: 24px;
+  }
+  .presentation .hero-cinematic h1 {
+    font-size: clamp(49px, 10vw, 74px);
+  }
+  .presentation .hero-cinematic .hero-title-second {
+    font-size: clamp(33px, 8vw, 50px);
+  }
+  .presentation .overview::before,
+  .presentation .visual-chapter::before,
+  .presentation .assistant-chapter::before,
+  .presentation .investor-journey::before {
+    width: 90%;
+    opacity: 0.035;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .hero-media img { transform: none; }
+  .hero-media img {
+    transform: none;
+  }
   .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
-  .production-flow--story .production-flow__photo.is-active { clip-path: none !important; -webkit-mask-image: none !important; mask-image: none !important; transform: none !important; }
+  .production-flow--story .production-flow__photo.is-active {
+    clip-path: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+    transform: none !important;
+  }
   .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
-  .production-flow--story .production-flow__photo.is-underlay { opacity: 0; visibility: hidden; }
+  .production-flow--story .production-flow__photo.is-underlay {
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 /* Layer audit: isolate both stage canvases so the masks never render behind
    an ancestor background. Explicit nonnegative image layers also keep
    Chrome, Safari and Firefox stacking behavior consistent. */
 .presentation .fleet-experience__scroll .fleet-experience__stage,
-.production-flow--story .production-flow__visual { isolation: isolate; }
+.production-flow--story .production-flow__visual {
+  isolation: isolate;
+}
 .presentation .fleet-experience__scroll .fleet-experience__image,
-.production-flow--story .production-flow__photo { z-index: 0; }
+.production-flow--story .production-flow__photo {
+  z-index: 0;
+}
 .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
-.production-flow--story .production-flow__photo.is-underlay { z-index: 0; }
+.production-flow--story .production-flow__photo.is-underlay {
+  z-index: 0;
+}
 .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
-.production-flow--story .production-flow__photo.is-active { z-index: 1; }
+.production-flow--story .production-flow__photo.is-active {
+  z-index: 1;
+}
 .presentation .fleet-experience__scroll .fleet-experience__shade,
-.production-flow--story .production-flow__photo-shade { z-index: 2; }
-.presentation .fleet-experience__scroll .cinema-atmosphere--fleet { z-index: 2; }
-.presentation .fleet-experience__scroll :is(.fleet-experience__headline, .fleet-experience__photo-note, .fleet-experience__corners, .fleet-experience__stage-number),
-.production-flow--story :is(.production-flow__photo-header, .production-flow__photo-info) { z-index: 3; }
-.production-flow--story :is(.production-flow__stage-progress, .production-flow__visual-marker) { z-index: 5; }
+.production-flow--story .production-flow__photo-shade {
+  z-index: 2;
+}
+.presentation .fleet-experience__scroll .cinema-atmosphere--fleet {
+  z-index: 2;
+}
+.presentation
+  .fleet-experience__scroll
+  :is(
+    .fleet-experience__headline,
+    .fleet-experience__photo-note,
+    .fleet-experience__corners,
+    .fleet-experience__stage-number
+  ),
+.production-flow--story :is(.production-flow__photo-header, .production-flow__photo-info) {
+  z-index: 3;
+}
+.production-flow--story :is(.production-flow__stage-progress, .production-flow__visual-marker) {
+  z-index: 5;
+}
 
 /* During the first 15% of the first scroll chapter an oblique opening photo
    emerges over a low-contrast quarry overview rather than a blank black card. */
 .presentation .fleet-experience__scroll .fleet-experience__stage {
-  background: linear-gradient(rgba(13, 23, 27, .63), rgba(13, 23, 27, .63)), url("../assets/quarry-aerial.jpg") center / cover #162225;
+  background: #162225;
 }
 .production-flow--story .production-flow__visual {
-  background: linear-gradient(rgba(16, 27, 28, .67), rgba(16, 27, 28, .67)), url("../assets/quarry-aerial-alt.jpg") center / cover #18232a;
+  background: #18232a;
 }
 /* Provide a subtle soft leading edge along chapter 01's stepped diagonal. */
-@supports (mask-image: linear-gradient(#000,transparent)) {
+@supports (mask-image: linear-gradient(#000, transparent)) {
   .presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
   .production-flow--story .production-flow__photo--0.is-active {
-    -webkit-mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
-    mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
+    -webkit-mask-image: linear-gradient(
+      250deg,
+      #000 0%,
+      #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%),
+      transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%)
+    );
+    mask-image: linear-gradient(
+      250deg,
+      #000 0%,
+      #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%),
+      transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%)
+    );
   }
 }
-@media (prefers-reduced-motion:reduce) {
+@media (prefers-reduced-motion: reduce) {
   .production-flow--story .production-flow__photo.is-active,
-  .presentation .fleet-experience__scroll .fleet-experience__image.is-active { clip-path:none !important; -webkit-mask-image:none !important; mask-image:none !important; }
+  .presentation .fleet-experience__scroll .fleet-experience__image.is-active {
+    clip-path: none !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+  }
 }

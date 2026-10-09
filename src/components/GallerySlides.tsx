@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
 import { Pause, Play } from "lucide-react";
@@ -57,7 +58,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
     <div className="gallery-slider" data-gallery-autoplay={playing ? "playing" : "paused"} data-gallery-interaction={paused ? "hover-paused" : manuallyPaused ? "manual-paused" : "idle"} data-gallery-active={active} ref={frame} onPointerEnter={(event) => { if (event.pointerType === "mouse") setPaused(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setPaused(false); }} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
       <Button type="button" variant="ghost" className="gallery-image-button" aria-label={language === "en" ? `View ${title}, ${slides[active]?.label ?? title} larger` : `عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
         <span className="image-window">
-          {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1600} height={900} alt={index === active ? `${slide.origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")} ${slide.label}` : ""} aria-hidden={index !== active} data-media-origin={slide.origin ?? "supplementary"} className={`gallery-slide ${slide.origin === "actual-site" ? "actual-site-photo " : ""}${index === active ? "active" : ""}`} />)}
+          {slides.map((slide, index) => <ManagedImage mediaContext="GallerySlides" key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1600} height={900} alt={index === active ? `${slide.origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")} ${slide.label}` : ""} aria-hidden={index !== active} data-media-origin={slide.origin ?? "supplementary"} className={`gallery-slide ${slide.origin === "actual-site" ? "actual-site-photo " : ""}${index === active ? "active" : ""}`} />)}
           <span className="gallery-image-shade" /><span className="gallery-image-title">{title}</span>
           <span className="photo-placeholder">{currentSlide?.origin === "actual-site" ? t("تصوير فعلي من موقع الصمان") : t("مشهد توضيحي مكمل")} · {replacement}</span>
         </span>

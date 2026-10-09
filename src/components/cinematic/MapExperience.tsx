@@ -1,7 +1,8 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { ArrowUpLeft, Compass, ExternalLink, Layers3, MapPinned, MoveUpRight } from "lucide-react";
-import quarryAerial from "@/assets/quarry-aerial.jpg";
+import { officialMedia } from '@/data/official-media';
 import { googleMapsOpenUrl, googleSatelliteEmbedSource, quarryReferenceCenter } from "@/data/quarry-map";
 
 const MAP_TILT_DAMPING = 0.08;
@@ -116,7 +117,7 @@ export function MapExperience() {
     <div className="somman-location-experience" aria-label={t("الخريطة التفاعلية والمنظور التصوري لمحجر الصمان")}>
       <div className="somman-location-experience__topline">
         <span><MapPinned size={18} aria-hidden="true" /> {t("استكشف الموقع من الأعلى")}</span>
-        <span className="latin" dir="ltr">SATELLITE / 3D CONCEPT</span>
+        <span className="latin" dir="ltr">SATELLITE / ACTUAL SITE</span>
       </div>
       <div className="somman-location-experience__grid">
         <div className="somman-location-experience__google">
@@ -153,18 +154,18 @@ export function MapExperience() {
         </div>
         <div className="somman-location-experience__simulation">
           <div className="somman-location-experience__panel-title">
-            <div><span className="latin" dir="ltr">02 / CONCEPTUAL AERIAL</span><h3>{t("منظور مجسّم تصوري")}</h3></div>
-            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {t("تخيّلي")}</span>
+            <div><span className="latin" dir="ltr">02 / ACTUAL AERIAL</span><h3>{language === 'en' ? 'Actual site aerial' : 'تصوير جوي فعلي للموقع'}</h3></div>
+            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {language === 'en' ? 'Supplied photograph' : 'صورة مرفقة'}</span>
           </div>
           <div
             className="somman-location-experience__scene"
             ref={sceneRef}
             onPointerMove={onPointerMove}
             onPointerLeave={resetTilt}
-            aria-label={t("رسم تصوري علوي لكسارات ومحجر صخري")}
+            aria-label={language === 'en' ? 'Actual aerial photograph with illustrative category selectors' : 'صورة جوية فعلية مع أزرار توضيحية للفئات'}
           >
             <div className="somman-location-experience__scene-camera" aria-hidden="true">
-              <img src={quarryAerial} alt="" loading="lazy" decoding="async" width="1536" height="1024"/>
+              <ManagedImage mediaContext="MapExperience" src={officialMedia.hero[0].image} alt="" loading="lazy" decoding="async" width="1600" height="900"/>
               <div className="somman-location-experience__shadow" />
             </div>
             <span className="somman-location-experience__compass" aria-hidden="true"><Compass size={24}/> N</span>
@@ -182,14 +183,14 @@ export function MapExperience() {
               </button>
             ))}
             <div className="somman-location-experience__scene-caption">
-              <small className="latin" dir="ltr">ILLUSTRATIVE VIEW / NOT SURVEY DATA</small>
+              <small className="latin" dir="ltr">ACTUAL PHOTO / MARKERS ARE NOT SURVEY DATA</small>
               <strong>{t(active.heading)}</strong>
               <p>{t(active.detail)}</p>
             </div>
           </div>
           <div className="somman-location-experience__scene-footer">
-            <span>{t("تصور بصري مستوحى من طبيعة محاجر الحجر الجيري؛ ليس صورة Google Earth أو تصويرًا موثقًا لموقع الشركة.")}</span>
-            <a href="#التواصل">{t("استفسر عن صور الموقع الحقيقية")} <ArrowUpLeft size={15} aria-hidden="true"/></a>
+            <span>{language === 'en' ? 'Actual site photograph. The category buttons are navigation aids, not surveyed positions or permit boundaries.' : 'صورة فعلية للموقع. أزرار الفئات للتنقل فقط، ولا تحدد مواضع مساحية أو حدود تراخيص.'}</span>
+            <a href="#site-gallery-title">{language === 'en' ? 'Browse the site photographs' : 'تصفح صور الموقع'} <ArrowUpLeft size={15} aria-hidden="true"/></a>
           </div>
         </div>
       </div>
