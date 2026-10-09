@@ -5,7 +5,6 @@ on:
     branches:
       - feature/media-studio
     paths:
-      - media-studio-remaining.patch
       - .github/workflows/apply-media-patch.yml
 
 permissions:
@@ -21,8 +20,8 @@ jobs:
       - name: Apply verified media studio changes
         shell: bash
         run: |
-          git apply --index media-studio-remaining.patch
-          rm -f media-studio-remaining.patch .github/workflows/apply-media-patch.yml
+          git apply --index media-studio-code.patch
+          rm -f media-studio-code.patch media-studio-remaining.patch
           git add -A
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
