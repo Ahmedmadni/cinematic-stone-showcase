@@ -750,7 +750,11 @@ try {
   });
 
   await caseRun("native gallery keyboard navigation, focus trap and focus restoration", async () => {
-    const button = desktopPage.locator(".gallery-image-button").first();
+    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+    const firstMultiIndex = await galleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(firstMultiIndex >= 0, "lightbox keyboard QA requires a gallery with multiple verified photographs");
+    const button = galleries.nth(firstMultiIndex).locator(".gallery-image-button");
     await button.scrollIntoViewIfNeeded();
     await button.click();
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
