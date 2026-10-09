@@ -53,6 +53,10 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Cinematic motion and experience data tests
         run: bun run test:cinematic
+      - name: Media management regression tests
+        run: bun run test:media
+      - name: Media studio lint
+        run: bunx eslint src/components/ManagedImage.tsx src/components/MediaStudio.tsx src/components/UploadedMediaManager.tsx src/components/ProductionLines.tsx src/lib/media-management.ts src/lib/media-rules.ts src/data/media-catalog.ts
       - name: TypeScript check
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
