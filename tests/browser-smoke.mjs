@@ -683,10 +683,24 @@ try {
   await caseRun("all six subject galleries independently enable timed autoplay", async () => {
     const galleries = desktopPage.locator(".site-gallery .gallery-slider");
     assert.equal(await galleries.count(), 6);
+    const movePointerOutside = async (gallery) => {
+      const box = await gallery.boundingBox();
+      const viewport = desktopPage.viewportSize();
+      assert.ok(box && viewport, "gallery and viewport geometry must be available");
+      const outside = [
+        [1, 1],
+        [viewport.width - 1, 1],
+        [1, viewport.height - 1],
+        [viewport.width - 1, viewport.height - 1],
+      ].find(([x, y]) => x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height);
+      assert.ok(outside, "pointer must have a location outside the visible gallery");
+      await desktopPage.mouse.move(outside[0], outside[1]);
+      await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    };
     for (let index = 0; index < 6; index++) {
       const gallery = galleries.nth(index);
       await gallery.scrollIntoViewIfNeeded();
-      await desktopPage.mouse.move(0, 0);
+      await movePointerOutside(gallery);
       await desktopPage.waitForFunction(i => {
         const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
         return element?.getAttribute("data-gallery-autoplay") === "playing";
@@ -698,14 +712,14 @@ try {
     await firstGallery.scrollIntoViewIfNeeded();
     // A touchscreen may synthesize mouse compatibility events. A touch
     // pointerover must not freeze the card's auto-rotation indefinitely.
-    await desktopPage.mouse.move(0, 0);
+    await movePointerOutside(firstGallery);
     await firstGallery.evaluate((element) => {
       element.dispatchEvent(new PointerEvent("pointerover", {
         bubbles: true, pointerType: "touch",
       }));
     });
     assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
-    await desktopPage.mouse.move(0, 0);
+    await movePointerOutside(firstGallery);
     await desktopPage.waitForFunction(() =>
       document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
     const initial = await firstGallery.getAttribute("data-gallery-active");
