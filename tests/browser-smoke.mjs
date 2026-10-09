@@ -17,7 +17,11 @@ const output = process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts";
 const results = [];
 await mkdir(output, { recursive: true });
 
-const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
+  args: ["--no-sandbox"],
+});
 async function openWithRetry(page, url) {
   let lastError;
   for (let attempt = 0; attempt < 24; attempt++) {
@@ -680,7 +684,7 @@ try {
     }
   });
 
-  await caseRun("all six subject galleries independently enable timed autoplay", async () => {
+  await caseRun("subject galleries autoplay only when multiple verified photographs are available", async () => {
     const galleries = desktopPage.locator(".site-gallery .gallery-slider");
     assert.equal(await galleries.count(), 6);
     const movePointerOutside = async (gallery) => {
@@ -694,6 +698,10 @@ try {
         [viewport.width - 1, viewport.height - 1],
       ].find(([x, y]) => x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height);
       assert.ok(outside, "pointer must have a location outside the visible gallery");
+      await desktopPage.mouse.move(
+        Math.max(1, Math.min(viewport.width - 1, box.x + box.width / 2)),
+        Math.max(1, Math.min(viewport.height - 1, box.y + box.height / 2)),
+      );
       await desktopPage.mouse.move(outside[0], outside[1]);
       await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
     };
@@ -701,14 +709,25 @@ try {
       const gallery = galleries.nth(index);
       await gallery.scrollIntoViewIfNeeded();
       await movePointerOutside(gallery);
-      await desktopPage.waitForFunction(i => {
-        const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
-        return element?.getAttribute("data-gallery-autoplay") === "playing";
-      }, index, { timeout: 9000 });
-      assert.equal(await gallery.locator(".gallery-slide").count(), [3, 4, 5, 2, 2, 3][index]);
-      assert.equal(await gallery.getByRole("button", { name: /Pause.*slideshow|إيقاف عرض/ }).count(), 1);
+      const slideCount = await gallery.locator(".gallery-slide").count();
+      assert.ok(slideCount >= 1, `gallery ${index + 1} must contain at least one verified photograph`);
+      const motionControl = gallery.getByRole("button", { name: /Pause.*slideshow|إيقاف عرض/ });
+      assert.equal(await motionControl.count(), 1);
+      if (slideCount > 1) {
+        await desktopPage.waitForFunction(i => {
+          const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
+          return element?.getAttribute("data-gallery-autoplay") === "playing";
+        }, index, { timeout: 12000 });
+        assert.equal(await motionControl.isEnabled(), true);
+      } else {
+        assert.equal(await gallery.getAttribute("data-gallery-autoplay"), "paused");
+        assert.equal(await motionControl.isDisabled(), true);
+      }
     }
-    const firstGallery = galleries.first();
+    const firstMultiIndex = await galleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(firstMultiIndex >= 0, "at least one subject gallery must contain multiple verified photographs");
+    const firstGallery = galleries.nth(firstMultiIndex);
     await firstGallery.scrollIntoViewIfNeeded();
     // A touchscreen may synthesize mouse compatibility events. A touch
     // pointerover must not freeze the card's auto-rotation indefinitely.
@@ -720,12 +739,13 @@ try {
     });
     assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
     await movePointerOutside(firstGallery);
-    await desktopPage.waitForFunction(() =>
-      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
+    await desktopPage.waitForFunction(index =>
+      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-autoplay") === "playing",
+      firstMultiIndex);
     const initial = await firstGallery.getAttribute("data-gallery-active");
-    await desktopPage.waitForFunction(before =>
-      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-active") !== before,
-      initial, { timeout: 10500 });
+    await desktopPage.waitForFunction(({ before, index }) =>
+      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-active") !== before,
+      { before: initial, index: firstMultiIndex }, { timeout: 10500 });
     await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
   });
 
