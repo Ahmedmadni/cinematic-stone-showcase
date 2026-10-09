@@ -125,7 +125,8 @@ try {
     assert.equal(await carousel.locator(".hero-gallery__photo--active").getAttribute("data-media-origin"), "actual-site");
     const heroMediaNotice = await desktopPage.locator(".hero-photo-label").innerText();
     assert.match(heroMediaNotice, /actual|فعلي/i);
-    assert.match(heroMediaNotice, /supplementary|مكمل/i);
+    assert.match(heroMediaNotice, /photographs?|photos?|صور/i);
+    assert.match(heroMediaNotice, /film|video|فيديو/i);
     await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
   });
 
