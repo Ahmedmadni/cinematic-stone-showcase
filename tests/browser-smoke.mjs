@@ -800,23 +800,23 @@ try {
   await caseRun("live Google satellite link and independent simulated 3D view", async () => {
     const location = desktopPage.locator(".somman-location-experience");
     await location.scrollIntoViewIfNeeded();
-    assert.ok(await location.getByRole("heading", { name: "خريطة القمر الصناعي" }).isVisible());
-    assert.ok(await location.getByRole("heading", { name: "منظور مجسّم تصوري" }).isVisible());
+    assert.ok(await location.getByRole("heading", { name: "Satellite map" }).isVisible());
+    assert.ok(await location.getByRole("heading", { name: "Actual site aerial" }).isVisible());
     const iframe = location.locator('iframe[title*="Google Maps"]');
     assert.equal(await iframe.count(), 0, "Google Maps must not load before visitor opt-in");
-    const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
+    const externalLink = location.getByRole("link", { name: /Open the reference quarry location/ });
     assert.match(await externalLink.getAttribute("href") ?? "", /^https:\/\/www\.google\.com\/maps\/search\//);
     const mapPrompt = location.locator(".somman-location-experience__map-prompt");
     assert.ok(await mapPrompt.isVisible());
-    await mapPrompt.getByRole("button", { name: "تحميل Google Maps" }).click();
+    await mapPrompt.getByRole("button", { name: "Load Google Maps" }).click();
     await iframe.waitFor({ state: "attached", timeout: 5000 });
     const src = await iframe.getAttribute("src");
     assert.ok(src?.includes("maps.google.com/maps?"));
     assert.match(src ?? "", /25\.515292%2C48\.362458/);
-    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في المشهد التصوري" });
+    const hotspot = location.getByRole("button", { name: /View Extraction zone/ });
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
-    assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
+    assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /Raw stone zone/);
 
     const conceptScene = location.locator(".somman-location-experience__scene");
     const conceptCamera = location.locator(".somman-location-experience__scene-camera");
@@ -860,12 +860,12 @@ try {
   await caseRun("investor evidence buttons remain interactive", async () => {
     const studio = desktopPage.locator(".evidence-studio");
     await studio.scrollIntoViewIfNeeded();
-    await studio.getByRole("button", { name: /ملفات التراخيص/ }).click();
+    await studio.getByRole("button", { name: /Permit files/ }).click();
     const secondPermit = studio.locator(".evidence-studio__permit-tab").nth(1);
     await secondPermit.click();
     assert.equal(await secondPermit.getAttribute("aria-pressed"), "true");
     assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /14377125/);
-    assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /منتهية بحسب نسخة العرض/);
+    assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /Listed as expired in the historical presentation/);
     await desktopPage.screenshot({ path: output + "/desktop-evidence.png", animations: "disabled" });
   });
 
@@ -967,7 +967,11 @@ try {
     assert.equal(await hero.getAttribute("data-hero-active"), afterHorizontal, "vertical gestures must never change images");
 
     // Inspect the enlarged gallery in the same touch-enabled browser.
-    const thumbnail = motionPage.locator(".gallery-image-button").first();
+    const touchGalleries = motionPage.locator(".site-gallery .gallery-slider");
+    const touchGalleryIndex = await touchGalleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(touchGalleryIndex >= 0, "mobile lightbox swipe QA requires a gallery with multiple verified photographs");
+    const thumbnail = touchGalleries.nth(touchGalleryIndex).locator(".gallery-image-button");
     await thumbnail.scrollIntoViewIfNeeded();
     await thumbnail.tap();
     const dialog = motionPage.locator("dialog.gallery-lightbox--native");
