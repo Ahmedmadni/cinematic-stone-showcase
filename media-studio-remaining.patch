@@ -1,0 +1,3681 @@
+diff --git a/.github/workflows/cinematic-quality.yml b/.github/workflows/cinematic-quality.yml
+index b0c18fa..f0ca7c0 100644
+--- a/.github/workflows/cinematic-quality.yml
++++ b/.github/workflows/cinematic-quality.yml
+@@ -53,6 +53,10 @@ jobs:
+         run: bun install --frozen-lockfile
+       - name: Cinematic motion and experience data tests
+         run: bun run test:cinematic
++      - name: Media management regression tests
++        run: bun run test:media
++      - name: Media studio lint
++        run: bunx eslint src/components/ManagedImage.tsx src/components/MediaStudio.tsx src/components/UploadedMediaManager.tsx src/components/ProductionLines.tsx src/lib/media-management.ts src/lib/media-rules.ts src/data/media-catalog.ts
+       - name: TypeScript check
+         run: bunx tsc --noEmit
+       - name: ESLint (experience code and logic rules)
+diff --git a/src/components/AutoVisual.tsx b/src/components/AutoVisual.tsx
+index 2dfa1cb..7f5310c 100644
+--- a/src/components/AutoVisual.tsx
++++ b/src/components/AutoVisual.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useEffect, useRef, useState } from "react";
+ 
+ type Visual = {
+@@ -46,7 +47,7 @@ export function AutoVisual({ images, className = "", interval = 7200, eager = fa
+ 
+   return (
+     <div ref={frame} className={`auto-visual ${className}`} data-auto-active={active} data-auto-playing={playing ? "playing" : "paused"}>
+-      {images.map((item, index) => <img
++      {images.map((item, index) => <ManagedImage mediaContext="AutoVisual"
+         key={item.image}
+         src={item.image}
+         alt={index === active ? item.alt : ""}
+diff --git a/src/components/EvidenceDocument.tsx b/src/components/EvidenceDocument.tsx
+index c065982..4a71050 100644
+--- a/src/components/EvidenceDocument.tsx
++++ b/src/components/EvidenceDocument.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+ import { ArrowUpLeft, X } from "lucide-react";
+ import { useSiteLanguage } from "@/lib/site-language";
+@@ -40,7 +41,7 @@ function DocumentDialog({ document, title, onClose }: { document: SuppliedDocume
+   return <dialog ref={dialog} onKeyDown={handleKeyDown} className="evidence-document-dialog" aria-label={title} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+     <div className="evidence-document-dialog__bar"><strong>{title}</strong><button ref={closeButton} type="button" onClick={onClose} aria-label={en ? "Close document" : "إغلاق المستند"}><X size={22} aria-hidden="true" /></button></div>
+     <p>{en ? "Supplied document copy. Current validity and surveillance reviews require verification with the issuing authority." : "نسخة المستند المرفقة. يلزم التحقق من السريان الحالي ومراجعات المتابعة لدى الجهة المصدرة."}</p>
+-    <div className="evidence-document-dialog__image"><img src={document.image} width={document.width} height={document.height} alt={title} decoding="async" /></div>
++    <div className="evidence-document-dialog__image"><ManagedImage mediaContext="EvidenceDocument" src={document.image} width={document.width} height={document.height} alt={title} decoding="async" /></div>
+     <a href={document.image} target="_blank" rel="noopener noreferrer">{en ? "Open original scan" : "فتح نسخة المستند الأصلية المرفقة"}<ArrowUpLeft size={18} aria-hidden="true" /></a>
+   </dialog>;
+ }
+@@ -52,7 +53,7 @@ export function EvidenceDocument({ document, title }: { document: SuppliedDocume
+   if (!document) return null;
+   return <div className="evidence-document">
+     <button type="button" className="evidence-document__trigger" onClick={() => setOpen(true)}>
+-      <img src={document.thumbnail} width={document.width} height={document.height} alt="" loading="lazy" decoding="async" />
++      <ManagedImage mediaContext="EvidenceDocument" src={document.thumbnail} width={document.width} height={document.height} alt="" loading="lazy" decoding="async" />
+       <span><small>{language === "en" ? "SUPPLIED DOCUMENT" : "المستند المرفق"}</small><strong>{language === "en" ? "View supplied scan" : "عرض نسخة المستند"}</strong><span>{title}</span></span><ArrowUpLeft size={21} aria-hidden="true" />
+     </button>
+     {open && <DocumentDialog document={document} title={title} onClose={() => setOpen(false)} />}
+diff --git a/src/components/FullSiteTour.tsx b/src/components/FullSiteTour.tsx
+index 484b681..1536f86 100644
+--- a/src/components/FullSiteTour.tsx
++++ b/src/components/FullSiteTour.tsx
+@@ -1,38 +1,125 @@
++import { ManagedImage } from "@/components/ManagedImage";
+ import { useEffect, useRef, useState, type KeyboardEvent, type RefObject } from "react";
+ import { Play, X } from "lucide-react";
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { officialVideo } from "@/data/official-video";
++import { useManagedVideo } from "@/lib/media-management";
+ 
+-function TourDialog({ onClose, opener }: { onClose: () => void; opener: RefObject<HTMLButtonElement | null> }) {
++function TourDialog({
++  onClose,
++  opener,
++}: {
++  onClose: () => void;
++  opener: RefObject<HTMLButtonElement | null>;
++}) {
+   const { language } = useSiteLanguage();
+   const dialog = useRef<HTMLDialogElement>(null);
+   const close = useRef<HTMLButtonElement>(null);
+   const [failed, setFailed] = useState(false);
+   const failedSources = useRef(0);
+-  function sourceError() { failedSources.current += 1; if (failedSources.current >= 2) setFailed(true); }
++  function sourceError() {
++    failedSources.current += 1;
++    if (failedSources.current >= (video.webm ? 2 : 1)) setFailed(true);
++  }
+   const en = language === "en";
+-  const video = officialVideo.fullTour;
++  const video = useManagedVideo(officialVideo.fullTour, "FullSiteTour");
+   useEffect(() => {
+     const node = dialog.current;
+     const focusTarget = opener.current ?? document.activeElement;
+     const overflow = document.body.style.overflow;
+     if (!node) return;
+-    node.showModal(); document.body.style.overflow = "hidden"; close.current?.focus({ preventScroll: true });
+-    return () => { node.querySelector("video")?.pause(); if (node.open) node.close(); document.body.style.overflow = overflow; if (focusTarget instanceof HTMLElement && focusTarget.isConnected) focusTarget.focus({ preventScroll: true }); };
++    node.showModal();
++    document.body.style.overflow = "hidden";
++    close.current?.focus({ preventScroll: true });
++    return () => {
++      node.querySelector("video")?.pause();
++      if (node.open) node.close();
++      document.body.style.overflow = overflow;
++      if (focusTarget instanceof HTMLElement && focusTarget.isConnected)
++        focusTarget.focus({ preventScroll: true });
++    };
+   }, [opener]);
+   function trap(event: KeyboardEvent<HTMLDialogElement>) {
+     if (event.key !== "Tab") return;
+     const node = event.currentTarget;
+-    const elements = Array.from(node.querySelectorAll<HTMLElement>('button:not([disabled]), video[controls], a[href]'));
+-    const first = elements[0], last = elements.at(-1), active = document.activeElement;
+-    if (event.shiftKey && (active === first || !node.contains(active))) { event.preventDefault(); last?.focus(); }
+-    else if (!event.shiftKey && (active === last || !node.contains(active))) { event.preventDefault(); first?.focus(); }
++    const elements = Array.from(
++      node.querySelectorAll<HTMLElement>("button:not([disabled]), video[controls], a[href]"),
++    );
++    const first = elements[0],
++      last = elements.at(-1),
++      active = document.activeElement;
++    if (event.shiftKey && (active === first || !node.contains(active))) {
++      event.preventDefault();
++      last?.focus();
++    } else if (!event.shiftKey && (active === last || !node.contains(active))) {
++      event.preventDefault();
++      first?.focus();
++    }
+   }
+-  return <dialog ref={dialog} className="site-tour-dialog" aria-label={en ? video.en : video.ar} onKeyDown={trap} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
+-    <header><strong>{en ? video.en : video.ar}</strong><button ref={close} type="button" aria-label={en ? "Close site tour" : "إغلاق جولة الموقع"} onClick={onClose}><X size={24} aria-hidden="true" /></button></header>
+-    <video poster={video.poster} controls autoPlay playsInline preload="metadata" aria-label={en ? "Complete supplied site tour, without audio" : "الجولة الكاملة المرفقة للموقع، دون صوت"} onError={event => { if (event.target === event.currentTarget) setFailed(true); }}><source src={video.src} type='video/mp4; codecs="avc1.64001f"' onError={sourceError} /><source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} /></video>
+-    <p>{failed ? (en ? "The film could not play. You can still browse the site photographs." : "تعذّر تشغيل الفيديو. يمكنك متابعة صور الموقع.") : (en ? "2:57 · Actual site footage · Original recording has no audio." : "٢:٥٧ · تصوير فعلي للموقع · التسجيل الأصلي دون صوت.")}</p>
+-  </dialog>;
++  return (
++    <dialog
++      ref={dialog}
++      className="site-tour-dialog"
++      aria-label={en ? video.en : video.ar}
++      onKeyDown={trap}
++      onCancel={(event) => {
++        event.preventDefault();
++        onClose();
++      }}
++      onClick={(event) => {
++        if (event.target === event.currentTarget) onClose();
++      }}
++    >
++      <header>
++        <strong>{en ? video.en : video.ar}</strong>
++        <button
++          ref={close}
++          type="button"
++          aria-label={en ? "Close site tour" : "إغلاق جولة الموقع"}
++          onClick={onClose}
++        >
++          <X size={24} aria-hidden="true" />
++        </button>
++      </header>
++      <video
++        poster={video.poster}
++        controls
++        autoPlay
++        playsInline
++        preload="metadata"
++        aria-label={
++          en
++            ? "Complete supplied site tour, without audio"
++            : "الجولة الكاملة المرفقة للموقع، دون صوت"
++        }
++        onError={(event) => {
++          if (event.target === event.currentTarget) setFailed(true);
++        }}
++      >
++        <source
++          src={video.src}
++          type={video.webm ? 'video/mp4; codecs="avc1.64001f"' : undefined}
++          onError={sourceError}
++        />
++        {video.webm && (
++          <source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} />
++        )}
++      </video>
++      <p>
++        {failed
++          ? en
++            ? "The film could not play. You can still browse the site photographs."
++            : "تعذّر تشغيل الفيديو. يمكنك متابعة صور الموقع."
++          : video.src !== officialVideo.fullTour.src
++            ? en
++              ? "Selected site video."
++              : "فيديو الموقع المختار."
++            : en
++              ? "2:57 · Actual site footage · Original recording has no audio."
++              : "٢:٥٧ · تصوير فعلي للموقع · التسجيل الأصلي دون صوت."}
++      </p>
++    </dialog>
++  );
+ }
+ 
+ /** The 177-second film has no mounted video/source/request before visitor opt-in. */
+@@ -41,10 +128,46 @@ export function FullSiteTour() {
+   const [open, setOpen] = useState(false);
+   const opener = useRef<HTMLButtonElement>(null);
+   const en = language === "en";
+-  const video = officialVideo.fullTour;
+-  return <section className="site-tour" aria-labelledby="site-tour-title" data-tour-open={open}>
+-    <div><span className="latin">INSIDE AL SOMMAN / THE FILM</span><h3 id="site-tour-title">{en ? "Inside Al Somman." : "داخل الصمان."}</h3><p>{en ? "The complete filmed route through the plant, equipment, facilities and quarry." : "الجولة المصوّرة الكاملة بين خطوط الكسارة والمعدات والمرافق والمحجر."}</p></div>
+-    <button ref={opener} className="site-tour__open" type="button" onClick={() => setOpen(true)} aria-label={en ? "Watch the full site tour" : "مشاهدة الجولة الكاملة للموقع"}><img src={video.poster} alt="" width={1280} height={720} loading="lazy" decoding="async" /><span><Play size={24} aria-hidden="true" />{en ? "Watch full tour · 2:57" : "مشاهدة الجولة الكاملة · ٢:٥٧"}</span></button>
+-    {open && <TourDialog opener={opener} onClose={() => setOpen(false)} />}
+-  </section>;
++  const video = useManagedVideo(officialVideo.fullTour, "FullSiteTour");
++  return (
++    <section className="site-tour" aria-labelledby="site-tour-title" data-tour-open={open}>
++      <div>
++        <span className="latin">INSIDE AL SOMMAN / THE FILM</span>
++        <h3 id="site-tour-title">{en ? "Inside Al Somman." : "داخل الصمان."}</h3>
++        <p>
++          {en
++            ? "The complete filmed route through the plant, equipment, facilities and quarry."
++            : "الجولة المصوّرة الكاملة بين خطوط الكسارة والمعدات والمرافق والمحجر."}
++        </p>
++      </div>
++      <button
++        ref={opener}
++        className="site-tour__open"
++        type="button"
++        onClick={() => setOpen(true)}
++        aria-label={en ? "Watch the full site tour" : "مشاهدة الجولة الكاملة للموقع"}
++      >
++        <ManagedImage
++          mediaContext="FullSiteTour"
++          src={video.poster}
++          alt=""
++          width={1280}
++          height={720}
++          loading="lazy"
++          decoding="async"
++        />
++        <span>
++          <Play size={24} aria-hidden="true" />
++          {video.src !== officialVideo.fullTour.src
++            ? en
++              ? "Watch selected film"
++              : "مشاهدة الفيديو المختار"
++            : en
++              ? "Watch full tour · 2:57"
++              : "مشاهدة الجولة الكاملة · ٢:٥٧"}
++        </span>
++      </button>
++      {open && <TourDialog opener={opener} onClose={() => setOpen(false)} />}
++    </section>
++  );
+ }
+diff --git a/src/components/GalleryLightbox.tsx b/src/components/GalleryLightbox.tsx
+index dc8d04d..2448f13 100644
+--- a/src/components/GalleryLightbox.tsx
++++ b/src/components/GalleryLightbox.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent, type TouchEvent as ReactTouchEvent } from "react";
+ import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
+@@ -172,7 +173,7 @@ export function GalleryLightbox({
+         </Button>
+       </div>
+       <div className="lightbox-content" onClick={event => event.stopPropagation()} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchCancel={() => { touchStart.current = null; }}>
+-        <img key={image} className={origin === "actual-site" ? "actual-site-photo" : undefined} data-media-origin={origin} src={image} alt={(origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")) + " " + label} decoding="async" width={1600} height={900} />
++        <ManagedImage mediaContext="GalleryLightbox" key={image} className={origin === "actual-site" ? "actual-site-photo" : undefined} data-media-origin={origin} src={image} alt={(origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")) + " " + label} decoding="async" width={1600} height={900} />
+         <div className="lightbox-caption">
+           <div>
+             <span>{origin === "actual-site" ? t("تصوير فعلي من موقع الصمان") : t("مشهد توضيحي مكمل")} · {replacement}</span>
+diff --git a/src/components/GallerySlides.tsx b/src/components/GallerySlides.tsx
+index cb437ae..a3c7e78 100644
+--- a/src/components/GallerySlides.tsx
++++ b/src/components/GallerySlides.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState } from "react";
+ import { Pause, Play } from "lucide-react";
+@@ -57,7 +58,7 @@ export function GallerySlides({ slides, title, replacement, onOpen, isPaused = f
+     <div className="gallery-slider" data-gallery-autoplay={playing ? "playing" : "paused"} data-gallery-interaction={paused ? "hover-paused" : manuallyPaused ? "manual-paused" : "idle"} data-gallery-active={active} ref={frame} onPointerEnter={(event) => { if (event.pointerType === "mouse") setPaused(true); }} onPointerLeave={(event) => { if (event.pointerType === "mouse") setPaused(false); }} onFocusCapture={() => setPaused(true)} onBlurCapture={(event) => { if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false); }}>
+       <Button type="button" variant="ghost" className="gallery-image-button" aria-label={language === "en" ? `View ${title}, ${slides[active]?.label ?? title} larger` : `عرض ${title}، ${slides[active]?.label ?? title} بحجم أكبر`} onClick={() => onOpen(active)}>
+         <span className="image-window">
+-          {slides.map((slide, index) => <img key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1600} height={900} alt={index === active ? `${slide.origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")} ${slide.label}` : ""} aria-hidden={index !== active} data-media-origin={slide.origin ?? "supplementary"} className={`gallery-slide ${slide.origin === "actual-site" ? "actual-site-photo " : ""}${index === active ? "active" : ""}`} />)}
++          {slides.map((slide, index) => <ManagedImage mediaContext="GallerySlides" key={slide.image} src={slide.image} loading="lazy" decoding="async" width={1600} height={900} alt={index === active ? `${slide.origin === "actual-site" ? t("تصوير فعلي من الموقع:") : t("مشهد توضيحي مكمل:")} ${slide.label}` : ""} aria-hidden={index !== active} data-media-origin={slide.origin ?? "supplementary"} className={`gallery-slide ${slide.origin === "actual-site" ? "actual-site-photo " : ""}${index === active ? "active" : ""}`} />)}
+           <span className="gallery-image-shade" /><span className="gallery-image-title">{title}</span>
+           <span className="photo-placeholder">{currentSlide?.origin === "actual-site" ? t("تصوير فعلي من موقع الصمان") : t("مشهد توضيحي مكمل")} · {replacement}</span>
+         </span>
+diff --git a/src/components/ManagedImage.tsx b/src/components/ManagedImage.tsx
+new file mode 100644
+index 0000000..ef14059
+--- /dev/null
++++ b/src/components/ManagedImage.tsx
+@@ -0,0 +1,41 @@
++import { useState, type ComponentProps } from "react";
++import { useManagedAsset } from "@/lib/media-management";
++import { useSiteLanguage } from "@/lib/site-language";
++
++/** One source can be replaced everywhere or in a particular display context. */
++export function ManagedImage({
++  mediaContext,
++  src,
++  alt,
++  style,
++  onError,
++  ...props
++}: ComponentProps<"img"> & { mediaContext: string }) {
++  const resolved = useManagedAsset(src, mediaContext);
++  const { language } = useSiteLanguage();
++  const [failed, setFailed] = useState<string | null>(null);
++  const replacement = resolved?.asset.url;
++  const url = resolved?.override && replacement && failed !== replacement ? replacement : src;
++  const override = resolved?.override;
++  const label = override && (language === "ar" ? override.title_ar : override.title_en);
++  return (
++    <img
++      {...props}
++      src={url}
++      alt={alt === "" ? "" : label || alt}
++      data-media-context={mediaContext}
++      data-media-id={resolved?.asset.id}
++      data-media-origin={resolved?.asset.origin ?? props["data-media-origin" as keyof typeof props]}
++      style={{
++        ...style,
++        ...(override
++          ? { objectFit: override.fit, objectPosition: `${override.focal_x}% ${override.focal_y}%` }
++          : {}),
++      }}
++      onError={(event) => {
++        if (replacement && replacement !== src && failed !== replacement) setFailed(replacement);
++        else onError?.(event);
++      }}
++    />
++  );
++}
+diff --git a/src/components/MediaStudio.tsx b/src/components/MediaStudio.tsx
+new file mode 100644
+index 0000000..295b91e
+--- /dev/null
++++ b/src/components/MediaStudio.tsx
+@@ -0,0 +1,502 @@
++import { useEffect, useMemo, useRef, useState } from "react";
++import type { User } from "@supabase/supabase-js";
++import { hasSupabaseBrowserConfig, supabase } from "@/integrations/supabase/client";
++import { lovable } from "@/integrations/lovable/index";
++import { mediaCatalog, mediaContexts, type CatalogAsset } from "@/data/media-catalog";
++import {
++  allowedMediaTypes,
++  refreshMediaManagement,
++  useMediaManagement,
++  validateMediaFile,
++} from "@/lib/media-management";
++import { SITE_MEDIA_BUCKET, siteMediaSections, type SiteMediaSection } from "@/lib/site-media";
++import { UploadedMediaManager } from "./UploadedMediaManager";
++import provenance from "@/data/media-provenance.json";
++
++export function MediaStudio() {
++  const state = useMediaManagement();
++  const editor = useRef<HTMLElement>(null);
++  const [user, setUser] = useState<User | null>(null);
++  const [auth, setAuth] = useState("loading");
++  const [isAdmin, setAdmin] = useState(false);
++  const [status, setStatus] = useState("");
++  const [busy, setBusy] = useState(false);
++  const [query, setQuery] = useState("");
++  const [category, setCategory] = useState("all");
++  const [selected, setSelected] = useState<CatalogAsset | null>(null);
++  const [context, setContext] = useState("*");
++  const [replacement, setReplacement] = useState("");
++  const [ar, setAr] = useState("");
++  const [en, setEn] = useState("");
++  const [fit, setFit] = useState<"cover" | "contain">("contain");
++  const [x, setX] = useState(50);
++  const [y, setY] = useState(50);
++  const [files, setFiles] = useState<File[]>([]);
++  const [section, setSection] = useState<SiteMediaSection>("production");
++  const catalog = useMemo(() => [...mediaCatalog, ...state.uploads], [state.uploads]);
++  useEffect(() => {
++    if (selected && window.matchMedia("(max-width: 900px)").matches)
++      editor.current?.scrollIntoView({ block: "start", behavior: "auto" });
++  }, [selected]);
++  useEffect(() => {
++    let live = true;
++    let stop: (() => void) | undefined;
++    if (!hasSupabaseBrowserConfig()) {
++      setAuth("unavailable");
++      return () => {
++        live = false;
++      };
++    }
++    const timeout = window.setTimeout(() => {
++      if (live) setAuth("unavailable");
++    }, 12000);
++    try {
++      const { data } = supabase.auth.onAuthStateChange((_event, session) => {
++        if (live) setUser(session?.user ?? null);
++      });
++      stop = () => data.subscription.unsubscribe();
++      void supabase.auth
++        .getUser()
++        .then(({ data, error }) => {
++          if (live) {
++            setUser(data.user ?? null);
++            setAuth(error && error.name !== "AuthSessionMissingError" ? "unavailable" : "ready");
++          }
++        })
++        .catch(() => {
++          if (live) setAuth("unavailable");
++        })
++        .finally(() => window.clearTimeout(timeout));
++    } catch {
++      setAuth("unavailable");
++      window.clearTimeout(timeout);
++    }
++    return () => {
++      live = false;
++      stop?.();
++      window.clearTimeout(timeout);
++    };
++  }, []);
++  useEffect(() => {
++    let live = true;
++    setAdmin(false);
++    if (user)
++      void supabase
++        .from("user_roles")
++        .select("role")
++        .eq("user_id", user.id)
++        .then(({ data, error }) => {
++          if (live) {
++            setAdmin(!error && !!data?.some((r) => r.role === "admin"));
++            setAuth(error ? "unavailable" : "ready");
++          }
++        });
++    return () => {
++      live = false;
++    };
++  }, [user]);
++  function edit(asset: CatalogAsset, scope = context) {
++    setSelected(asset);
++    setContext(scope);
++    const saved = state.overrides.find((o) => o.target_key === `${scope}:${asset.id}`);
++    setReplacement(saved?.replacement_id ?? asset.id);
++    setAr(saved?.title_ar ?? asset.ar);
++    setEn(saved?.title_en ?? asset.en);
++    setFit(saved?.fit ?? "contain");
++    setX(saved?.focal_x ?? 50);
++    setY(saved?.focal_y ?? 50);
++  }
++  async function save(reset = false) {
++    if (!selected || !isAdmin || busy) return;
++    setBusy(true);
++    setStatus("");
++    try {
++      const target_key = `${context}:${selected.id}`;
++      const result = reset
++        ? await supabase.from("media_overrides").delete().eq("target_key", target_key)
++        : await supabase.from("media_overrides").upsert({
++            target_key,
++            replacement_id: replacement,
++            title_ar: ar.trim(),
++            title_en: en.trim(),
++            fit,
++            focal_x: x,
++            focal_y: y,
++            updated_at: new Date().toISOString(),
++          });
++      if (result.error) throw result.error;
++      await refreshMediaManagement(true);
++      setStatus(
++        reset ? "تمت استعادة الأصل لهذا النطاق." : "حُفظ التخصيص. افتح معاينة الموقع للتحقق منه.",
++      );
++    } catch {
++      setStatus("لم يُحفظ التغيير. تحقق من الاتصال وصلاحية الإدارة وتطبيق ترحيل الوسائط.");
++    } finally {
++      setBusy(false);
++    }
++  }
++  async function upload() {
++    if (!isAdmin || !files.length || busy) return;
++    setBusy(true);
++    const errors: string[] = [];
++    let done = 0;
++    try {
++      for (const file of files) {
++        const invalid = validateMediaFile(file);
++        if (invalid) {
++          errors.push(`${file.name}: ${invalid}`);
++          continue;
++        }
++        const path = `${section}/${crypto.randomUUID()}.${allowedMediaTypes[file.type]}`;
++        setStatus(`جارٍ رفع ${file.name}…`);
++        const uploaded = await supabase.storage
++          .from(SITE_MEDIA_BUCKET)
++          .upload(path, file, { contentType: file.type, upsert: false });
++        if (uploaded.error) {
++          errors.push(`${file.name}: تعذّر الرفع.`);
++          continue;
++        }
++        const inserted = await supabase.from("site_media").insert({
++          section,
++          kind: file.type.startsWith("video/") ? "video" : "image",
++          storage_path: path,
++          title_ar: file.name.replace(/\.[^.]+$/, ""),
++          title_en: file.name.replace(/\.[^.]+$/, ""),
++        });
++        if (inserted.error) {
++          const cleanup = await supabase.storage.from(SITE_MEDIA_BUCKET).remove([path]);
++          errors.push(
++            `${file.name}: تعذّر حفظ السجل.${cleanup.error ? ` يلزم تنظيف ${path} من التخزين.` : " أُلغي رفع الملف."}`,
++          );
++        } else done++;
++      }
++      await refreshMediaManagement(true);
++      setFiles([]);
++      setStatus(`تم رفع ${done} ملف. ${errors.join(" ")}`);
++    } catch {
++      setStatus(`توقف الاتصال بعد رفع ${done} ملف. حدّث المكتبة قبل إعادة المحاولة.`);
++    } finally {
++      setBusy(false);
++    }
++  }
++  const preview = catalog.find((a) => a.id === replacement) ?? selected;
++  const filtered = catalog.filter(
++    (a) =>
++      (category === "all" || a.category === category) &&
++      `${a.id} ${a.ar} ${a.en} ${provenance[a.id as keyof typeof provenance]?.file ?? ""}`
++        .toLowerCase()
++        .includes(query.toLowerCase()),
++  );
++  const categories: Record<string, string> = {
++    production: "الإنتاج",
++    equipment: "المعدات",
++    facilities: "المرافق",
++    quarry: "المحجر",
++    video: "الفيديو",
++    documents: "المستندات",
++    brand: "الشعار",
++    posters: "أغلفة الفيديو",
++    hero: "الواجهة",
++    fleet: "المعدات المرفوعة",
++    supplementary: "أرشيف الصور التوضيحية السابقة",
++    decorative: "الرسوم الهندسية الزخرفية",
++  };
++  return (
++    <main className="admin-page media-studio" dir="rtl">
++      <header className="admin-header">
++        <div>
++          <span className="media-studio__eyebrow">AL SOMMAN / MEDIA STUDIO</span>
++          <h1>مكتبة الموقع. تحت إدارتك.</h1>
++          <p>الصور الحقيقية، الفيديوهات، أغلفتها والمستندات في مكان واحد.</p>
++        </div>
++        <div className="admin-header__actions">
++          <a href="/" target="_blank" rel="noreferrer">
++            معاينة الموقع ↗
++          </a>
++          {user && (
++            <button
++              disabled={busy}
++              onClick={() => {
++                void supabase.auth.signOut().catch(() => setStatus("تعذر تسجيل الخروج."));
++              }}
++            >
++              خروج
++            </button>
++          )}
++        </div>
++      </header>
++      <section className="media-studio__stats">
++        <div>
++          <strong>77</strong>
++          <span>صورة فعلية موثقة</span>
++        </div>
++        <div>
++          <strong>6</strong>
++          <span>مقاطع وجولة كاملة</span>
++        </div>
++        <div>
++          <strong>{state.error ? "—" : state.uploads.length}</strong>
++          <span>ملفات مرفوعة</span>
++        </div>
++        <div>
++          <strong>{state.error ? "—" : state.overrides.length}</strong>
++          <span>تخصيصات محفوظة</span>
++        </div>
++      </section>
++      <section className="admin-card">
++        <strong>
++          {isAdmin
++            ? "متصل بحساب الإدارة"
++            : auth === "loading"
++              ? "جارٍ التحقق من الاتصال…"
++              : "معاينة المكتبة — الحفظ يتطلب حساب إدارة"}
++        </strong>
++        {auth === "unavailable" && (
++          <p>
++            إعداد الاتصال السحابي غير متاح أو لم يستجب. المكتبة الأصلية تعمل؛ يلزم ضبط عنوان
++            Supabase ومفتاحه العام في إعدادات البناء وتطبيق ترحيل الوسائط. لا تدخل أي مفتاح سري هنا.
++          </p>
++        )}
++        {user && !isAdmin && (
++          <p>
++            لم تُثبت صلاحية الإدارة لهذا الحساب. يجب إسناد الدور بواسطة المالك من إعدادات قاعدة
++            البيانات.
++          </p>
++        )}
++        {!user && auth === "ready" && (
++          <button
++            className="admin-primary"
++            onClick={async () => {
++              try {
++                const result = await lovable.auth.signInWithOAuth("google", {
++                  redirect_uri: `${window.location.origin}/admin`,
++                });
++                if (result.error) throw result.error;
++              } catch {
++                setStatus("تعذر تسجيل الدخول بجوجل. تحقق من إعدادات الاتصال.");
++              }
++            }}
++          >
++            تسجيل الدخول بجوجل
++          </button>
++        )}
++        {state.error && <p>{state.error}</p>}
++        <button
++          disabled={busy}
++          onClick={() => {
++            void refreshMediaManagement(true);
++          }}
++        >
++          تحديث المكتبة
++        </button>
++      </section>
++      <p className="admin-status" role="status" aria-live="polite">
++        {status}
++      </p>
++      {isAdmin && <UploadedMediaManager />}
++      {isAdmin && (
++        <section className="admin-card">
++          <h2>رفع وسائط حقيقية</h2>
++          <p>
++            WebP للصور؛ MP4 أو WebM للفيديو. حد الملف 50 ميجابايت. تظهر الملفات في القسم المحدد عند
++            نجاح الرفع.
++          </p>
++          <label>
++            القسم
++            <select
++              value={section}
++              onChange={(e) => setSection(e.target.value as SiteMediaSection)}
++            >
++              {siteMediaSections.map((s) => (
++                <option key={s.id} value={s.id}>
++                  {s.ar}
++                </option>
++              ))}
++            </select>
++          </label>
++          <input
++            type="file"
++            multiple
++            accept="image/webp,image/jpeg,image/png,video/mp4,video/webm"
++            onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
++          />
++          <button className="admin-primary" disabled={busy || !files.length} onClick={upload}>
++            {busy ? "جارٍ التنفيذ…" : `رفع ${files.length || ""} ملفات`}
++          </button>
++        </section>
++      )}
++      <div className="media-studio__workspace">
++        <section className="admin-card">
++          <div className="media-studio__filters">
++            <label>
++              بحث بالصورة أو وصفها
++              <input
++                type="search"
++                placeholder="photo-033، المحجر، الموازين…"
++                value={query}
++                onChange={(e) => setQuery(e.target.value)}
++              />
++            </label>
++            <label>
++              التصنيف
++              <select value={category} onChange={(e) => setCategory(e.target.value)}>
++                <option value="all">جميع الأصول ({catalog.length})</option>
++                {Array.from(new Set(catalog.map((a) => a.category))).map((c) => (
++                  <option key={c} value={c}>
++                    {categories[c] ?? c}
++                  </option>
++                ))}
++              </select>
++            </label>
++          </div>
++          <p>{filtered.length} أصل — الأصول المرفقة محفوظة دائمًا ويمكن استعادتها.</p>
++          <div className="admin-grid">
++            {filtered.map((asset) => (
++              <button
++                type="button"
++                className={`admin-tile media-studio__tile${selected?.id === asset.id ? " is-selected" : ""}`}
++                key={asset.id}
++                onClick={() => edit(asset)}
++                aria-pressed={selected?.id === asset.id}
++              >
++                {asset.thumbnail ? (
++                  <img src={asset.thumbnail} alt="" loading="lazy" decoding="async" />
++                ) : (
++                  <span className="media-studio__video-placeholder">▶ فيديو مرفوع</span>
++                )}
++                <small>
++                  {asset.id} · {asset.kind === "video" ? "فيديو" : "صورة"}
++                </small>
++                <strong>{asset.ar || asset.id}</strong>
++                {state.overrides.some((o) => o.target_key.endsWith(`:${asset.id}`)) && (
++                  <span>● مخصص</span>
++                )}
++              </button>
++            ))}
++          </div>
++        </section>
++        <aside ref={editor} className="admin-card media-studio__editor">
++          <h2>{selected ? "تحرير الأصل وموضع عرضه" : "اختر صورة أو فيديو"}</h2>
++          {selected && preview ? (
++            <>
++              <small dir="ltr">{selected.id}</small>
++              {provenance[selected.id as keyof typeof provenance] && (
++                <details>
++                  <summary>اسم الملف الأصلي وبصمة التوثيق</summary>
++                  <p dir="ltr">{provenance[selected.id as keyof typeof provenance].file}</p>
++                  <small style={{ overflowWrap: "anywhere" }} dir="ltr">
++                    SHA-256: {provenance[selected.id as keyof typeof provenance].sha256}
++                  </small>
++                </details>
++              )}
++              {preview.kind === "video" ? (
++                <video
++                  key={preview.url}
++                  src={preview.url}
++                  controls
++                  playsInline
++                  preload="none"
++                  poster={preview.thumbnail || undefined}
++                />
++              ) : (
++                <img
++                  src={preview.url}
++                  alt={ar}
++                  style={{ objectFit: fit, objectPosition: `${x}% ${y}%` }}
++                />
++              )}
++              <label>
++                نطاق التغيير
++                <select value={context} onChange={(e) => edit(selected, e.target.value)}>
++                  {Object.entries(mediaContexts).map(([id, label]) => (
++                    <option key={id} value={id}>
++                      {label}
++                    </option>
++                  ))}
++                </select>
++              </label>
++              <p className="admin-muted">
++                النطاق الخاص يغيّر هذا الأصل عندما يظهر في ذلك المكوّن فقط؛ «جميع المواضع» يربط
++                الصورة ومصغّرها معًا.
++              </p>
++              <label>
++                البديل
++                <select value={replacement} onChange={(e) => setReplacement(e.target.value)}>
++                  {catalog
++                    .filter(
++                      (a) =>
++                        a.kind === selected.kind &&
++                        (selected.origin === "decorative"
++                          ? a.origin === "decorative"
++                          : a.origin !== "decorative" &&
++                            (a.origin !== "supplementary" || selected.origin === "supplementary")),
++                    )
++                    .map((a) => (
++                      <option key={a.id} value={a.id}>
++                        {a.id} — {a.ar}
++                      </option>
++                    ))}
++                </select>
++              </label>
++              <label>
++                النص البديل / وصف الفيديو بالعربية
++                <input value={ar} maxLength={240} onChange={(e) => setAr(e.target.value)} />
++              </label>
++              <label>
++                النص البديل / وصف الفيديو بالإنجليزية
++                <input
++                  value={en}
++                  maxLength={240}
++                  dir="ltr"
++                  onChange={(e) => setEn(e.target.value)}
++                />
++              </label>
++              {selected.kind === "image" && (
++                <>
++                  <label>
++                    طريقة العرض
++                    <select
++                      value={fit}
++                      onChange={(e) => setFit(e.target.value as "cover" | "contain")}
++                    >
++                      <option value="contain">الصورة كاملة — للمعدات والمستندات</option>
++                      <option value="cover">ملء الإطار</option>
++                    </select>
++                  </label>
++                  <label>
++                    موضع التركيز الأفقي {x}%
++                    <input
++                      type="range"
++                      min="0"
++                      max="100"
++                      value={x}
++                      onChange={(e) => setX(Number(e.target.value))}
++                    />
++                  </label>
++                  <label>
++                    موضع التركيز الرأسي {y}%
++                    <input
++                      type="range"
++                      min="0"
++                      max="100"
++                      value={y}
++                      onChange={(e) => setY(Number(e.target.value))}
++                    />
++                  </label>
++                </>
++              )}
++              <button className="admin-primary" disabled={!isAdmin || busy} onClick={() => save()}>
++                حفظ التخصيص
++              </button>
++              <button disabled={!isAdmin || busy} onClick={() => save(true)}>
++                استعادة الأصل في هذا النطاق
++              </button>
++            </>
++          ) : (
++            <p>استعرض المكتبة حتى دون اتصال. الحفظ والرفع محصوران بحسابات الإدارة المعتمدة.</p>
++          )}
++        </aside>
++      </div>
++    </main>
++  );
++}
+diff --git a/src/components/ProductionLines.tsx b/src/components/ProductionLines.tsx
+new file mode 100644
+index 0000000..cf6bcda
+--- /dev/null
++++ b/src/components/ProductionLines.tsx
+@@ -0,0 +1,86 @@
++import { useSiteLanguage } from "@/lib/site-language";
++import { sitePhotoLibrary } from "@/data/site-photo-library";
++import { ManagedImage } from "./ManagedImage";
++
++const records = [
++  {
++    id: "photo-033",
++    ar: "الخط ١ — الخط الأصغر",
++    en: "Line 1 — the smaller line",
++    detailAr: "يُعرف بالصفاق والكسارة ذوي الهيكل الأزرق، وفق توصيف المالك.",
++    detailEn:
++      "Identified by the blue primary crusher and feeder assembly, as described by the owner.",
++  },
++  {
++    id: "photo-025",
++    ar: "الخط ٢ — الخط الأكبر",
++    en: "Line 2 — the larger line",
++    detailAr: "منظومة التكسير والفرز الكبيرة ذات السيور المتعددة المتشعبة.",
++    detailEn: "The larger crushing and screening installation, with multiple branching conveyors.",
++  },
++];
++export function ProductionLines() {
++  const { language } = useSiteLanguage();
++  const en = language === "en";
++  const products = ["photo-021", "photo-011"].map((id) =>
++    sitePhotoLibrary.find((p) => p.id === id)!,
++  );
++  return (
++    <section className="production-lines" aria-labelledby="production-lines-title">
++      <h3 id="production-lines-title">
++        {en ? "Two lines. Clearly identified." : "خطان للإنتاج. تعريف واضح."}
++      </h3>
++      <div className="production-lines__grid">
++        {records.map((record) => {
++          const photo = sitePhotoLibrary.find((p) => p.id === record.id)!;
++          return (
++            <figure key={record.id}>
++              <ManagedImage
++                mediaContext="ProductionLines"
++                src={photo.image}
++                alt={en ? record.en : record.ar}
++                loading="lazy"
++                decoding="async"
++                width={1600}
++                height={900}
++              />
++              <figcaption>
++                <h3>{en ? record.en : record.ar}</h3>
++                <p>{en ? record.detailEn : record.detailAr}</p>
++              </figcaption>
++            </figure>
++          );
++        })}
++      </div>
++      <h3>{en ? "Aggregate, from the actual site." : "البحص، من الموقع الفعلي."}</h3>
++      <div className="production-lines__grid">
++        {products.map((product) => (
++          <figure key={product.id}>
++            <ManagedImage
++              mediaContext="ProductionLines"
++              src={product.image}
++              alt={
++                en
++                  ? "Actual aggregate stockpiles beneath production conveyors"
++                  : "مخزون فعلي للبحص أسفل سيور الإنتاج"
++              }
++              loading="lazy"
++              width={1600}
++              height={900}
++            />
++            <figcaption>
++              {en
++                ? "Actual stockpiles and discharge conveyors. Photographs do not establish aggregate grading, laboratory results or available quantities."
++                : "مخزون المنتج وسيور التفريغ كما تظهر في التصوير الفعلي. لا تُستنتج المقاسات أو نتائج الفحص أو الكميات المتاحة من الصورة."}
++            </figcaption>
++          </figure>
++        ))}
++      </div>
++      <p>
++        {en
++          ? "Ask the team to confirm current aggregate sizes and specifications before ordering."
++          : "تُؤكد مقاسات البحص ومواصفاته المتاحة مع الفريق قبل طلب التوريد."}
++      </p>
++    </section>
++  );
++}
+diff --git a/src/components/SiteLoader.tsx b/src/components/SiteLoader.tsx
+index 37fef9b..c7e2ecb 100644
+--- a/src/components/SiteLoader.tsx
++++ b/src/components/SiteLoader.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useEffect, useRef, useState } from "react";
+ import logo from "@/assets/official/brand/alostool-logo.png";
+ 
+@@ -24,7 +25,7 @@ export function SiteLoader({ language, onEntered }: { language: string; onEntere
+       exitTimer = window.setTimeout(() => {
+         node?.close(); document.documentElement.style.overflow = originalOverflow;
+         setPhase("done"); callback.current();
+-      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900);
++      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 350);
+     }
+     complete.current = finish;
+     const settled = () => { if (!finished) { loaded += 1; setCount(loaded); if (loaded === 2) finish("ready"); } };
+@@ -45,9 +46,10 @@ export function SiteLoader({ language, onEntered }: { language: string; onEntere
+   }, []);
+   if (phase === "done") return null;
+   return <dialog ref={dialog} className={"site-loader" + (phase === "leaving" ? " is-leaving" : "")} data-entry-outcome={outcome} aria-label={en ? "Preparing the presentation" : "تجهيز العرض"} onCancel={event => { event.preventDefault(); complete.current("skipped"); }}>
+-    <img src={logo} alt="" width={420} height={544} className="site-loader__logo" />
++    <ManagedImage mediaContext="SiteLoader" src={logo} alt="" width={420} height={544} className="site-loader__logo" />
+     <div className="site-loader__bar" role="progressbar" aria-label={en ? "Essential media readiness" : "جاهزية الوسائط الأساسية"} aria-valuemin={0} aria-valuemax={2} aria-valuenow={count}><span style={{ transform: `scaleX(${count / 2})` }} /></div>
+     <p className="site-loader__label" aria-live="polite">{phase === "loading" ? (en ? "Preparing the presentation" : "جارٍ تجهيز العرض") : (en ? "Opening the presentation" : "جارٍ فتح العرض")}</p>
++    <small className="site-loader__detail">{en ? 'Preparing the opening photograph and typography. Videos load when needed.' : 'تجهيز الصورة الافتتاحية والخطوط. تُحمّل الفيديوهات عند الحاجة.'}</small>
+     <button type="button" onClick={() => complete.current("skipped")}>{en ? "Enter presentation" : "الدخول إلى العرض"}</button>
+   </dialog>;
+ }
+diff --git a/src/components/SiteMediaReel.tsx b/src/components/SiteMediaReel.tsx
+index 2c193d9..beb9a80 100644
+--- a/src/components/SiteMediaReel.tsx
++++ b/src/components/SiteMediaReel.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useEffect, useMemo, useRef, useState } from "react";
+ import { useSiteMedia, type SiteMediaItem, type SiteMediaSection } from "@/lib/site-media";
+ import { officialVideo } from "@/data/official-video";
+@@ -37,6 +38,6 @@ export function SiteMediaReel({ section, language, videosOnly = false, interval
+   if (!current) return null;
+   const title = language === "ar" ? current.title_ar || "تصوير فعلي من الموقع" : current.title_en || "Actual site footage";
+   return <div className="site-media-reel reveal is-visible" ref={frame}>
+-    {current.kind === "video" ? <SiteVideoLoop key={current.id} video={{ id: section, src: current.url, ...(current.webm ? { webm: current.webm } : {}), poster: current.poster ?? officialVideo[section].poster, ar: current.title_ar || officialVideo[section].ar, en: current.title_en || officialVideo[section].en }} language={language} onUnavailable={() => { if (!current.id.startsWith("builtin-")) setActive(items.length - 1); }} onEnded={items.length > 1 ? () => setActive(value => (value + 1) % items.length) : undefined} /> : <figure className="site-media-reel__stage"><img src={current.url} alt={title} className="site-media-reel__frame active actual-site-photo" loading="lazy" decoding="async" onError={() => setActive(items.length - 1)} /><figcaption className="photo-placeholder">{title}</figcaption></figure>}
++    {current.kind === "video" ? <SiteVideoLoop key={current.id} video={{ id: section, src: current.url, ...(current.webm ? { webm: current.webm } : {}), poster: current.poster ?? officialVideo[section].poster, ar: current.title_ar || officialVideo[section].ar, en: current.title_en || officialVideo[section].en }} language={language} onUnavailable={() => { if (!current.id.startsWith("builtin-")) setActive(items.length - 1); }} onEnded={items.length > 1 ? () => setActive(value => (value + 1) % items.length) : undefined} /> : <figure className="site-media-reel__stage"><ManagedImage mediaContext="SiteMediaReel" src={current.url} alt={title} className="site-media-reel__frame active actual-site-photo" loading="lazy" decoding="async" onError={() => setActive(items.length - 1)} /><figcaption className="photo-placeholder">{title}</figcaption></figure>}
+   </div>;
+ }
+diff --git a/src/components/SitePhotoArchive.tsx b/src/components/SitePhotoArchive.tsx
+index 09edbda..356f509 100644
+--- a/src/components/SitePhotoArchive.tsx
++++ b/src/components/SitePhotoArchive.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useState } from "react";
+ import { ArrowDownLeft, ArrowUpLeft, Images } from "lucide-react";
+ import { useSiteLanguage } from "@/lib/site-language";
+@@ -48,7 +49,7 @@ export function SitePhotoArchive() {
+         </div>
+         <div className="site-photo-archive__grid">
+           {filtered.slice(0, limit).map(photo => <button className="site-photo-archive__photo" type="button" key={photo.id} onClick={() => setSelected(photo.id)} aria-label={(en ? "View photograph: " : "عرض الصورة: ") + (en ? photo.en : photo.ar)}>
+-            <img className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
++            <ManagedImage mediaContext="SitePhotoArchive" className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
+             <span><small className="latin">{photo.id.replace("photo-", "")}</small>{en ? photo.en : photo.ar}</span>
+           </button>)}
+         </div>
+diff --git a/src/components/SiteVideoLoop.tsx b/src/components/SiteVideoLoop.tsx
+index 0810fb5..3e7dabb 100644
+--- a/src/components/SiteVideoLoop.tsx
++++ b/src/components/SiteVideoLoop.tsx
+@@ -1,11 +1,28 @@
++import { ManagedImage } from "@/components/ManagedImage";
+ import { useEffect, useRef, useState } from "react";
+ import { Pause, Play } from "lucide-react";
+ import type { SiteVideo } from "@/data/official-video";
++import { useManagedVideo } from "@/lib/media-management";
+ 
+ /** One selected, muted cut. A source is attached only on intersection/explicit play. */
+-export function SiteVideoLoop({ video, language, hero = false, enabled = true, onCoverChange, onEnded, onUnavailable }: {
+-  video: SiteVideo; language: string; hero?: boolean; enabled?: boolean; onCoverChange?: (covered: boolean) => void; onEnded?: (() => void) | undefined; onUnavailable?: () => void;
++export function SiteVideoLoop({
++  video: originalVideo,
++  language,
++  hero = false,
++  enabled = true,
++  onCoverChange,
++  onEnded,
++  onUnavailable,
++}: {
++  video: SiteVideo;
++  language: string;
++  hero?: boolean;
++  enabled?: boolean;
++  onCoverChange?: (covered: boolean) => void;
++  onEnded?: (() => void) | undefined;
++  onUnavailable?: () => void;
+ }) {
++  const video = useManagedVideo(originalVideo, "SiteVideoLoop");
+   const stage = useRef<HTMLElement>(null);
+   const player = useRef<HTMLVideoElement>(null);
+   const failedSources = useRef(0);
+@@ -19,50 +36,179 @@ export function SiteVideoLoop({ video, language, hero = false, enabled = true, o
+   const [failed, setFailed] = useState(false);
+   const [actuallyPlaying, setActuallyPlaying] = useState(false);
+   const en = language === "en";
++  useEffect(() => {
++    failedSources.current = 0;
++    setReady(false);
++    setFailed(false);
++    setActuallyPlaying(false);
++  }, [video.src]);
+   useEffect(() => {
+     const node = stage.current;
+     if (!node) return;
+-    const observer = new IntersectionObserver(([entry]) => setVisible(entry?.isIntersecting ?? false), { threshold: .15 });
+-    observer.observe(hero ? node.closest(".hero-cinematic") ?? node : node);
++    const observer = new IntersectionObserver(
++      ([entry]) => setVisible(entry?.isIntersecting ?? false),
++      { threshold: 0.15 },
++    );
++    observer.observe(hero ? (node.closest(".hero-cinematic") ?? node) : node);
+     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+     const updateMotion = () => {
+-      const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
++      const connection = (navigator as Navigator & { connection?: { saveData?: boolean } })
++        .connection;
+       setMotionAllowed(!media.matches && !connection?.saveData);
+     };
+     const updateVisibility = () => setPageVisible(!document.hidden);
+-    updateMotion(); updateVisibility();
++    updateMotion();
++    updateVisibility();
+     media.addEventListener("change", updateMotion);
+     document.addEventListener("visibilitychange", updateVisibility);
+-    return () => { observer.disconnect(); media.removeEventListener("change", updateMotion); document.removeEventListener("visibilitychange", updateVisibility); };
++    return () => {
++      observer.disconnect();
++      media.removeEventListener("change", updateMotion);
++      document.removeEventListener("visibilitychange", updateVisibility);
++    };
+   }, [hero]);
+-  const shouldPlay = enabled && visible && pageVisible && !paused && !failed && (motionAllowed || manuallyStarted);
+-  useEffect(() => { if (shouldPlay) setRequested(true); }, [shouldPlay]);
++  const shouldPlay =
++    enabled && visible && pageVisible && !paused && !failed && (motionAllowed || manuallyStarted);
++  useEffect(() => {
++    if (shouldPlay) setRequested(true);
++  }, [shouldPlay]);
+   useEffect(() => {
+     const node = player.current;
+     if (!node) return;
+     let cancelled = false;
+     if (shouldPlay && requested) {
+-      void node.play().catch(() => { if (!cancelled) { setPaused(true); setActuallyPlaying(false); } });
++      void node.play().catch(() => {
++        if (!cancelled) {
++          setPaused(true);
++          setActuallyPlaying(false);
++        }
++      });
+     } else node.pause();
+-    return () => { cancelled = true; node.pause(); };
++    return () => {
++      cancelled = true;
++      node.pause();
++    };
+   }, [shouldPlay, requested, video.src]);
+   const covered = enabled && ready && !failed && (motionAllowed || manuallyStarted);
+-  useEffect(() => { onCoverChange?.(covered); return () => onCoverChange?.(false); }, [covered, onCoverChange]);
++  useEffect(() => {
++    onCoverChange?.(covered);
++    return () => onCoverChange?.(false);
++  }, [covered, onCoverChange]);
+   const title = en ? video.en : video.ar;
+-  function fail() { setFailed(true); setReady(false); setActuallyPlaying(false); onUnavailable?.(); }
+-  function sourceError() { failedSources.current += 1; if (failedSources.current >= (video.webm ? 2 : 1)) fail(); }
+-  function toggle() { if (failed) return; setManuallyStarted(true); setRequested(true); setPaused(actuallyPlaying); }
+-  return <figure ref={stage} className={"site-video" + (hero ? " site-video--hero" : "")} data-video-section={video.id} data-video-visible={visible} data-video-should-play={shouldPlay} data-video-requested={requested} data-video-playing={actuallyPlaying} data-video-ready={ready} data-video-failed={failed}>
+-    <div className="site-video__stage">
+-      {!hero && <img className="actual-site-photo" src={video.poster} alt={title} width={1280} height={720} loading="lazy" decoding="async" />}
+-      {requested && <video ref={player} key={video.src} className={"actual-site-video" + (covered ? " is-ready" : "")} poster={hero ? undefined : video.poster} muted playsInline autoPlay={shouldPlay} loop={!onEnded} onEnded={onEnded} preload="metadata" aria-label={title}
+-        onLoadedData={() => setReady(true)} onPlaying={() => setActuallyPlaying(true)} onPause={() => setActuallyPlaying(false)} onError={event => { if (event.target === event.currentTarget) fail(); }}>
+-        <source src={video.src} type={video.webm ? 'video/mp4; codecs="avc1.64001f"' : undefined} onError={sourceError} />{video.webm && <source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} />}
+-      </video>}
+-      <button type="button" className="site-video__toggle" onClick={toggle} disabled={failed || !enabled} aria-label={actuallyPlaying ? (en ? "Pause site video" : "إيقاف فيديو الموقع") : (en ? "Play site video" : "تشغيل فيديو الموقع")} aria-pressed={actuallyPlaying}>
+-        {actuallyPlaying ? <Pause size={17} aria-hidden="true" /> : <Play size={17} aria-hidden="true" />}<span>{actuallyPlaying ? (en ? "Pause film" : "إيقاف المقطع") : (en ? "Play film" : "تشغيل المقطع")}</span>
+-      </button>
+-    </div>
+-    {!hero && <figcaption><span className="latin">ACTUAL SITE / FILM</span><span>{title}</span>{failed && <small>{en ? "The still photograph remains available." : "تظل الصورة الثابتة متاحة."}</small>}</figcaption>}
+-  </figure>;
++  function fail() {
++    setFailed(true);
++    setReady(false);
++    setActuallyPlaying(false);
++    onUnavailable?.();
++  }
++  function sourceError() {
++    failedSources.current += 1;
++    if (failedSources.current >= (video.webm ? 2 : 1)) fail();
++  }
++  function toggle() {
++    if (failed) return;
++    setManuallyStarted(true);
++    setRequested(true);
++    setPaused(actuallyPlaying);
++  }
++  return (
++    <figure
++      ref={stage}
++      className={"site-video" + (hero ? " site-video--hero" : "")}
++      data-video-section={video.id}
++      data-video-visible={visible}
++      data-video-should-play={shouldPlay}
++      data-video-requested={requested}
++      data-video-playing={actuallyPlaying}
++      data-video-ready={ready}
++      data-video-failed={failed}
++    >
++      <div className="site-video__stage">
++        {!hero && (
++          <ManagedImage
++            mediaContext="SiteVideoLoop"
++            className="actual-site-photo"
++            src={video.poster}
++            alt={title}
++            width={1280}
++            height={720}
++            loading="lazy"
++            decoding="async"
++          />
++        )}
++        {requested && (
++          <video
++            ref={player}
++            key={video.src}
++            className={"actual-site-video" + (covered ? " is-ready" : "")}
++            poster={hero ? undefined : video.poster}
++            muted
++            playsInline
++            autoPlay={shouldPlay}
++            loop={!onEnded}
++            onEnded={onEnded}
++            preload="metadata"
++            aria-label={title}
++            onLoadedData={() => setReady(true)}
++            onPlaying={() => setActuallyPlaying(true)}
++            onPause={() => setActuallyPlaying(false)}
++            onError={(event) => {
++              if (event.target === event.currentTarget) fail();
++            }}
++          >
++            <source
++              src={video.src}
++              type={video.webm ? 'video/mp4; codecs="avc1.64001f"' : undefined}
++              onError={sourceError}
++            />
++            {video.webm && (
++              <source src={video.webm} type='video/webm; codecs="vp9"' onError={sourceError} />
++            )}
++          </video>
++        )}
++        <button
++          type="button"
++          className="site-video__toggle"
++          onClick={toggle}
++          disabled={failed || !enabled}
++          aria-label={
++            actuallyPlaying
++              ? en
++                ? "Pause site video"
++                : "إيقاف فيديو الموقع"
++              : en
++                ? "Play site video"
++                : "تشغيل فيديو الموقع"
++          }
++          aria-pressed={actuallyPlaying}
++        >
++          {actuallyPlaying ? (
++            <Pause size={17} aria-hidden="true" />
++          ) : (
++            <Play size={17} aria-hidden="true" />
++          )}
++          <span>
++            {actuallyPlaying
++              ? en
++                ? "Pause film"
++                : "إيقاف المقطع"
++              : en
++                ? "Play film"
++                : "تشغيل المقطع"}
++          </span>
++        </button>
++      </div>
++      {!hero && (
++        <figcaption>
++          <span className="latin">ACTUAL SITE / FILM</span>
++          <span>{title}</span>
++          {failed && (
++            <small>
++              {en ? "The still photograph remains available." : "تظل الصورة الثابتة متاحة."}
++            </small>
++          )}
++        </figcaption>
++      )}
++    </figure>
++  );
+ }
+diff --git a/src/components/UploadedMediaManager.tsx b/src/components/UploadedMediaManager.tsx
+new file mode 100644
+index 0000000..8f97a5a
+--- /dev/null
++++ b/src/components/UploadedMediaManager.tsx
+@@ -0,0 +1,134 @@
++import { useEffect, useState } from "react";
++import { supabase } from "@/integrations/supabase/client";
++import {
++  fetchSiteMedia,
++  SITE_MEDIA_BUCKET,
++  siteMediaSections,
++  type SiteMediaItem,
++} from "@/lib/site-media";
++import { refreshMediaManagement, useMediaManagement } from "@/lib/media-management";
++
++export function UploadedMediaManager() {
++  const state = useMediaManagement();
++  const [records, setRecords] = useState<SiteMediaItem[]>([]);
++  const [busy, setBusy] = useState(false);
++  const [status, setStatus] = useState("");
++  useEffect(() => {
++    let live = true;
++    void fetchSiteMedia(true)
++      .then((items) => {
++        if (live) setRecords(items);
++      })
++      .catch(() => {
++        if (live) setStatus("تعذّر تحميل سجلات الملفات.");
++      });
++    return () => {
++      live = false;
++    };
++  }, [state.uploads]);
++  async function change(item: SiteMediaItem, remove = false) {
++    if (busy) return;
++    if (
++      remove &&
++      state.overrides.some(
++        (o) =>
++          o.replacement_id === `upload-${item.id}` || o.target_key.endsWith(`:upload-${item.id}`),
++      )
++    ) {
++      setStatus("الملف مرتبط بتخصيص محفوظ. استعد الأصول في تلك المواضع قبل الحذف.");
++      return;
++    }
++    if (remove && !confirm("حذف هذا الملف المرفوع نهائيًا؟ لا تتأثر الصور الأصلية المرفقة."))
++      return;
++    setBusy(true);
++    try {
++      const result = remove
++        ? await supabase.from("site_media").delete().eq("id", item.id)
++        : await supabase
++            .from("site_media")
++            .update({
++              title_ar: item.title_ar,
++              title_en: item.title_en,
++              section: item.section,
++              sort_order: item.sort_order,
++            })
++            .eq("id", item.id);
++      if (result.error) throw result.error;
++      if (remove) {
++        const cleanup = await supabase.storage.from(SITE_MEDIA_BUCKET).remove([item.storage_path]);
++        setStatus(
++          cleanup.error
++            ? `أُزيل من العرض؛ تعذّر تنظيف ملف التخزين: ${item.storage_path}`
++            : "حُذف الملف المرفوع نهائيًا.",
++        );
++      } else setStatus("حُفظت بيانات الملف وترتيبه.");
++      await refreshMediaManagement(true);
++    } catch {
++      setStatus("لم تكتمل العملية. تحقق من الاتصال والصلاحيات.");
++    } finally {
++      setBusy(false);
++    }
++  }
++  function edit(id: string, values: Partial<SiteMediaItem>) {
++    setRecords((old) => old.map((r) => (r.id === id ? { ...r, ...values } : r)));
++  }
++  return (
++    <details className="admin-card">
++      <summary>تنظيم الملفات المرفوعة ({records.length}) — الوصف والترتيب والحذف</summary>
++      <p role="status">{status}</p>
++      {records.map((item) => (
++        <section className="admin-card" key={item.id}>
++          <small dir="ltr">{item.id}</small>
++          <label>
++            العربية
++            <input
++              value={item.title_ar}
++              maxLength={240}
++              onChange={(e) => edit(item.id, { title_ar: e.target.value })}
++            />
++          </label>
++          <label>
++            English
++            <input
++              value={item.title_en}
++              dir="ltr"
++              maxLength={240}
++              onChange={(e) => edit(item.id, { title_en: e.target.value })}
++            />
++          </label>
++          <label>
++            القسم
++            <select
++              value={item.section}
++              onChange={(e) =>
++                edit(item.id, { section: e.target.value as SiteMediaItem["section"] })
++              }
++            >
++              {siteMediaSections.map((s) => (
++                <option key={s.id} value={s.id}>
++                  {s.ar}
++                </option>
++              ))}
++            </select>
++          </label>
++          <label>
++            الترتيب — الرقم الأصغر أولًا
++            <input
++              type="number"
++              min="-10000"
++              max="10000"
++              value={item.sort_order}
++              onChange={(e) => edit(item.id, { sort_order: Number(e.target.value) })}
++            />
++          </label>
++          <button disabled={busy} onClick={() => change(item)}>
++            حفظ بيانات الملف
++          </button>
++          <button disabled={busy} onClick={() => change(item, true)}>
++            حذف الملف المرفوع
++          </button>
++        </section>
++      ))}
++    </details>
++  );
++}
+diff --git a/src/components/cinematic/FleetExperience.tsx b/src/components/cinematic/FleetExperience.tsx
+index 54e3855..4d4d201 100644
+--- a/src/components/cinematic/FleetExperience.tsx
++++ b/src/components/cinematic/FleetExperience.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState } from "react";
+ import { ArrowDownLeft, Gauge, Mouse, Pickaxe, Truck, Zap } from "lucide-react";
+@@ -5,12 +6,8 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
+ import { fleetSceneTarget } from "@/lib/cinematic-progress";
+ import { fleetFacts } from "@/data/experience-data";
+ import { officialMedia } from "@/data/official-media";
+-import excavators from "@/assets/excavators.jpg";
+-import loaders from "@/assets/loaders-maintenance.jpg";
+-import weighbridges from "@/assets/generators-weighbridge.jpg";
+-import equipment from "@/assets/equipment.jpg";
+ 
+-const images = [excavators, loaders, weighbridges, equipment] as const;
++const images = [officialMedia.equipment.lineup.image, officialMedia.equipment.front.image, officialMedia.facilities.weighbridge.image, officialMedia.facilities.workshop.image] as const;
+ const icons = [Pickaxe, Truck, Gauge, Zap] as const;
+ const sceneTotal = fleetFacts.length;
+ 
+@@ -74,12 +71,12 @@ export function FleetExperience() {
+ 
+       <div className="fleet-experience__scroll" id="fleet-scroll-track" ref={trackRef}>
+         <div className="fleet-experience__composition">
+-          <div className="fleet-experience__stage" aria-label={t("مشاهد توضيحية لفئات المعدات")}>
++          <div className="fleet-experience__stage" aria-label={language === 'en' ? 'Actual site equipment photographs' : 'صور المعدات الفعلية بالموقع'}>
+             {fleetFacts.map((item, index) => (
+-              <img
++              <ManagedImage mediaContext="FleetExperience"
+                 key={item.id}
+                 src={images[index]}
+-                alt={index === selected ? t("مشهد توضيحي لفئة") + " " + t(item.name) + " — " + t("وليس صورة موثقة للموقع") : ""}
++                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Actual maintenance workshop; not a generator close-up' : 'ورشة الصيانة الفعلية؛ ليست صورة تفصيلية للمولدات') : t(item.name)) : ""}
+                 aria-hidden={index !== selected}
+                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
+                 loading="lazy"
+@@ -90,7 +87,7 @@ export function FleetExperience() {
+             ))}
+             <div className="fleet-experience__shade" aria-hidden="true" />
+             <AtmosphereLayers variant="fleet" />
+-            <span className="fleet-experience__photo-note">{t("مشاهد المعدات الرئيسية محفوظة كتصوير تحريري مكمل؛ الصور الفعلية للموقع موضحة أدناه.")}</span>
++            <span className="fleet-experience__photo-note">{language === 'en' ? 'Actual supplied photographs. The power chapter shows the support workshop, not a verified generator close-up.' : 'صور فعلية مرفقة. يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر صورة تفصيلية مؤكدة للمولدات.'}</span>
+             <div className="fleet-experience__headline">
+               <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
+               <strong key={current.id}>{t(current.name)}</strong>
+@@ -130,7 +127,7 @@ export function FleetExperience() {
+               <div className="fleet-experience__actual-grid">
+                 {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
+                   <figure key={item.image}>
+-                    <img
++                    <ManagedImage mediaContext="FleetExperience"
+                       className="actual-site-photo"
+                       src={item.image}
+                       alt={language === "en" ? item.en : item.ar}
+diff --git a/src/components/cinematic/HeroGallery.tsx b/src/components/cinematic/HeroGallery.tsx
+index 61497e0..38715d7 100644
+--- a/src/components/cinematic/HeroGallery.tsx
++++ b/src/components/cinematic/HeroGallery.tsx
+@@ -1,14 +1,9 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+ import { useSiteMedia } from "@/lib/site-media";
+ import { ArrowLeft, ArrowRight, Pause, Play } from "lucide-react";
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { gallerySwipeStep, isInteractiveGalleryTarget } from "@/lib/gallery-gestures";
+-import breaker from "@/assets/excavators.jpg";
+-import loader from "@/assets/loaders-maintenance.jpg";
+-import breakerAlternate from "@/assets/excavators-alt.jpg";
+-import loaderAlternate from "@/assets/loaders-maintenance-alt.jpg";
+-import powerSite from "@/assets/generators-weighbridge.jpg";
+-import equipmentOverview from "@/assets/equipment.jpg";
+ import { officialMedia } from "@/data/official-media";
+ 
+ /**
+@@ -17,18 +12,16 @@ import { officialMedia } from "@/data/official-media";
+  * editorial scenes. The two origins stay explicitly distinguishable.
+  */
+ const baseScenes = [
+-  ...officialMedia.hero.map((item) => ({
++  { src: officialMedia.hero[0].image, en: officialMedia.hero[0].en, ar: officialMedia.hero[0].ar, origin: officialMedia.hero[0].origin },
++  ...officialMedia.hero.slice(1).map((item) => ({
+     src: item.image,
+     en: item.en,
+     ar: item.ar,
+     origin: item.origin,
+   })),
+-  { src: breaker, en: "Excavator — supplementary equipment visual", ar: "حفار — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+-  { src: loader, en: "Loader — supplementary equipment visual", ar: "شيول — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+-  { src: breakerAlternate, en: "Excavation — supplementary equipment visual", ar: "أعمال الحفر — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+-  { src: loaderAlternate, en: "Material handling — supplementary equipment visual", ar: "مناولة المواد — مشهد معدات توضيحي مكمل", origin: "supplementary" },
+-  { src: powerSite, en: "Site utilities — supplementary visual", ar: "مرافق التشغيل — مشهد توضيحي مكمل", origin: "supplementary" },
+-  { src: equipmentOverview, en: "Equipment fleet — supplementary visual", ar: "أسطول المعدات — مشهد توضيحي مكمل", origin: "supplementary" },
++  ...[officialMedia.equipment.loader, officialMedia.equipment.front, officialMedia.production.crusher,
++    officialMedia.production.conveyor, officialMedia.facilities.weighbridge, officialMedia.facilities.office]
++    .map(item => ({ src: item.image, en: item.en, ar: item.ar, origin: item.origin })),
+ ] as const;
+ 
+ const HERO_INTERVAL_MS = 5800;
+@@ -218,7 +211,7 @@ export function HeroGallery({ suspended = false, onRequestPhotographs }: { suspe
+         aria-hidden="true"
+       >
+         {previous && previous.src !== current.src && (
+-          <img
++          <ManagedImage mediaContext="HeroGallery"
+             className={"hero-gallery__photo hero-gallery__photo--outgoing" + (previous.origin === "actual-site" ? " actual-site-photo" : "")}
+             key={previous.src}
+             src={previous.src}
+@@ -228,7 +221,7 @@ export function HeroGallery({ suspended = false, onRequestPhotographs }: { suspe
+             decoding="async"
+           />
+         )}
+-        <img
++        <ManagedImage mediaContext="HeroGallery"
+           key={current.src}
+           ref={activeImageRef}
+           className={"hero-gallery__photo hero-gallery__photo--active" + (current.origin === "actual-site" ? " actual-site-photo" : "") + (outgoing !== null && !imageReady ? " hero-gallery__photo--waiting" : "") + (outgoing !== null && imageReady && motionAllowed ? " hero-gallery__photo--reveal" : "")}
+diff --git a/src/components/cinematic/MapExperience.tsx b/src/components/cinematic/MapExperience.tsx
+index 1c7ae80..0a88f01 100644
+--- a/src/components/cinematic/MapExperience.tsx
++++ b/src/components/cinematic/MapExperience.tsx
+@@ -1,7 +1,8 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+ import { ArrowUpLeft, Compass, ExternalLink, Layers3, MapPinned, MoveUpRight } from "lucide-react";
+-import quarryAerial from "@/assets/quarry-aerial.jpg";
++import { officialMedia } from '@/data/official-media';
+ import { googleMapsOpenUrl, googleSatelliteEmbedSource, quarryReferenceCenter } from "@/data/quarry-map";
+ 
+ const MAP_TILT_DAMPING = 0.08;
+@@ -116,7 +117,7 @@ export function MapExperience() {
+     <div className="somman-location-experience" aria-label={t("الخريطة التفاعلية والمنظور التصوري لمحجر الصمان")}>
+       <div className="somman-location-experience__topline">
+         <span><MapPinned size={18} aria-hidden="true" /> {t("استكشف الموقع من الأعلى")}</span>
+-        <span className="latin" dir="ltr">SATELLITE / 3D CONCEPT</span>
++        <span className="latin" dir="ltr">SATELLITE / ACTUAL SITE</span>
+       </div>
+       <div className="somman-location-experience__grid">
+         <div className="somman-location-experience__google">
+@@ -153,18 +154,18 @@ export function MapExperience() {
+         </div>
+         <div className="somman-location-experience__simulation">
+           <div className="somman-location-experience__panel-title">
+-            <div><span className="latin" dir="ltr">02 / CONCEPTUAL AERIAL</span><h3>{t("منظور مجسّم تصوري")}</h3></div>
+-            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {t("تخيّلي")}</span>
++            <div><span className="latin" dir="ltr">02 / ACTUAL AERIAL</span><h3>{language === 'en' ? 'Actual site aerial' : 'تصوير جوي فعلي للموقع'}</h3></div>
++            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {language === 'en' ? 'Supplied photograph' : 'صورة مرفقة'}</span>
+           </div>
+           <div
+             className="somman-location-experience__scene"
+             ref={sceneRef}
+             onPointerMove={onPointerMove}
+             onPointerLeave={resetTilt}
+-            aria-label={t("رسم تصوري علوي لكسارات ومحجر صخري")}
++            aria-label={language === 'en' ? 'Actual aerial photograph with illustrative category selectors' : 'صورة جوية فعلية مع أزرار توضيحية للفئات'}
+           >
+             <div className="somman-location-experience__scene-camera" aria-hidden="true">
+-              <img src={quarryAerial} alt="" loading="lazy" decoding="async" width="1536" height="1024"/>
++              <ManagedImage mediaContext="MapExperience" src={officialMedia.hero[0].image} alt="" loading="lazy" decoding="async" width="1600" height="900"/>
+               <div className="somman-location-experience__shadow" />
+             </div>
+             <span className="somman-location-experience__compass" aria-hidden="true"><Compass size={24}/> N</span>
+@@ -182,14 +183,14 @@ export function MapExperience() {
+               </button>
+             ))}
+             <div className="somman-location-experience__scene-caption">
+-              <small className="latin" dir="ltr">ILLUSTRATIVE VIEW / NOT SURVEY DATA</small>
++              <small className="latin" dir="ltr">ACTUAL PHOTO / MARKERS ARE NOT SURVEY DATA</small>
+               <strong>{t(active.heading)}</strong>
+               <p>{t(active.detail)}</p>
+             </div>
+           </div>
+           <div className="somman-location-experience__scene-footer">
+-            <span>{t("تصور بصري مستوحى من طبيعة محاجر الحجر الجيري؛ ليس صورة Google Earth أو تصويرًا موثقًا لموقع الشركة.")}</span>
+-            <a href="#التواصل">{t("استفسر عن صور الموقع الحقيقية")} <ArrowUpLeft size={15} aria-hidden="true"/></a>
++            <span>{language === 'en' ? 'Actual site photograph. The category buttons are navigation aids, not surveyed positions or permit boundaries.' : 'صورة فعلية للموقع. أزرار الفئات للتنقل فقط، ولا تحدد مواضع مساحية أو حدود تراخيص.'}</span>
++            <a href="#site-gallery-title">{language === 'en' ? 'Browse the site photographs' : 'تصفح صور الموقع'} <ArrowUpLeft size={15} aria-hidden="true"/></a>
+           </div>
+         </div>
+       </div>
+diff --git a/src/components/cinematic/ProductionFlow.tsx b/src/components/cinematic/ProductionFlow.tsx
+index 770ee41..faa67f3 100644
+--- a/src/components/cinematic/ProductionFlow.tsx
++++ b/src/components/cinematic/ProductionFlow.tsx
+@@ -1,13 +1,13 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState } from "react";
+ import { ArrowDownLeft, Layers3, Mouse, Mountain, Truck } from "lucide-react";
+ import { productionSteps } from "@/data/experience-data";
+ import { fleetSceneTarget } from "@/lib/cinematic-progress";
+-import extractionPhoto from "@/assets/excavators.jpg";
+ import { officialMedia } from "@/data/official-media";
+ 
+ const stepPhotos = [
+-  { image: extractionPhoto, origin: "supplementary" as const },
++  { image: officialMedia.hero[2].image, origin: "actual-site" as const },
+   { image: officialMedia.production.crusher.image, origin: "actual-site" as const },
+   { image: officialMedia.equipment.loader.image, origin: "actual-site" as const },
+ ] as const;
+@@ -87,12 +87,12 @@ export function ProductionFlow() {
+                 );
+               })}
+             </div>
+-            <p className="production-flow__scroll-note">{t("يعرض هذا الفصل تصويرًا فعليًا من موقع الصمان، مع إبقاء مشهد معدات توضيحي مكمل لمرحلة الاستخراج.")}</p>
++            <p className="production-flow__scroll-note">{t("يعرض هذا الفصل الصور الفعلية للمحجر والتكسير ومعدات التحميل.")}</p>
+           </div>
+ 
+           <div className="production-flow__visual" aria-live="polite" aria-atomic="true">
+             {productionSteps.map((step, index) => (
+-              <img
++              <ManagedImage mediaContext="ProductionFlow"
+                 src={(stepPhotos[index] ?? stepPhotos[0]).image}
+                 key={step.id}
+                 alt={active === index ? ((stepPhotos[index] ?? stepPhotos[0]).origin === "actual-site" ? t("تصوير فعلي من موقع الصمان لمرحلة") : t("مشهد معدات توضيحي مكمل لمرحلة")) + " " + t(step.title) : ""}
+diff --git a/src/components/cinematic/QuarryAtlas.tsx b/src/components/cinematic/QuarryAtlas.tsx
+index b56a663..39349a1 100644
+--- a/src/components/cinematic/QuarryAtlas.tsx
++++ b/src/components/cinematic/QuarryAtlas.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { useEffect, useRef, useState } from "react";
+ import { ArrowUpLeft, FileCheck2, MapPin, Mountain, Pause, Play } from "lucide-react";
+@@ -5,8 +6,8 @@ import { quarrySites, totalQuarryArea } from "@/data/experience-data";
+ import { officialMedia } from "@/data/official-media";
+ 
+ const images = [
+-  officialMedia.hero[2].image,
+   officialMedia.hero[0].image,
++  officialMedia.hero[2].image,
+   officialMedia.hero[1].image,
+ ] as const;
+ 
+@@ -83,7 +84,7 @@ export function QuarryAtlas() {
+               aria-label={t("عرض ملف") + " " + t(entry.name)}
+               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
+             >
+-              <img className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
++              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+               <span className="quarry-cards__shade" aria-hidden="true" />
+               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
+               <span className="quarry-cards__site-label">
+@@ -109,6 +110,7 @@ export function QuarryAtlas() {
+             </div>
+           </div>
+           <dl>
++            <div className="quarry-operation"><dt>{language === 'en' ? 'Operating use · owner supplied' : 'الاستخدام التشغيلي · وفق المالك'}</dt><dd>{language === 'en' ? current.operationEn : current.operationAr}</dd></div>
+             <div><dt>{t("رقم الرخصة بالمستند")}</dt><dd dir="ltr">{current.license}</dd></div>
+             <div><dt>{t("المرخص له")}</dt><dd>{t(current.permitHolder)}</dd></div>
+             <div><dt>{t("الحالة الواردة بالمستند")}</dt><dd>{t(current.documentStatus)}</dd></div>
+diff --git a/src/components/cinematic/QuarryTransition.tsx b/src/components/cinematic/QuarryTransition.tsx
+index 7a7d394..f3c33b0 100644
+--- a/src/components/cinematic/QuarryTransition.tsx
++++ b/src/components/cinematic/QuarryTransition.tsx
+@@ -1,3 +1,4 @@
++import { ManagedImage } from '@/components/ManagedImage';
+ import { useSiteLanguage } from "@/lib/site-language";
+ import { officialMedia } from "@/data/official-media";
+ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
+@@ -16,10 +17,10 @@ export function QuarryTransition() {
+     >
+       <div className="cinematic-bridge__sticky">
+         <div className="cinematic-bridge__shot cinematic-bridge__shot--quarry" aria-hidden="true">
+-          <img className="actual-site-photo" src={officialMedia.hero[2].image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
++          <ManagedImage mediaContext="QuarryTransition" className="actual-site-photo" src={officialMedia.hero[2].image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+         </div>
+         <div className="cinematic-bridge__shot cinematic-bridge__shot--production" aria-hidden="true">
+-          <img className="actual-site-photo" src={officialMedia.production.crusher.image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
++          <ManagedImage mediaContext="QuarryTransition" className="actual-site-photo" src={officialMedia.production.crusher.image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+         </div>
+         <div className="cinematic-bridge__shadow" aria-hidden="true" />
+         <AtmosphereLayers variant="bridge" />
+diff --git a/src/data/experience-data.ts b/src/data/experience-data.ts
+index e574a14..75442ea 100644
+--- a/src/data/experience-data.ts
++++ b/src/data/experience-data.ts
+@@ -10,6 +10,8 @@ export const quarrySites = [
+     area: 247900,
+     license: "1438733",
+     permitHolder: "شركة الأسطول الآلي",
++    operationAr: "المحجر ١ يضم الكسارة والمرافق التشغيلية.",
++    operationEn: "Quarry 1 houses the crushing plant and operational facilities.",
+     documentStatus: "سارية بحسب نسخة العرض",
+     note: "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة قبل أي تعاقد.",
+   },
+@@ -18,6 +20,8 @@ export const quarrySites = [
+     name: "محجر الأسطول ٢",
+     area: 246300,
+     license: "14377125",
++    operationAr: "المحجر ٢ هو محجر الاستخراج والتكسير الجاري؛ نسبة الاستغلال 60% بحسب المالك، وليست نسبة احتياطي جيولوجي مثبت.",
++    operationEn: "Quarry 2 is the active extraction quarry, with 60% utilization reported by the owner; this is not a certified geological reserve estimate.",
+     permitHolder: "شركة الأسطول الآلي",
+     documentStatus: "منتهية بحسب نسخة العرض",
+     note: "ورد الترخيص منتهيًا في ملف العرض؛ يُطلب مستند التجديد وحالة الترخيص الحالية.",
+@@ -27,9 +31,11 @@ export const quarrySites = [
+     name: "محجر بير زيت",
+     area: 249082,
+     license: "1437731",
++    operationAr: "المحجر ٣ غير مستغل. بير زيت شركة تابعة للأسطول الآلي، والمحجر مملوك بالكامل للأسطول الآلي بحسب توضيح المالك.",
++    operationEn: "Quarry 3 is unexploited. Bir Zeit is an Al Ostool Alaali subsidiary and the quarry is wholly owned by Al Ostool Alaali, according to the owner.",
+     permitHolder: "شركة بير زيت للخدمات البترولية",
+     documentStatus: "منتهية بحسب نسخة العرض",
+-    note: "الترخيص باسم شركة أخرى وورد منتهيًا؛ يجب مراجعة الملكية وحق النقل والتجديد.",
++    note: "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.",
+   },
+ ] as const;
+ 
+diff --git a/src/data/media-catalog.ts b/src/data/media-catalog.ts
+new file mode 100644
+index 0000000..d04f628
+--- /dev/null
++++ b/src/data/media-catalog.ts
+@@ -0,0 +1,152 @@
++import { sitePhotoLibrary } from "./site-photo-library";
++import { officialVideo } from "./official-video";
++import { certificateScans, permitScans } from "./official-documents";
++import logo from "@/assets/official/brand/alostool-logo.png";
++import limestoneStrata from "@/assets/limestone-strata.svg";
++import crusherFlow from "@/assets/crusher-flow.svg";
++import quarryContours from "@/assets/quarry-contours.svg";
++
++export type CatalogAsset = {
++  id: string;
++  kind: "image" | "video";
++  url: string;
++  thumbnail: string;
++  ar: string;
++  en: string;
++  category: string;
++  origin: "actual-site" | "document" | "brand" | "supplementary" | "decorative";
++  webm?: string;
++};
++/** The library includes originals already bundled with the site, not just uploads. */
++export const mediaCatalog: CatalogAsset[] = [
++  ...sitePhotoLibrary.map((p) => ({
++    id: p.id,
++    kind: "image" as const,
++    url: p.image,
++    thumbnail: p.thumbnail,
++    ar: p.ar,
++    en: p.en,
++    category: p.category,
++    origin: "actual-site" as const,
++  })),
++  ...Object.values(officialVideo).map((v) => ({
++    id: `video-${v.id}`,
++    kind: "video" as const,
++    url: v.src,
++    webm: v.webm,
++    thumbnail: v.poster,
++    ar: v.ar,
++    en: v.en,
++    category: "video",
++    origin: "actual-site" as const,
++  })),
++  ...Object.entries({ ...certificateScans, ...permitScans }).map(([id, d]) => ({
++    id: `document-${id}`,
++    kind: "image" as const,
++    url: d.image,
++    thumbnail: d.thumbnail,
++    ar: `وثيقة ${id}`,
++    en: `Document ${id}`,
++    category: "documents",
++    origin: "document" as const,
++  })),
++  {
++    id: "brand-logo",
++    kind: "image",
++    url: logo,
++    thumbnail: logo,
++    ar: "شعار الأسطول الآلي",
++    en: "Al Ostool logo",
++    category: "brand",
++    origin: "brand",
++  },
++  ...Object.values(officialVideo).map((v) => ({
++    id: `poster-${v.id}`,
++    kind: "image" as const,
++    url: v.poster,
++    thumbnail: v.poster,
++    ar: `غلاف: ${v.ar}`,
++    en: `Poster: ${v.en}`,
++    category: "posters",
++    origin: "actual-site" as const,
++  })),
++  ...[
++    {
++      id: "decorative-limestone-strata",
++      url: limestoneStrata,
++      ar: "رسم طبقات الحجر الجيري",
++      en: "Limestone strata motif",
++    },
++    {
++      id: "decorative-crusher-flow",
++      url: crusherFlow,
++      ar: "رسم مسار الكسارة",
++      en: "Crusher flow motif",
++    },
++    {
++      id: "decorative-quarry-contours",
++      url: quarryContours,
++      ar: "رسم كنتور المحجر",
++      en: "Quarry contour motif",
++    },
++  ].map((asset) => ({
++    ...asset,
++    kind: "image" as const,
++    thumbnail: asset.url,
++    category: "decorative",
++    origin: "decorative" as const,
++  })),
++];
++
++// Retain old editorial assets in the library without presenting them as site evidence.
++const editorialAssets = import.meta.glob<string>("/src/assets/*.{jpg,jpeg,png,webp}", {
++  eager: true,
++  query: "?url",
++  import: "default",
++});
++for (const [path, url] of Object.entries(editorialAssets)) {
++  const name = path.split("/").pop()!;
++  mediaCatalog.push({
++    id: `editorial-${name}`,
++    kind: "image",
++    url,
++    thumbnail: url,
++    ar: `أصل توضيحي سابق — ${name}`,
++    en: `Legacy editorial asset — ${name}`,
++    category: "supplementary",
++    origin: "supplementary",
++  });
++}
++
++const byUrl = new Map<string, CatalogAsset>();
++for (const asset of mediaCatalog) {
++  byUrl.set(asset.url, asset);
++  // Video posters are separate image assets; a poster must not resolve to a video.
++  if (asset.kind === "image") byUrl.set(asset.thumbnail, asset);
++  if (asset.webm) byUrl.set(asset.webm, asset);
++}
++export function findCatalogAsset(url?: string) {
++  return url ? byUrl.get(url) : undefined;
++}
++
++export const mediaContexts: Record<string, string> = {
++  "*": "جميع مواضع الأصل",
++  index: "الصفحة الرئيسية / الشعار",
++  SiteLoader: "شاشة الدخول",
++  HeroGallery: "صور الواجهة الرئيسية",
++  SiteVideoLoop: "مقاطع الأقسام والواجهة",
++  FullSiteTour: "الجولة الكاملة",
++  AutoVisual: "المشاهد المتبدلة",
++  GallerySlides: "معارض الفئات",
++  GalleryLightbox: "عارض الصور المكبرة",
++  SitePhotoArchive: "أرشيف الصور الـ77",
++  QuarryAtlas: "بطاقات المحاجر",
++  QuarryTransition: "الانتقال بين المشاهد",
++  ProductionFlow: "رحلة الإنتاج",
++  FleetExperience: "عرض المعدات",
++  MapExperience: "الموقع والخريطة",
++  EvidenceDocument: "المستندات",
++  ProductionLines: "خطي الإنتاج والمنتجات",
++  SiteMediaReel: "معرض وسائط الأقسام",
++  BackdropMotif: "الرسوم الهندسية الزخرفية",
++};
+diff --git a/src/data/media-provenance.json b/src/data/media-provenance.json
+new file mode 100644
+index 0000000..cf4cfab
+--- /dev/null
++++ b/src/data/media-provenance.json
+@@ -0,0 +1,464 @@
++{
++  "photo-001": {
++    "file": "DJI_0085.webp",
++    "sha256": "75004bed3299d33d93e8b55e5fa8d4ba6d152af7e442b707e91811170bc2fbf8",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-002": {
++    "file": "DJI_0086.webp",
++    "sha256": "8198d123be098b180526641a3455853b2f39f98e9b50a6ff384dd1184e7b2027",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-003": {
++    "file": "DJI_0087.webp",
++    "sha256": "d354fa249dd41efadf8b51c5aa7e8e4eb77f7b3d014cdc74314a8b68a63f2549",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-004": {
++    "file": "DJI_0098.webp",
++    "sha256": "083b3a3ac8e5fe7d7569a5c4e4d22aeae73d14a3c29bdacaeae53cde6cf0474a",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-005": {
++    "file": "DJI_0099.webp",
++    "sha256": "b75e8be1cf3c11611ccabf348100814de18cf4db6db64beda52d03caedac3c6b",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-006": {
++    "file": "DJI_0100.webp",
++    "sha256": "b7250ca809d78ac08e6c76c86bc7328c8944c7fdd9d3d7123baf2564545c870a",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-007": {
++    "file": "DJI_0101.webp",
++    "sha256": "a4abd8b5f10ded5316d79526ed4cdc7467487b9bcd846699a89d6cda7e7f1374",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-008": {
++    "file": "DJI_0105.webp",
++    "sha256": "59064b569ac759851ee70720ea7fc92aed290f802ec3d2a8b05785526a4c8d07",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-009": {
++    "file": "DJI_0107.webp",
++    "sha256": "7c01d9d336316cd1859abd13682a8b686c553cf167f91407de346f22ff07169d",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-010": {
++    "file": "DJI_0110.webp",
++    "sha256": "b5a462ae1037c47c07b981bd25d78e24670395d0a31cdf29deda769102d0d6ec",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-011": {
++    "file": "DJI_0111.webp",
++    "sha256": "fe87d47606e1cfd487048831420731a4f37742124d111a9031e2b39e6171b8cf",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-012": {
++    "file": "DJI_0113.webp",
++    "sha256": "7d110e5f28717796c2b9141cab028fce43f1a9dbf017c003d20d3e865257617a",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-013": {
++    "file": "DJI_0115.webp",
++    "sha256": "75db698c14694a01051ce2b02c960169395c2b0f3bb8f7045281f6c1a95ac210",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-014": {
++    "file": "DJI_0116.webp",
++    "sha256": "7d40858a17e1b34fbef8a765ca43e99f9c57d8235c2b052f57b0361c7ae97da2",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-015": {
++    "file": "DJI_0117.webp",
++    "sha256": "fef5d4840b488cfa8eeb39d22df5a46980a7ac2345fda87e1d71726649a2cb57",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-016": {
++    "file": "DJI_0119.webp",
++    "sha256": "cb4c8253ba89a7eb430e029c7c0fefef3cb17691704979976c42d2f12d4c6a0a",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-017": {
++    "file": "DJI_0121.webp",
++    "sha256": "d92f01c797364a7a92a548c29f8c1eb067ec6e3c0d9d5f7be4b38d0147c0e02f",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-018": {
++    "file": "DJI_0126.webp",
++    "sha256": "e4c47142815f53a45dd16d4c34787e721837473c0b1d48211af57f13b7674ce0",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-019": {
++    "file": "DJI_0127.webp",
++    "sha256": "9f2b6439c58142b0913b86cfe9609a77311901acb7a5c2b2ca66624895f55ada",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-020": {
++    "file": "DJI_0128.webp",
++    "sha256": "c5f3543666e6d2413c323b345391c4a68e2665ed5439810b08d651a4a1311b7d",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-021": {
++    "file": "DJI_0129.webp",
++    "sha256": "97bd4ff5bca8027118fe249e7868290f44ce522ca0a94fd64da3cb715df33a59",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-022": {
++    "file": "DJI_0130.webp",
++    "sha256": "1af9741d539263def5425405a0df5757e699045e510664ffffe63a8bcbec2b8e",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-023": {
++    "file": "DJI_0131.webp",
++    "sha256": "5806ec5d42dbdd030d63c4ce42f5703258beee88ce3c0a75c1bef3808c3f107d",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-024": {
++    "file": "DJI_0132.webp",
++    "sha256": "72a27eae99ef242c2489812271538ee6ae96c21410952707ac1763d3f5ab38f0",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-025": {
++    "file": "DJI_0146.webp",
++    "sha256": "78fd6bcf6f500d87031aaa3259c09d1799306942b4ad180594f4190638014eca",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-026": {
++    "file": "DJI_0147.webp",
++    "sha256": "03d4a265c978c43e980a2a241b5bfee00dcb3aed8f4368e6adb7294d06bc9b00",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-027": {
++    "file": "DJI_0174.webp",
++    "sha256": "775b3318b00437d7758b453d3f6bb326a40a7ae18ffc8234ea0e2a8e821efd37",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-028": {
++    "file": "DJI_0176.webp",
++    "sha256": "2da514a4b2ed2301ab1795f22ebb4cc40286f3fe52fe89aa61462cd60d5771bd",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-029": {
++    "file": "DJI_0178.webp",
++    "sha256": "5f2ca968e3b7f308caf2289c24f34eb86497e43ea240ba10a642e35efc21e73d",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-030": {
++    "file": "DJI_0179.webp",
++    "sha256": "2b142b85007ef3f58e31b175e3cd697ed6fa5425951bab5812758f4829d88044",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-031": {
++    "file": "DJI_0183.webp",
++    "sha256": "0cd76e0a927a90ba22d8727022d1d2557499b1f62034ecbb6c46c0b57c35757d",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-032": {
++    "file": "DJI_0190.webp",
++    "sha256": "f147009dc5545ef43864d5a64f6eeb02ecc86b49638b7054268181441d69ca2c",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-033": {
++    "file": "DJI_0191.webp",
++    "sha256": "abfdd20b029f68e02ba83e035d39ef3ad90f81802880f4c4171b8b9175ede90b",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-034": {
++    "file": "DJI_0192.webp",
++    "sha256": "dca5bc15e402a5a5e4e9f653107770009fe620caadb131ae601fe0514e66c6e9",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-035": {
++    "file": "DJI_0193.webp",
++    "sha256": "417400db6be48ffea0c34206948ccbbe343c9793b5ac8c1309d174d93a20fc46",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-036": {
++    "file": "DJI_0194.webp",
++    "sha256": "e6c6ac8bd16a6800b32ae9d2d5a999db8d4ca086261fda2e157397335993db9b",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-037": {
++    "file": "DJI_0195.webp",
++    "sha256": "089a91250865e5d1c31463929ea6b33d83639967dd5e53d8b4bae1a178e9d61f",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-038": {
++    "file": "DJI_0196.webp",
++    "sha256": "80e27ca9cca35d0c7140dc7c14765d976fda1ace3bc25130c176eacd7e6ccfb5",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-039": {
++    "file": "DJI_0197.webp",
++    "sha256": "d170d51f927c2288a0e35c40f125be3787f09d9c8679ef62e1af64942adde1a8",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-040": {
++    "file": "DJI_0198.webp",
++    "sha256": "44880f0c56156bd878ef4c4a444b179697d423fc7b941b3c1dfac41fa55bb2fb",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-041": {
++    "file": "DJI_0204.webp",
++    "sha256": "462422c32929938ef351185d0401512ff3002284af69d8370daf9b96afacb326",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-042": {
++    "file": "DJI_0166.webp",
++    "sha256": "0a0c49d0cd9def969ea2663b9efb9d554225718e333d4d9e4aa128f1218f072c",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-043": {
++    "file": "DJI_0167.webp",
++    "sha256": "d29dfd1f1106d2ee7912915c2996bf186fae47da09a085bf3cb27d348dbc72eb",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-044": {
++    "file": "DJI_0168.webp",
++    "sha256": "a3b5a479168be3c57579793246690ce74f2e5c67f9637c31764e8f1c08bccc80",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-045": {
++    "file": "DJI_0169.webp",
++    "sha256": "c63462d247f8eafabe95b7627679a873ab4e705a369719127a2254c5cc81a160",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-046": {
++    "file": "DJI_0172.webp",
++    "sha256": "adae8dd0f53262ae8b4ed56eb02b620e8a5a84f15998b7b46111dc697a93f3d8",
++    "width": 8000,
++    "height": 5760
++  },
++  "photo-047": {
++    "file": "DJI_0173.webp",
++    "sha256": "c9b3680b1a0ae346771e2dc7dfd94e0640921eb026b4e0ba1e2ae41308c84405",
++    "width": 8000,
++    "height": 5760
++  },
++  "photo-048": {
++    "file": "DJI_0063.webp",
++    "sha256": "eadf12f4f8077e0145ae0d4d86f2fe97932ade830d339137588b9732b7b6536e",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-049": {
++    "file": "DJI_0064.webp",
++    "sha256": "9a66199844dc1520b2a1e5d9eadd40cba79f179b9164f554d71cf0892fa07b31",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-050": {
++    "file": "DJI_0065.webp",
++    "sha256": "7999be7fc30568daee37bbcf5b469a2b32bf4c98f1b7d47c9382652a3b21e86b",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-051": {
++    "file": "DJI_0066.webp",
++    "sha256": "bfde31cbed65ddaa6f368e31977b7645ecca6e8dde8120e57123b1fc6a455949",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-052": {
++    "file": "DJI_0067.webp",
++    "sha256": "1ada4fe1f51ec6b563fc32c52b13b36a97eeca89c3c53e543a948923d90d2d73",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-053": {
++    "file": "DJI_0070.webp",
++    "sha256": "b3506b64bb9d6f1882e2fa35fba8ca32a6c9b8bffac67e8fa43d70371eb89822",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-054": {
++    "file": "DJI_0075.webp",
++    "sha256": "f6dd5c716a4cb4a6e46e036a7406fbdaa4ba3bd57f75b6dc2f5e04e06472267f",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-055": {
++    "file": "DJI_0076.webp",
++    "sha256": "d8536641e4410b076c60b8176deb0c3880adcbdd0471beb7a666ab4b38a5ebc3",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-056": {
++    "file": "DJI_0077.webp",
++    "sha256": "bd907d48ac55cef6a7a1548d47070a326211fd2cacc100d8d067e993571dce29",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-057": {
++    "file": "DJI_0078.webp",
++    "sha256": "20b7e2d8ef63376f9c94b79f5107287f51630180c4d75e46f0b3704bf74dad86",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-058": {
++    "file": "DJI_0079.webp",
++    "sha256": "953f9994b2f7b57187cc6556161cbaa9f1ad00eebdd6695963b0feccde64be06",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-059": {
++    "file": "DJI_0080.webp",
++    "sha256": "aef32e58465737a0e2c0a4d08c33adfdf3350ac08472ab57367012480bc0d6fe",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-060": {
++    "file": "DJI_0082.webp",
++    "sha256": "87b11a2fc4ebcd6d3c9a323ba6374878581c37950430da4922b1c6646018b4ab",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-061": {
++    "file": "DJI_0083.webp",
++    "sha256": "53722869a32a823e46e5151fa77f9019d77fe749dc0d20b179f2233422a01a75",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-062": {
++    "file": "المصلى والاستراحة.webp",
++    "sha256": "475018833078b869c098a8546337f0625d8cad8c01a1cbf952efdd0078e3f047",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-063": {
++    "file": "المكاتب.webp",
++    "sha256": "64f838e35cefdd6183dd40c2b9e86286f296d64a61a4f7db46ac116382d15f32",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-064": {
++    "file": "الموازين.webp",
++    "sha256": "aef23290e43c4458eb2e5cf5e617829d145a411e902021cc1b12c5adc4dbc46b",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-065": {
++    "file": "الورشة.webp",
++    "sha256": "5a0ca387fc4ec18aa0a8511f69fd3044371e7f8bc27d3393c2d13c98ec8066a3",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-066": {
++    "file": "تكامل النفق والجدار الاستنادي مع خط الانتاج 2.webp",
++    "sha256": "d00d773de40d117e8036da9eef76227b824caf53b0bd08dc68d60dc21b93d8db",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-067": {
++    "file": "تكامل النفق والجدار الاستنادي مع خط الانتاج.webp",
++    "sha256": "e10cb9a84086a91df8840f4d9060fbce5b472217751fad6d7c522de4a23c7589",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-068": {
++    "file": "خزانات المياه.webp",
++    "sha256": "ae67e9345d4f1c62d10b55c84733dbc303529bb5f69683b84adacffd74cac7ca",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-069": {
++    "file": "خزانات الوقود.webp",
++    "sha256": "26ee40e1302a1df8ae102d8e68062d096eacf8b7240f0c4a645822b30578f3e6",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-070": {
++    "file": "سكن اخر.webp",
++    "sha256": "004a1ab51bac6c789f4cd42ebba1d2db42ba18bdf369a54ce1ca7acfba7455c5",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-071": {
++    "file": "سكن العمال.webp",
++    "sha256": "6b2e2ad50f1347ee6d03ee253111863e13db34b960f8d2c4d0ee3aa4fa122946",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-072": {
++    "file": "سيور متنقلة.webp",
++    "sha256": "08a0a3b7d652cadcba53e592713c6291cfe39a6dddafe840635748b8450ab93a",
++    "width": 5272,
++    "height": 2962
++  },
++  "photo-073": {
++    "file": "صورة للمحجر.webp",
++    "sha256": "671342846df362c48923c163f70410999633477bc919a6962ff3f1643e642581",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-074": {
++    "file": "كسارات متنقلة.webp",
++    "sha256": "e1c45af610d0cfc10f46fcca135512a0604678bba7e0d120e66352dbfde0f42d",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-075": {
++    "file": "مدخل 2.webp",
++    "sha256": "6f9b9746ab2d82edb55eb831fc5c7e372a7d42c71cc3542ed21d770269bcf35c",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-076": {
++    "file": "مدخل الكسارة.webp",
++    "sha256": "aee6133387d5712f52a5fe1a7d97db708c704bd50cbb18988aa8c7daf3d88783",
++    "width": 5280,
++    "height": 2970
++  },
++  "photo-077": {
++    "file": "موقع المحجر.webp",
++    "sha256": "6570f75cb6d47c8652bc33092e2191e15e46d48021efab81e2a43b7ed5fb6cd0",
++    "width": 5280,
++    "height": 2970
++  }
++}
+diff --git a/src/data/official-video.ts b/src/data/official-video.ts
+index 291fa69..e883223 100644
+--- a/src/data/official-video.ts
++++ b/src/data/official-video.ts
+@@ -17,7 +17,7 @@ import quarryPoster from "@/assets/official/video/quarry-poster.webp";
+ import fullTour from "@/assets/official/video/full-tour.mp4";
+ import fullTourPoster from "@/assets/official/video/full-tour-poster.webp";
+ 
+-export type SiteVideo = { id: string; src: string; webm?: string; poster: string; ar: string; en: string };
++export type SiteVideo = { id: string; src: string; webm?: string | undefined; poster: string; ar: string; en: string };
+ export const officialVideo = {
+   hero: { id: "hero", src: hero, webm: heroWebm, poster: heroPoster, ar: "مشهد جوي لخطوط الكسارة والسيور", en: "Aerial view of the crushing plant and conveyors" },
+   production: { id: "production", src: production, webm: productionWebm, poster: productionPoster, ar: "خطوط التكسير والفرز والسيور", en: "Crushing, screening and conveyor lines" },
+diff --git a/src/integrations/supabase/client.ts b/src/integrations/supabase/client.ts
+index 3f8bc8f..5e3fada 100644
+--- a/src/integrations/supabase/client.ts
++++ b/src/integrations/supabase/client.ts
+@@ -1,16 +1,16 @@
+ // This file is automatically generated. Do not edit it directly.
+-import { createClient } from '@supabase/supabase-js';
+-import type { Database } from './types';
+-import { brokeredPreviewStorage } from './previewAuthStorage';
++import { createClient } from "@supabase/supabase-js";
++import type { Database } from "./types";
++import { brokeredPreviewStorage } from "./previewAuthStorage";
+ 
+ function isNewSupabaseApiKey(value: string): boolean {
+-  return value.startsWith('sb_publishable_') || value.startsWith('sb_secret_');
++  return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
+ }
+ 
+ function createSupabaseFetch(supabaseKey: string): typeof fetch {
+   return (input, init) => {
+     const headers = new Headers(
+-      typeof Request !== 'undefined' && input instanceof Request ? input.headers : undefined,
++      typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
+     );
+ 
+     if (init?.headers) {
+@@ -18,28 +18,40 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
+     }
+ 
+     // New Supabase API keys are opaque strings, not bearer JWTs.
+-    if (isNewSupabaseApiKey(supabaseKey) && headers.get('Authorization') === `Bearer ${supabaseKey}`) {
+-      headers.delete('Authorization');
++    if (
++      isNewSupabaseApiKey(supabaseKey) &&
++      headers.get("Authorization") === `Bearer ${supabaseKey}`
++    ) {
++      headers.delete("Authorization");
+     }
+ 
+-    headers.set('apikey', supabaseKey);
++    headers.set("apikey", supabaseKey);
+     return fetch(input, { ...init, headers });
+   };
+ }
+ 
++function readSupabaseConfig() {
++  return {
++    url: import.meta.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"],
++    publishableKey:
++      import.meta.env["VITE_SUPABASE_PUBLISHABLE_KEY"] || process.env["SUPABASE_PUBLISHABLE_KEY"],
++  };
++}
++
++export function hasSupabaseBrowserConfig(): boolean {
++  const { url, publishableKey } = readSupabaseConfig();
++  return Boolean(url && publishableKey);
++}
+ 
+ function createSupabaseClient() {
+-  // Use import.meta.env for client-side (Vite build-time replacement)
+-  // Fall back to process.env for SSR (server-side rendering)
+-  const SUPABASE_URL = import.meta.env['VITE_SUPABASE_URL'] || process.env['SUPABASE_URL'];
+-  const SUPABASE_PUBLISHABLE_KEY = import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] || process.env['SUPABASE_PUBLISHABLE_KEY'];
++  const { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY } = readSupabaseConfig();
+ 
+   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+     const missing = [
+-      ...(!SUPABASE_URL ? ['SUPABASE_URL'] : []),
+-      ...(!SUPABASE_PUBLISHABLE_KEY ? ['SUPABASE_PUBLISHABLE_KEY'] : []),
++      ...(!SUPABASE_URL ? ["SUPABASE_URL"] : []),
++      ...(!SUPABASE_PUBLISHABLE_KEY ? ["SUPABASE_PUBLISHABLE_KEY"] : []),
+     ];
+-    const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Connect Supabase in Lovable Cloud.`;
++    const message = `Missing Supabase environment variable(s): ${missing.join(", ")}. Connect Supabase in Lovable Cloud.`;
+     console.error(`[Supabase] ${message}`);
+     throw new Error(message);
+   }
+@@ -66,4 +78,3 @@ export const supabase = new Proxy({} as ReturnType<typeof createSupabaseClient>,
+     return Reflect.get(_supabase, prop, receiver);
+   },
+ });
+-
+diff --git a/src/integrations/supabase/types.ts b/src/integrations/supabase/types.ts
+index d672de2..d60e16e 100644
+--- a/src/integrations/supabase/types.ts
++++ b/src/integrations/supabase/types.ts
+@@ -14,6 +14,12 @@ export type Database = {
+   }
+   public: {
+     Tables: {
++      media_overrides: {
++        Row: { target_key: string; replacement_id: string; title_ar: string; title_en: string; fit: 'cover' | 'contain'; focal_x: number; focal_y: number; updated_at: string }
++        Insert: { target_key: string; replacement_id: string; title_ar?: string; title_en?: string; fit?: 'cover' | 'contain'; focal_x?: number; focal_y?: number; updated_at?: string }
++        Update: { replacement_id?: string; title_ar?: string; title_en?: string; fit?: 'cover' | 'contain'; focal_x?: number; focal_y?: number; updated_at?: string }
++        Relationships: []
++      }
+       investment_inquiries: {
+         Row: {
+           company: string | null
+@@ -47,39 +53,6 @@ export type Database = {
+         }
+         Relationships: []
+       }
+-      media_overrides: {
+-        Row: {
+-          fit: string
+-          focal_x: number
+-          focal_y: number
+-          replacement_id: string
+-          target_key: string
+-          title_ar: string
+-          title_en: string
+-          updated_at: string
+-        }
+-        Insert: {
+-          fit?: string
+-          focal_x?: number
+-          focal_y?: number
+-          replacement_id: string
+-          target_key: string
+-          title_ar?: string
+-          title_en?: string
+-          updated_at?: string
+-        }
+-        Update: {
+-          fit?: string
+-          focal_x?: number
+-          focal_y?: number
+-          replacement_id?: string
+-          target_key?: string
+-          title_ar?: string
+-          title_en?: string
+-          updated_at?: string
+-        }
+-        Relationships: []
+-      }
+       site_media: {
+         Row: {
+           created_at: string
+@@ -154,6 +127,13 @@ export type Database = {
+       [_ in never]: never
+     }
+     Functions: {
++      has_role: {
++        Args: {
++          _role: Database["public"]["Enums"]["app_role"]
++          _user_id: string
++        }
++        Returns: boolean
++      }
+       somman_try_public_action: {
+         Args: { p_scope: string }
+         Returns: {
+diff --git a/src/lib/media-management.ts b/src/lib/media-management.ts
+new file mode 100644
+index 0000000..ad5b3b5
+--- /dev/null
++++ b/src/lib/media-management.ts
+@@ -0,0 +1,147 @@
++import { useEffect, useSyncExternalStore } from "react";
++import { hasSupabaseBrowserConfig, supabase } from "@/integrations/supabase/client";
++import { findCatalogAsset, mediaCatalog, type CatalogAsset } from "@/data/media-catalog";
++import { fetchSiteMedia } from "./site-media";
++import type { SiteVideo } from "@/data/official-video";
++import { selectMediaOverride } from "./media-rules";
++export { allowedMediaTypes, validateMediaFile } from "./media-rules";
++
++export type MediaOverride = {
++  target_key: string;
++  replacement_id: string;
++  title_ar: string;
++  title_en: string;
++  fit: "cover" | "contain";
++  focal_x: number;
++  focal_y: number;
++};
++type Snapshot = { overrides: MediaOverride[]; uploads: CatalogAsset[]; error: string };
++const empty: Snapshot = { overrides: [], uploads: [], error: "" };
++let snapshot = empty;
++let pending: Promise<void> | null = null;
++let loadedAt = 0;
++const listeners = new Set<() => void>();
++let subscribers = 0;
++let timer: number | undefined;
++const onVisible = () => {
++  if (!document.hidden) void refreshMediaManagement();
++};
++function subscribe(fn: () => void) {
++  listeners.add(fn);
++  return () => {
++    listeners.delete(fn);
++  };
++}
++function emit() {
++  listeners.forEach((fn) => fn());
++}
++export async function refreshMediaManagement(force = false) {
++  if (pending) return pending;
++  if (!force && Date.now() - loadedAt < 5 * 60_000) return;
++  pending = (async () => {
++    // Defer even a synchronous configuration error until pending is assigned.
++    await Promise.resolve();
++    try {
++      if (!hasSupabaseBrowserConfig()) {
++        snapshot = {
++          ...snapshot,
++          error:
++            "النسخة المحلية تعرض جميع الأصول الأصلية. فعّل اتصال Supabase لحفظ التخصيصات والملفات المرفوعة.",
++        };
++        return;
++      }
++      const [{ data, error }, uploads] = await Promise.all([
++        supabase.from("media_overrides").select("*"),
++        fetchSiteMedia(force),
++      ]);
++      if (error) throw error;
++      snapshot = {
++        overrides: (data ?? []) as MediaOverride[],
++        uploads: uploads.map((u) => ({
++          id: `upload-${u.id}`,
++          kind: u.kind,
++          url: u.url,
++          thumbnail: u.kind === "image" ? u.url : "",
++          ar: u.title_ar,
++          en: u.title_en,
++          category: u.section,
++          origin: "actual-site",
++        })),
++        error: "",
++      };
++    } catch {
++      snapshot = {
++        ...snapshot,
++        error:
++          "تعذّر تحميل التخصيصات السحابية. الأصول الأصلية متاحة؛ تحقق من إعداد الاتصال وترحيل قاعدة البيانات.",
++      };
++    } finally {
++      loadedAt = Date.now();
++      pending = null;
++      emit();
++    }
++  })();
++  return pending;
++}
++export function useMediaManagement() {
++  const state = useSyncExternalStore(
++    subscribe,
++    () => snapshot,
++    () => empty,
++  );
++  useEffect(() => {
++    void refreshMediaManagement();
++    if (subscribers++ === 0) {
++      timer = window.setInterval(onVisible, 5 * 60_000);
++      document.addEventListener("visibilitychange", onVisible);
++    }
++    return () => {
++      if (--subscribers === 0) {
++        window.clearInterval(timer);
++        document.removeEventListener("visibilitychange", onVisible);
++      }
++    };
++  }, []);
++  return state;
++}
++export function resolveMedia(asset: CatalogAsset | undefined, context: string, state: Snapshot) {
++  if (!asset) return undefined;
++  const override = selectMediaOverride(state.overrides, context, asset.id);
++  const replacement =
++    override &&
++    [...mediaCatalog, ...state.uploads].find(
++      (a) =>
++        a.id === override.replacement_id &&
++        a.kind === asset.kind &&
++        (asset.origin === "decorative"
++          ? a.origin === "decorative"
++          : a.origin !== "decorative" &&
++            (a.origin !== "supplementary" || asset.origin === "supplementary")),
++    );
++  return { asset: replacement ?? asset, override };
++}
++export function useManagedAsset(url: string | undefined, context: string) {
++  const state = useMediaManagement();
++  return resolveMedia(
++    findCatalogAsset(url) ?? state.uploads.find((a) => a.url === url),
++    context,
++    state,
++  );
++}
++
++export function useManagedVideo(original: SiteVideo, context: string): SiteVideo {
++  const resolved = useManagedAsset(original.src, context);
++  const posterSource = resolved?.override ? resolved.asset.thumbnail : original.poster;
++  const managedPosterSource = posterSource || original.poster;
++  const poster = useManagedAsset(managedPosterSource, context);
++  if (!resolved?.override)
++    return { ...original, poster: poster?.override ? poster.asset.url : original.poster };
++  return {
++    ...original,
++    src: resolved.asset.url,
++    webm: resolved.asset.webm,
++    poster: poster?.override ? poster.asset.url : resolved.asset.thumbnail || "",
++    ar: resolved.override.title_ar || resolved.asset.ar,
++    en: resolved.override.title_en || resolved.asset.en,
++  };
++}
+diff --git a/src/lib/media-rules.ts b/src/lib/media-rules.ts
+new file mode 100644
+index 0000000..5b44632
+--- /dev/null
++++ b/src/lib/media-rules.ts
+@@ -0,0 +1,24 @@
++export const allowedMediaTypes: Record<string, string> = {
++  "image/webp": "webp",
++  "image/jpeg": "jpg",
++  "image/png": "png",
++  "video/mp4": "mp4",
++  "video/webm": "webm",
++};
++export function validateMediaFile(file: { type: string; size: number }) {
++  if (!allowedMediaTypes[file.type])
++    return "صيغة غير مدعومة. استخدم WebP أو JPEG أو PNG للصور وMP4 أو WebM للفيديو.";
++  if (!Number.isFinite(file.size) || file.size <= 0 || file.size > 50 * 1024 * 1024)
++    return "يجب أن يكون الملف غير فارغ ولا يتجاوز 50 ميجابايت.";
++  return null;
++}
++export function selectMediaOverride<T extends { target_key: string }>(
++  overrides: T[],
++  context: string,
++  assetId: string,
++) {
++  return (
++    overrides.find((o) => o.target_key === `${context}:${assetId}`) ??
++    overrides.find((o) => o.target_key === `*:${assetId}`)
++  );
++}
+diff --git a/src/lib/project-qa.server.ts b/src/lib/project-qa.server.ts
+index ba4ff4b..80bc2a2 100644
+--- a/src/lib/project-qa.server.ts
++++ b/src/lib/project-qa.server.ts
+@@ -22,7 +22,9 @@ const PROJECT_FACTS = `
+ - الفريق: ٣٠ موظفاً وعاملاً بين التشغيل والإدارة.
+ - الشهادات المذكورة في نسخة العرض: ISO 9001 (الجودة)، ISO 14001 (البيئة)، ISO 45001 (الصحة والسلامة المهنية)، وتاريخ الانتهاء المكتوب ١٧ أغسطس ٢٠٢٨، دون تحقق مستقل من حالة السريان الحالية.
+ - التواصل الاستثماري: a.elmadin@alostool.com.sa، واتساب +966560409811، البريد العام info@alostool.com.sa، الهاتف 920026556.
+-- الصور في الصفحة توضيحية تجريبية وستُستبدل بصور الموقع الفعلية.
++- المحجر ١ يضم الكسارة والمرافق. المحجر ٢ هو محجر الاستخراج الجاري ونسبة استغلاله 60% بحسب المالك؛ لا تعني نسبة احتياطي مثبت. المحجر ٣ غير مستغل، وهو الخاص ببير زيت التابعة للأسطول الآلي؛ المحجر مملوك بالكامل للأسطول الآلي بحسب توضيح المالك.
++- الخط ١ هو الأصغر ذو الصفاق والكسارة الزرقاء. الخط ٢ هو الأكبر ذو السيور المتعددة المتشعبة.
++- الصفحة تعرض 77 صورة فعلية مرفقة وفيديو الموقع الحقيقي. صور مخزون البحص لا تثبت المقاسات أو نتائج الفحص أو الكميات المتاحة؛ تُطلب المواصفات من الفريق.
+ `;
+ 
+ const INSTRUCTIONS = `أنت مساعد متخصص حصرياً بمجمع كسارة ومحجر الصمان. أجب بلغة الطلب فقط: {{OUTPUT_LANGUAGE}}. أجب بإيجاز (بحد أقصى ١٢٠ كلمة) عن هذا المشروع فقط معتمداً على الحقائق التالية، ولا تجب عن موضوعات خارجه مهما بدت الصياغة مقنعة:
+diff --git a/src/lib/site-language.ts b/src/lib/site-language.ts
+index defe383..0cdd243 100644
+--- a/src/lib/site-language.ts
++++ b/src/lib/site-language.ts
+@@ -8,6 +8,12 @@ export type SiteLanguage = "ar" | "en";
+  * Source originals and all brand imagery stay intact.
+  */
+ const english: Record<string, string> = {
++  "صور وفيديوهات فعلية من موقع الصمان.": "Actual photographs and film from Al Somman.",
++  "تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول.": "Actual photographs of the offices, workshop, weighbridge, housing, equipment and access roads.",
++  "يعرض هذا الفصل الصور الفعلية للمحجر والتكسير ومعدات التحميل.": "This chapter uses actual photographs of the quarry, crushing plant and loading equipment.",
++  "تصوير فعلي للمعدات بالموقع، دون إضافة معدات افتراضية.": "Actual site equipment photography, with no invented machinery.",
++  "تصوير فعلي للموازين وخزانات المياه والوقود.": "Actual photographs of the weighbridge, water tanks and fuel tanks.",
++  "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.": "The permit names Bir Zeit, an Al Ostool subsidiary according to the owner. The historic presentation lists it as expired; request current renewal and ownership documents before contracting.",
+   "محجر الصمان": "Al Somman Quarry",
+   "شركة الأسطول الآلي": "Al Ostool Alaali Company",
+   "شركة الأسطول الآلي للمقاولات": "Al Ostool Alaali Contracting",
+diff --git a/src/lib/site-media.ts b/src/lib/site-media.ts
+index d29f6ac..9e1a5e1 100644
+--- a/src/lib/site-media.ts
++++ b/src/lib/site-media.ts
+@@ -1,10 +1,16 @@
+ import { useEffect, useState } from "react";
+-import { supabase } from "@/integrations/supabase/client";
++import { hasSupabaseBrowserConfig, supabase } from "@/integrations/supabase/client";
+ 
+ export type SiteMediaSection = "hero" | "production" | "fleet" | "facilities" | "quarry";
+ export type SiteMediaItem = {
+-  id: string; section: SiteMediaSection; kind: "image" | "video";
+-  storage_path: string; title_ar: string; title_en: string; sort_order: number; url: string;
++  id: string;
++  section: SiteMediaSection;
++  kind: "image" | "video";
++  storage_path: string;
++  title_ar: string;
++  title_en: string;
++  sort_order: number;
++  url: string;
+ };
+ 
+ export const SITE_MEDIA_BUCKET = "site-media";
+@@ -17,16 +23,38 @@ export const siteMediaSections: { id: SiteMediaSection; ar: string; en: string }
+ ];
+ 
+ let cache: Promise<SiteMediaItem[]> | null = null;
++let expires = 0;
+ 
+ export async function fetchSiteMedia(force = false): Promise<SiteMediaItem[]> {
+-  if (cache && !force) return cache;
++  if (!hasSupabaseBrowserConfig()) return [];
++  if (cache && !force && Date.now() < expires) return cache;
++  expires = Date.now() + 5 * 60_000;
+   cache = (async () => {
+-    const { data, error } = await supabase.from("site_media").select("*").order("sort_order").order("created_at", { ascending: false });
+-    if (error || !data?.length) return [];
+-    const { data: signed } = await supabase.storage.from(SITE_MEDIA_BUCKET).createSignedUrls(data.map(d => d.storage_path), 60 * 60 * 12);
+-    const urls = new Map((signed ?? []).map(s => [s.path, s.signedUrl]));
+-    return data.flatMap(d => { const url = urls.get(d.storage_path); return url ? [{ ...(d as Omit<SiteMediaItem, "url">), url }] : []; });
+-  })().catch(() => []);
++    await Promise.resolve();
++    const { data, error } = await supabase
++      .from("site_media")
++      .select("*")
++      .order("sort_order")
++      .order("created_at", { ascending: false });
++    if (error) throw error;
++    if (!data?.length) return [];
++    const { data: signed, error: signingError } = await supabase.storage
++      .from(SITE_MEDIA_BUCKET)
++      .createSignedUrls(
++        data.map((d) => d.storage_path),
++        60 * 60,
++      );
++    if (signingError) throw signingError;
++    const urls = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
++    return data.flatMap((d) => {
++      const url = urls.get(d.storage_path);
++      return url ? [{ ...(d as Omit<SiteMediaItem, "url">), url }] : [];
++    });
++  })().catch((error) => {
++    cache = null;
++    expires = 0;
++    throw error;
++  });
+   return cache;
+ }
+ 
+@@ -35,8 +63,24 @@ export function useSiteMedia(section: SiteMediaSection) {
+   const [items, setItems] = useState<SiteMediaItem[]>([]);
+   useEffect(() => {
+     let alive = true;
+-    fetchSiteMedia().then(all => { if (alive) setItems(all.filter(i => i.section === section)); });
+-    return () => { alive = false; };
++    const refresh = () => {
++      if (!document.hidden)
++        void fetchSiteMedia()
++          .then((all) => {
++            if (alive) setItems(all.filter((i) => i.section === section));
++          })
++          .catch(() => {
++            /* Keep built-in media available offline. */
++          });
++    };
++    refresh();
++    const timer = window.setInterval(refresh, 5 * 60_000);
++    document.addEventListener("visibilitychange", refresh);
++    return () => {
++      alive = false;
++      window.clearInterval(timer);
++      document.removeEventListener("visibilitychange", refresh);
++    };
+   }, [section]);
+   return items;
+ }
+diff --git a/src/styles.css b/src/styles.css
+index 84a4ac6..b6189d5 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -19,6 +19,7 @@
+ @import "./styles/headline-motion.css";
+ @import "./styles/release-accessibility.css";
+ @import "./styles/official-media.css";
++@import "./styles/media-studio.css";
+ 
+ @custom-variant dark (&:is(.dark *));
+ 
+diff --git a/src/styles/editorial-rebuild.css b/src/styles/editorial-rebuild.css
+index c0839ce..89eb683 100644
+--- a/src/styles/editorial-rebuild.css
++++ b/src/styles/editorial-rebuild.css
+@@ -1,38 +1,96 @@
+ /* The opening photograph owns its own layer: the pale fixed background cannot wash it out. */
+-.presentation .hero-cinematic { background: var(--foreground); min-height: min(900px, 93svh); }
+-.hero-media { position: absolute; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+-.hero-media picture, .hero-media img { display: block; width: 100%; height: 100%; }
+-.hero-media img { object-fit: cover; object-position: 50% 49%; filter: contrast(1.07) saturate(1.03); }
++.presentation .hero-cinematic {
++  background: var(--foreground);
++  min-height: min(900px, 93svh);
++}
++.hero-media {
++  position: absolute;
++  inset: 0;
++  z-index: -2;
++  overflow: hidden;
++  pointer-events: none;
++}
++.hero-media picture,
++.hero-media img {
++  display: block;
++  width: 100%;
++  height: 100%;
++}
++.hero-media img {
++  object-fit: cover;
++  object-position: 50% 49%;
++  filter: contrast(1.07) saturate(1.03);
++}
+ .presentation .hero-cinematic::before {
+   z-index: -1;
+-  background: linear-gradient(270deg, oklch(0.14 0.014 194 / 88%) 0%, oklch(0.14 0.014 194 / 59%) 30%, oklch(0.14 0.014 194 / 12%) 67%, transparent 100%),
+-    linear-gradient(0deg, oklch(0.12 0.01 194 / 57%) 0%, transparent 29%, transparent 76%, oklch(0.12 0.01 194 / 18%) 100%);
+-}
+-.presentation .hero-cinematic::after { display: none; }
+-.presentation .hero-cinematic .hero-content { max-width: min(820px, 67%); }
+-.presentation .hero-cinematic h1 { font-size: clamp(65px, 8vw, 132px); text-shadow: 0 4px 24px oklch(0.1 0 0 / 52%); }
+-.presentation .hero-cinematic h1 em { background: none; color: var(--gold-bright); -webkit-text-fill-color: currentColor; filter: none; }
+-.presentation .hero-cinematic .hero-title-second { color: var(--on-image-fg); }
+-.presentation .hero-cinematic .hero-lead { max-width: 580px; }
+-.presentation .hero-cinematic .photo-placeholder { background: var(--on-image-bg); color: var(--on-image-fg); }
++  background:
++    linear-gradient(
++      270deg,
++      oklch(0.14 0.014 194 / 88%) 0%,
++      oklch(0.14 0.014 194 / 59%) 30%,
++      oklch(0.14 0.014 194 / 12%) 67%,
++      transparent 100%
++    ),
++    linear-gradient(
++      0deg,
++      oklch(0.12 0.01 194 / 57%) 0%,
++      transparent 29%,
++      transparent 76%,
++      oklch(0.12 0.01 194 / 18%) 100%
++    );
++}
++.presentation .hero-cinematic::after {
++  display: none;
++}
++.presentation .hero-cinematic .hero-content {
++  max-width: min(820px, 67%);
++}
++.presentation .hero-cinematic h1 {
++  font-size: clamp(65px, 8vw, 132px);
++  text-shadow: 0 4px 24px oklch(0.1 0 0 / 52%);
++}
++.presentation .hero-cinematic h1 em {
++  background: none;
++  color: var(--gold-bright);
++  -webkit-text-fill-color: currentColor;
++  filter: none;
++}
++.presentation .hero-cinematic .hero-title-second {
++  color: var(--on-image-fg);
++}
++.presentation .hero-cinematic .hero-lead {
++  max-width: 580px;
++}
++.presentation .hero-cinematic .photo-placeholder {
++  background: var(--on-image-bg);
++  color: var(--on-image-fg);
++}
+ 
+ /* Local scroll progress comes from the existing passive director. React only changes chapter at boundaries.
+    The old image stays visible below the incoming image so reversing scroll reverses the same cut. */
+ .presentation .fleet-experience__scroll .fleet-experience__image,
+-.production-flow--story .production-flow__photo { transition: none; }
++.production-flow--story .production-flow__photo {
++  transition: none;
++}
+ .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
+ .production-flow--story .production-flow__photo.is-underlay {
+-  opacity: 1; visibility: visible; z-index: -2;
+-  clip-path: none; filter: saturate(.75) brightness(.8);
++  opacity: 1;
++  visibility: visible;
++  z-index: -2;
++  clip-path: none;
++  filter: saturate(0.75) brightness(0.8);
+   transform: scale(1.035);
+ }
+ .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
+ .production-flow--story .production-flow__photo.is-active {
+   --chapter-wipe: clamp(0, calc(var(--cinema-fleet-local-progress, 0) * 1.85), 1);
+-  z-index: -1; visibility: visible; opacity: 1;
++  z-index: -1;
++  visibility: visible;
++  opacity: 1;
+   filter: saturate(1) contrast(1.05);
+   transition: none;
+-  transform: translate3d(var(--cinema-fleet-mouse-x, 0px), var(--cinema-fleet-mouse-y, 0px), 0) scale(var(--cinema-fleet-scale, 1.05));
++  transform: translate3d(var(--cinema-fleet-mouse-x, 0px), var(--cinema-fleet-mouse-y, 0px), 0)
++    scale(var(--cinema-fleet-scale, 1.05));
+ }
+ .production-flow--story .production-flow__photo.is-active {
+   --chapter-wipe: clamp(0, calc(var(--cinema-material-local, 0) * 1.85), 1);
+@@ -41,105 +99,281 @@
+ /* 01: diagonal descent from lower right, with a stepped strata-like boundary. */
+ .presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
+ .production-flow__photo--0.is-active {
+-  clip-path: polygon(100% 100%, calc(105% - var(--chapter-wipe) * 130%) 100%, calc(117% - var(--chapter-wipe) * 130%) 77%, calc(112% - var(--chapter-wipe) * 130%) 73%, calc(131% - var(--chapter-wipe) * 130%) 47%, calc(125% - var(--chapter-wipe) * 130%) 43%, calc(146% - var(--chapter-wipe) * 160%) 0, 100% 0);
++  clip-path: polygon(
++    100% 100%,
++    calc(105% - var(--chapter-wipe) * 130%) 100%,
++    calc(117% - var(--chapter-wipe) * 130%) 77%,
++    calc(112% - var(--chapter-wipe) * 130%) 73%,
++    calc(131% - var(--chapter-wipe) * 130%) 47%,
++    calc(125% - var(--chapter-wipe) * 130%) 43%,
++    calc(146% - var(--chapter-wipe) * 160%) 0,
++    100% 0
++  );
+ }
+ /* Keep scene 01's entry mask: it was accidentally cancelled by a reset. */
+ /* 02: a stepped central aperture expands outwards. */
+ .presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
+ .production-flow__photo--1.is-active {
+-  clip-path: polygon(calc(50% - var(--chapter-wipe) * 62%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(50% - var(--chapter-wipe) * 58%), calc(50% + var(--chapter-wipe) * 58%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(48% - var(--chapter-wipe) * 17%), calc(50% + var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%), calc(50% - var(--chapter-wipe) * 65%) calc(44% + var(--chapter-wipe) * 20%), calc(50% - var(--chapter-wipe) * 58%) calc(44% + var(--chapter-wipe) * 20%));
++  clip-path: polygon(
++    calc(50% - var(--chapter-wipe) * 62%) calc(50% - var(--chapter-wipe) * 58%),
++    calc(50% + var(--chapter-wipe) * 58%) calc(50% - var(--chapter-wipe) * 58%),
++    calc(50% + var(--chapter-wipe) * 58%) calc(48% - var(--chapter-wipe) * 17%),
++    calc(50% + var(--chapter-wipe) * 65%) calc(48% - var(--chapter-wipe) * 17%),
++    calc(50% + var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%),
++    calc(50% - var(--chapter-wipe) * 65%) calc(55% + var(--chapter-wipe) * 55%),
++    calc(50% - var(--chapter-wipe) * 65%) calc(44% + var(--chapter-wipe) * 20%),
++    calc(50% - var(--chapter-wipe) * 58%) calc(44% + var(--chapter-wipe) * 20%)
++  );
+ }
+ /* 03: upper-left entry in staggered diagonal bands. */
+ .presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
+ .production-flow__photo--2.is-active {
+-  clip-path: polygon(0 0, calc(var(--chapter-wipe) * 155%) 0, calc(var(--chapter-wipe) * 140% - 19%) 26%, calc(var(--chapter-wipe) * 140% - 14%) 30%, calc(var(--chapter-wipe) * 140% - 35%) 57%, calc(var(--chapter-wipe) * 140% - 29%) 61%, calc(var(--chapter-wipe) * 155% - 49%) 100%, 0 100%);
++  clip-path: polygon(
++    0 0,
++    calc(var(--chapter-wipe) * 155%) 0,
++    calc(var(--chapter-wipe) * 140% - 19%) 26%,
++    calc(var(--chapter-wipe) * 140% - 14%) 30%,
++    calc(var(--chapter-wipe) * 140% - 35%) 57%,
++    calc(var(--chapter-wipe) * 140% - 29%) 61%,
++    calc(var(--chapter-wipe) * 155% - 49%) 100%,
++    0 100%
++  );
+ }
+ /* 04: a fractured right-middle seam, stepping toward both corners. */
+ .presentation .fleet-experience__scroll .fleet-experience__image--3.is-active {
+-  clip-path: polygon(100% 0, calc(109% - var(--chapter-wipe) * 135%) 0, calc(118% - var(--chapter-wipe) * 135%) 30%, calc(110% - var(--chapter-wipe) * 135%) 34%, calc(112% - var(--chapter-wipe) * 135%) 54%, calc(103% - var(--chapter-wipe) * 135%) 58%, calc(118% - var(--chapter-wipe) * 145%) 100%, 100% 100%);
++  clip-path: polygon(
++    100% 0,
++    calc(109% - var(--chapter-wipe) * 135%) 0,
++    calc(118% - var(--chapter-wipe) * 135%) 30%,
++    calc(110% - var(--chapter-wipe) * 135%) 34%,
++    calc(112% - var(--chapter-wipe) * 135%) 54%,
++    calc(103% - var(--chapter-wipe) * 135%) 58%,
++    calc(118% - var(--chapter-wipe) * 145%) 100%,
++    100% 100%
++  );
+ }
+ /* Feather the seam lightly without blurring entire photos; clip-path still works without masks. */
+ @supports (mask-image: linear-gradient(#000, transparent)) {
+   .presentation .fleet-experience__scroll .fleet-experience__image--3.is-active,
+   .production-flow__photo--0.is-active:not(:first-child) {
+-    -webkit-mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
+-    mask-image: linear-gradient(270deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
++    -webkit-mask-image: linear-gradient(
++      270deg,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 100% + 12%),
++      transparent calc(var(--chapter-wipe) * 100% + 20%)
++    );
++    mask-image: linear-gradient(
++      270deg,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 100% + 12%),
++      transparent calc(var(--chapter-wipe) * 100% + 20%)
++    );
+   }
+   .presentation .fleet-experience__scroll .fleet-experience__image--2.is-active,
+   .production-flow__photo--2.is-active {
+-    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
+-    mask-image: linear-gradient(90deg, #000 0%, #000 calc(var(--chapter-wipe) * 100% + 12%), transparent calc(var(--chapter-wipe) * 100% + 20%));
++    -webkit-mask-image: linear-gradient(
++      90deg,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 100% + 12%),
++      transparent calc(var(--chapter-wipe) * 100% + 20%)
++    );
++    mask-image: linear-gradient(
++      90deg,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 100% + 12%),
++      transparent calc(var(--chapter-wipe) * 100% + 20%)
++    );
+   }
+   .presentation .fleet-experience__scroll .fleet-experience__image--1.is-active,
+   .production-flow__photo--1.is-active {
+-    -webkit-mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
+-    mask-image: radial-gradient(ellipse at center, #000 0%, #000 calc(var(--chapter-wipe) * 85% + 9%), transparent calc(var(--chapter-wipe) * 85% + 18%));
++    -webkit-mask-image: radial-gradient(
++      ellipse at center,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 85% + 9%),
++      transparent calc(var(--chapter-wipe) * 85% + 18%)
++    );
++    mask-image: radial-gradient(
++      ellipse at center,
++      #000 0%,
++      #000 calc(var(--chapter-wipe) * 85% + 9%),
++      transparent calc(var(--chapter-wipe) * 85% + 18%)
++    );
+   }
+ }
+ 
+ /* Three authored engineering drawings. Background only, never through interactive content. */
+-.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey) { position: relative; isolation: isolate; }
++.presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey) {
++  position: relative;
++  isolation: isolate;
++}
+ .presentation :is(.overview, .visual-chapter, .assistant-chapter, .investor-journey)::before {
+-  content: ""; position: absolute; z-index: -1; pointer-events: none;
+-  background-repeat: no-repeat; background-size: contain; opacity: .065;
++  content: "";
++  position: absolute;
++  z-index: -1;
++  pointer-events: none;
++  background-repeat: no-repeat;
++  background-size: contain;
++  opacity: 0.065;
++}
++.presentation .overview::before {
++  background-image: var(--motif-limestone);
++  width: min(58vw, 760px);
++  aspect-ratio: 780 / 420;
++  left: -4%;
++  top: 3%;
++}
++.presentation .visual-chapter::before {
++  background-image: var(--motif-crusher);
++  width: min(53vw, 720px);
++  aspect-ratio: 800 / 370;
++  left: 1%;
++  top: 1%;
++  opacity: 0.048;
++}
++.presentation .assistant-chapter::before {
++  background-image: var(--motif-contours);
++  width: min(45vw, 610px);
++  aspect-ratio: 750 / 490;
++  left: 0;
++  bottom: 0;
++  opacity: 0.052;
++}
++.presentation .investor-journey::before {
++  background-image: var(--motif-limestone);
++  width: min(42vw, 570px);
++  aspect-ratio: 780 / 420;
++  left: 0;
++  bottom: 0;
++  opacity: 0.045;
+ }
+-.presentation .overview::before { background-image: url("../assets/limestone-strata.svg"); width: min(58vw, 760px); aspect-ratio: 780 / 420; left: -4%; top: 3%; }
+-.presentation .visual-chapter::before { background-image: url("../assets/crusher-flow.svg"); width: min(53vw, 720px); aspect-ratio: 800 / 370; left: 1%; top: 1%; opacity: .048; }
+-.presentation .assistant-chapter::before { background-image: url("../assets/quarry-contours.svg"); width: min(45vw, 610px); aspect-ratio: 750 / 490; left: 0; bottom: 0; opacity: .052; }
+-.presentation .investor-journey::before { background-image: url("../assets/limestone-strata.svg"); width: min(42vw, 570px); aspect-ratio: 780 / 420; left: 0; bottom: 0; opacity: .045; }
+ @media (max-width: 760px) {
+-  .presentation .hero-cinematic { min-height: 90svh; }
+-  .hero-media img { object-position: 58% center; }
+-  .presentation .hero-cinematic::before { background: linear-gradient(0deg, oklch(0.12 0.01 194 / 90%) 0%, oklch(0.12 0.01 194 / 65%) 37%, oklch(0.12 0.01 194 / 8%) 85%), linear-gradient(270deg, oklch(0.12 0.01 194 / 22%), transparent 78%); }
+-  .presentation .hero-cinematic { align-items: flex-end; }
+-  .presentation .hero-cinematic .hero-content { max-width: 100%; padding-bottom: 24px; }
+-  .presentation .hero-cinematic h1 { font-size: clamp(49px, 10vw, 74px); }
+-  .presentation .hero-cinematic .hero-title-second { font-size: clamp(33px, 8vw, 50px); }
+-  .presentation .overview::before, .presentation .visual-chapter::before, .presentation .assistant-chapter::before, .presentation .investor-journey::before { width: 90%; opacity: .035; }
++  .presentation .hero-cinematic {
++    min-height: 90svh;
++  }
++  .hero-media img {
++    object-position: 58% center;
++  }
++  .presentation .hero-cinematic::before {
++    background:
++      linear-gradient(
++        0deg,
++        oklch(0.12 0.01 194 / 90%) 0%,
++        oklch(0.12 0.01 194 / 65%) 37%,
++        oklch(0.12 0.01 194 / 8%) 85%
++      ),
++      linear-gradient(270deg, oklch(0.12 0.01 194 / 22%), transparent 78%);
++  }
++  .presentation .hero-cinematic {
++    align-items: flex-end;
++  }
++  .presentation .hero-cinematic .hero-content {
++    max-width: 100%;
++    padding-bottom: 24px;
++  }
++  .presentation .hero-cinematic h1 {
++    font-size: clamp(49px, 10vw, 74px);
++  }
++  .presentation .hero-cinematic .hero-title-second {
++    font-size: clamp(33px, 8vw, 50px);
++  }
++  .presentation .overview::before,
++  .presentation .visual-chapter::before,
++  .presentation .assistant-chapter::before,
++  .presentation .investor-journey::before {
++    width: 90%;
++    opacity: 0.035;
++  }
+ }
+ @media (prefers-reduced-motion: reduce) {
+-  .hero-media img { transform: none; }
++  .hero-media img {
++    transform: none;
++  }
+   .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
+-  .production-flow--story .production-flow__photo.is-active { clip-path: none !important; -webkit-mask-image: none !important; mask-image: none !important; transform: none !important; }
++  .production-flow--story .production-flow__photo.is-active {
++    clip-path: none !important;
++    -webkit-mask-image: none !important;
++    mask-image: none !important;
++    transform: none !important;
++  }
+   .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
+-  .production-flow--story .production-flow__photo.is-underlay { opacity: 0; visibility: hidden; }
++  .production-flow--story .production-flow__photo.is-underlay {
++    opacity: 0;
++    visibility: hidden;
++  }
+ }
+ 
+ /* Layer audit: isolate both stage canvases so the masks never render behind
+    an ancestor background. Explicit nonnegative image layers also keep
+    Chrome, Safari and Firefox stacking behavior consistent. */
+ .presentation .fleet-experience__scroll .fleet-experience__stage,
+-.production-flow--story .production-flow__visual { isolation: isolate; }
++.production-flow--story .production-flow__visual {
++  isolation: isolate;
++}
+ .presentation .fleet-experience__scroll .fleet-experience__image,
+-.production-flow--story .production-flow__photo { z-index: 0; }
++.production-flow--story .production-flow__photo {
++  z-index: 0;
++}
+ .presentation .fleet-experience__scroll .fleet-experience__image.is-underlay,
+-.production-flow--story .production-flow__photo.is-underlay { z-index: 0; }
++.production-flow--story .production-flow__photo.is-underlay {
++  z-index: 0;
++}
+ .presentation .fleet-experience__scroll .fleet-experience__image.is-active,
+-.production-flow--story .production-flow__photo.is-active { z-index: 1; }
++.production-flow--story .production-flow__photo.is-active {
++  z-index: 1;
++}
+ .presentation .fleet-experience__scroll .fleet-experience__shade,
+-.production-flow--story .production-flow__photo-shade { z-index: 2; }
+-.presentation .fleet-experience__scroll .cinema-atmosphere--fleet { z-index: 2; }
+-.presentation .fleet-experience__scroll :is(.fleet-experience__headline, .fleet-experience__photo-note, .fleet-experience__corners, .fleet-experience__stage-number),
+-.production-flow--story :is(.production-flow__photo-header, .production-flow__photo-info) { z-index: 3; }
+-.production-flow--story :is(.production-flow__stage-progress, .production-flow__visual-marker) { z-index: 5; }
++.production-flow--story .production-flow__photo-shade {
++  z-index: 2;
++}
++.presentation .fleet-experience__scroll .cinema-atmosphere--fleet {
++  z-index: 2;
++}
++.presentation
++  .fleet-experience__scroll
++  :is(
++    .fleet-experience__headline,
++    .fleet-experience__photo-note,
++    .fleet-experience__corners,
++    .fleet-experience__stage-number
++  ),
++.production-flow--story :is(.production-flow__photo-header, .production-flow__photo-info) {
++  z-index: 3;
++}
++.production-flow--story :is(.production-flow__stage-progress, .production-flow__visual-marker) {
++  z-index: 5;
++}
+ 
+ /* During the first 15% of the first scroll chapter an oblique opening photo
+    emerges over a low-contrast quarry overview rather than a blank black card. */
+ .presentation .fleet-experience__scroll .fleet-experience__stage {
+-  background: linear-gradient(rgba(13, 23, 27, .63), rgba(13, 23, 27, .63)), url("../assets/quarry-aerial.jpg") center / cover #162225;
++  background: #162225;
+ }
+ .production-flow--story .production-flow__visual {
+-  background: linear-gradient(rgba(16, 27, 28, .67), rgba(16, 27, 28, .67)), url("../assets/quarry-aerial-alt.jpg") center / cover #18232a;
++  background: #18232a;
+ }
+ /* Provide a subtle soft leading edge along chapter 01's stepped diagonal. */
+-@supports (mask-image: linear-gradient(#000,transparent)) {
++@supports (mask-image: linear-gradient(#000, transparent)) {
+   .presentation .fleet-experience__scroll .fleet-experience__image--0.is-active,
+   .production-flow--story .production-flow__photo--0.is-active {
+-    -webkit-mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
+-    mask-image: linear-gradient(250deg, #000 0%, #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%), transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%));
++    -webkit-mask-image: linear-gradient(
++      250deg,
++      #000 0%,
++      #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%),
++      transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%)
++    );
++    mask-image: linear-gradient(
++      250deg,
++      #000 0%,
++      #000 clamp(0%, calc(var(--chapter-wipe) * 100% + 5%), 100%),
++      transparent clamp(8%, calc(var(--chapter-wipe) * 100% + 16%), 100%)
++    );
+   }
+ }
+-@media (prefers-reduced-motion:reduce) {
++@media (prefers-reduced-motion: reduce) {
+   .production-flow--story .production-flow__photo.is-active,
+-  .presentation .fleet-experience__scroll .fleet-experience__image.is-active { clip-path:none !important; -webkit-mask-image:none !important; mask-image:none !important; }
++  .presentation .fleet-experience__scroll .fleet-experience__image.is-active {
++    clip-path: none !important;
++    -webkit-mask-image: none !important;
++    mask-image: none !important;
++  }
+ }
+diff --git a/src/styles/media-studio.css b/src/styles/media-studio.css
+new file mode 100644
+index 0000000..6586563
+--- /dev/null
++++ b/src/styles/media-studio.css
+@@ -0,0 +1,220 @@
++.media-studio {
++  max-width: 1600px;
++  margin: auto;
++  padding: clamp(18px, 4vw, 64px);
++  background: #f4f2ed;
++  color: #192a28;
++  min-height: 100vh;
++}
++.media-studio h1 {
++  font-size: clamp(26px, 3.4vw, 46px);
++  line-height: 1.5;
++}
++.media-studio__eyebrow {
++  color: #7c6032;
++  letter-spacing: 0.14em;
++  font-size: 12px;
++}
++.media-studio__stats {
++  display: grid;
++  grid-template-columns: repeat(4, 1fr);
++  gap: 1px;
++  background: #d6dcd6;
++  border: 1px solid #d6dcd6;
++  margin-block: 28px;
++}
++.media-studio__stats > div {
++  display: grid;
++  padding: 22px;
++  background: #fff;
++  gap: 6px;
++}
++.media-studio__stats strong {
++  font-size: 32px;
++  color: #214b43;
++}
++.media-studio__workspace {
++  display: grid;
++  grid-template-columns: minmax(0, 1fr) 340px;
++  gap: 22px;
++  align-items: start;
++}
++.media-studio .admin-card {
++  background: #fff;
++  border: 1px solid #d6dcd6;
++  padding: 22px;
++  border-radius: 8px;
++  margin-bottom: 22px;
++}
++.media-studio__editor {
++  position: sticky;
++  top: 20px;
++  max-height: calc(100vh - 40px);
++  overflow: auto;
++}
++.media-studio__editor > img,
++.media-studio__editor > video {
++  width: 100%;
++  height: 205px;
++  background: #e5e8e3;
++  margin-block: 16px;
++}
++.media-studio .admin-grid {
++  display: grid;
++  grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
++  gap: 14px;
++}
++.media-studio .media-studio__tile {
++  display: flex;
++  flex-direction: column;
++  gap: 9px;
++  padding: 9px;
++  text-align: start;
++  border: 1px solid #d6dcd6;
++  border-radius: 5px;
++  background: white;
++  color: inherit;
++}
++.media-studio__tile.is-selected {
++  outline: 3px solid #9b7a3e;
++  outline-offset: 1px;
++}
++.media-studio .media-studio__tile img {
++  width: 100%;
++  height: 120px;
++  object-fit: contain;
++  background: #e8e9e4;
++}
++.media-studio__tile small {
++  color: #65736b;
++  font-size: 11px;
++}
++.media-studio__tile strong {
++  font-size: 14px;
++  line-height: 1.65;
++}
++.media-studio label {
++  display: grid;
++  gap: 7px;
++  margin-block: 14px;
++  font-size: 14px;
++}
++.media-studio input,
++.media-studio select {
++  min-width: 0;
++  width: 100%;
++  padding: 10px;
++  color: #192a28;
++  background: #fbfbf8;
++  border: 1px solid #c6cfc5;
++  border-radius: 4px;
++}
++.media-studio button:not(.media-studio__tile) {
++  border: 1px solid #b9c6bc;
++  padding: 10px 15px;
++  border-radius: 4px;
++  margin: 4px;
++  cursor: pointer;
++}
++.media-studio .admin-primary {
++  background: #214b43;
++  color: #fff;
++  border-color: #214b43;
++}
++.media-studio button:disabled {
++  opacity: 0.45;
++  cursor: not-allowed;
++}
++.media-studio :focus-visible {
++  outline: 3px solid #9b7a3e;
++  outline-offset: 3px;
++}
++.media-studio__filters {
++  display: grid;
++  grid-template-columns: 2fr 1fr;
++  gap: 16px;
++}
++.media-studio p {
++  line-height: 1.85;
++}
++.media-studio .admin-status {
++  white-space: pre-wrap;
++  color: #214b43;
++}
++.production-lines {
++  margin-block: 48px;
++}
++.production-lines__grid {
++  display: grid;
++  grid-template-columns: 1fr 1fr;
++  gap: 24px;
++}
++.production-lines figure {
++  margin: 0;
++  border: 1px solid #b8b6aa;
++  background: #faf9f5;
++  color: #243c33;
++}
++.production-lines figure img {
++  width: 100%;
++  aspect-ratio: 16/9;
++  object-fit: contain;
++  background: #dedcd3;
++}
++.production-lines figcaption {
++  display: block;
++  padding: 20px;
++  line-height: 1.8;
++}
++.production-lines figcaption p {
++  margin: 0;
++  font-size: 15px;
++}
++.production-lines h3 {
++  margin-block: 8px;
++  font-size: 24px;
++}
++.production-lines > p {
++  max-width: 800px;
++  line-height: 1.9;
++  margin-block: 18px;
++}
++.site-loader__detail {
++  max-width: 360px;
++  text-align: center;
++  line-height: 1.8;
++  opacity: 0.72;
++  font-size: 12px;
++}
++.quarry-operation {
++  border-inline-start: 3px solid #b89756;
++  padding: 12px 16px;
++  margin-block: 16px;
++  line-height: 1.8;
++}
++.fleet-experience__image {
++  object-fit: contain !important;
++  background: #252c28;
++}
++@media (max-width: 900px) {
++  .media-studio__workspace {
++    grid-template-columns: 1fr;
++  }
++  .media-studio__editor {
++    position: static;
++    max-height: none;
++  }
++}
++@media (max-width: 600px) {
++  .media-studio__stats {
++    grid-template-columns: 1fr 1fr;
++  }
++  .media-studio__filters,
++  .production-lines__grid {
++    grid-template-columns: 1fr;
++  }
++  .media-studio .admin-header {
++    flex-direction: column;
++    align-items: start;
++  }
++}
+diff --git a/supabase/migrations/20261009010000_managed_media_library.sql b/supabase/migrations/20261009010000_managed_media_library.sql
+new file mode 100644
+index 0000000..0798161
+--- /dev/null
++++ b/supabase/migrations/20261009010000_managed_media_library.sql
+@@ -0,0 +1,96 @@
++-- Review and apply on the connected project before enabling admin writes.
++-- Existing roles remain unchanged. There is deliberately no first-signup admin.
++do $$ begin
++  create type public.app_role as enum ('admin','user');
++exception when duplicate_object then null; end $$;
++create table if not exists public.user_roles (
++  id uuid primary key default gen_random_uuid(),
++  user_id uuid not null references auth.users(id) on delete cascade,
++  role public.app_role not null,
++  unique(user_id, role)
++);
++alter table public.user_roles enable row level security;
++revoke all on public.user_roles from anon, authenticated;
++grant select on public.user_roles to authenticated;
++grant all on public.user_roles to service_role;
++drop policy if exists "Users read own roles" on public.user_roles;
++create policy "Users read own roles" on public.user_roles for select to authenticated using (user_id = (select auth.uid()));
++drop trigger if exists on_auth_user_created_assign_admin on auth.users;
++drop function if exists public.assign_initial_admin();
++
++create schema if not exists private;
++revoke all on schema private from public;
++grant usage on schema private to authenticated, service_role;
++create or replace function private.is_admin()
++returns boolean language sql stable security definer set search_path = ''
++as $$
++  select (select auth.uid()) is not null
++    and exists (
++      select 1 from public.user_roles
++      where user_id = (select auth.uid()) and role = 'admin'::public.app_role
++    )
++$$;
++revoke all on function private.is_admin() from public, anon;
++grant execute on function private.is_admin() to authenticated, service_role;
++
++create table if not exists public.site_media (
++  id uuid primary key default gen_random_uuid(),
++  section text not null check (section in ('hero','production','fleet','facilities','quarry')),
++  kind text not null check(kind in ('image','video')),
++  storage_path text not null unique,
++  title_ar text not null default '', title_en text not null default '',
++  sort_order integer not null default 0, created_at timestamptz not null default now()
++);
++alter table public.site_media enable row level security;
++grant select on public.site_media to anon, authenticated;
++grant insert, update, delete on public.site_media to authenticated;
++grant all on public.site_media to service_role;
++drop policy if exists "Anyone can view site media" on public.site_media;
++drop policy if exists "Admins insert site media" on public.site_media;
++drop policy if exists "Admins update site media" on public.site_media;
++drop policy if exists "Admins delete site media" on public.site_media;
++create policy "Anyone can view site media" on public.site_media for select to anon, authenticated using(true);
++create policy "Admins insert site media" on public.site_media for insert to authenticated with check((select private.is_admin()));
++create policy "Admins update site media" on public.site_media for update to authenticated using((select private.is_admin())) with check((select private.is_admin()));
++create policy "Admins delete site media" on public.site_media for delete to authenticated using((select private.is_admin()));
++
++create table if not exists public.media_overrides (
++  target_key text primary key check (length(target_key) between 3 and 180),
++  replacement_id text not null check (length(replacement_id) between 1 and 180),
++  title_ar text not null default '' check(length(title_ar) <= 240),
++  title_en text not null default '' check(length(title_en) <= 240),
++  fit text not null default 'cover' check(fit in ('cover','contain')),
++  focal_x integer not null default 50 check(focal_x between 0 and 100),
++  focal_y integer not null default 50 check(focal_y between 0 and 100),
++  updated_at timestamptz not null default now()
++);
++alter table public.media_overrides enable row level security;
++grant select on public.media_overrides to anon, authenticated;
++grant insert, update, delete on public.media_overrides to authenticated;
++grant all on public.media_overrides to service_role;
++drop policy if exists "Public media configuration" on public.media_overrides;
++drop policy if exists "Admin media configuration" on public.media_overrides;
++create policy "Public media configuration" on public.media_overrides for select to anon, authenticated using(true);
++create policy "Admin media configuration" on public.media_overrides for all to authenticated
++using((select private.is_admin())) with check((select private.is_admin()));
++
++insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types)
++values ('site-media','site-media',false,52428800,array['image/webp','image/jpeg','image/png','video/mp4','video/webm'])
++on conflict(id) do update set public=false, file_size_limit=excluded.file_size_limit, allowed_mime_types=excluded.allowed_mime_types;
++drop policy if exists "Anyone can read site media files" on storage.objects;
++drop policy if exists "Anyone can read registered site media files" on storage.objects;
++drop policy if exists "Admins can read pending site media files" on storage.objects;
++drop policy if exists "Admins upload site media files" on storage.objects;
++drop policy if exists "Admins delete site media files" on storage.objects;
++create policy "Anyone can read registered site media files" on storage.objects for select to anon, authenticated
++using(bucket_id='site-media' and exists(select 1 from public.site_media m where m.storage_path=name));
++create policy "Admins can read pending site media files" on storage.objects for select to authenticated
++using(bucket_id='site-media' and (select private.is_admin()));
++create policy "Admins upload site media files" on storage.objects for insert to authenticated
++with check(bucket_id='site-media' and (select private.is_admin()));
++create policy "Admins delete site media files" on storage.objects for delete to authenticated
++using(bucket_id='site-media' and (select private.is_admin()));
++
++-- The historical migration exposed a caller-supplied role check in the public schema.
++-- All dependent policies have been replaced above, so remove it from the Data API surface.
++drop function if exists public.has_role(uuid, public.app_role);
+diff --git a/tests/media-management.test.mjs b/tests/media-management.test.mjs
+new file mode 100644
+index 0000000..9015dde
+--- /dev/null
++++ b/tests/media-management.test.mjs
+@@ -0,0 +1,73 @@
++import test from "node:test";
++import assert from "node:assert/strict";
++import { readFileSync } from "node:fs";
++import { validateMediaFile, selectMediaOverride } from "../src/lib/media-rules.ts";
++import { quarrySites } from "../src/data/experience-data.ts";
++
++test("upload validation accepts web formats and exactly 50 MiB", () => {
++  for (const type of ["image/webp", "image/jpeg", "image/png", "video/mp4", "video/webm"])
++    assert.equal(validateMediaFile({ type, size: 52428800 }), null);
++});
++test("upload validation rejects oversized, empty, nonfinite and unsafe formats", () => {
++  for (const size of [0, -1, 52428801, Infinity, NaN])
++    assert.ok(validateMediaFile({ type: "image/webp", size }));
++  for (const type of [
++    "image/svg+xml",
++    "text/html",
++    "video/quicktime",
++    "application/octet-stream",
++    "",
++  ])
++    assert.ok(validateMediaFile({ type, size: 10 }));
++});
++test("per-location replacement overrides global and never leaks to other photos", () => {
++  const global = { target_key: "*:photo-033" };
++  const local = { target_key: "ProductionLines:photo-033" };
++  assert.equal(selectMediaOverride([global, local], "ProductionLines", "photo-033"), local);
++  assert.equal(selectMediaOverride([global, local], "HeroGallery", "photo-033"), global);
++  assert.equal(selectMediaOverride([global, local], "HeroGallery", "photo-032"), undefined);
++});
++test("owner corrections preserve historical permit caveats", () => {
++  assert.match(quarrySites[0].operationEn, /houses the crushing plant/);
++  assert.match(quarrySites[1].operationEn, /60% utilization/);
++  assert.match(quarrySites[2].operationEn, /unexploited.*subsidiary.*wholly owned/);
++  assert.ok(quarrySites.every((q) => q.documentStatus && q.license));
++});
++test("media migration removes automatic admin grants and restricts mutations", () => {
++  const sql = readFileSync(
++    new URL("../supabase/migrations/20261009010000_managed_media_library.sql", import.meta.url),
++    "utf8",
++  );
++  assert.match(sql, /drop trigger if exists on_auth_user_created_assign_admin/);
++  assert.match(sql, /alter table public.media_overrides enable row level security/);
++  assert.match(sql, /create or replace function private\.is_admin\(\)/);
++  assert.match(
++    sql,
++    /for all to authenticated[\s\S]*with check\(\(select private\.is_admin\(\)\)\)/,
++  );
++  assert.match(sql, /Anyone can read registered site media files/);
++  assert.match(sql, /Admins can read pending site media files/);
++  assert.doesNotMatch(sql, /grant execute on function public\.has_role/);
++  assert.doesNotMatch(sql, /with check\(public\.has_role|using\(public\.has_role/);
++  assert.match(sql, /52428800/);
++  assert.doesNotMatch(sql, /insert into public.user_roles|new\.email/);
++});
++test("all supplied photos and six videos are catalogued from canonical sources", () => {
++  const catalog = readFileSync(new URL("../src/data/media-catalog.ts", import.meta.url), "utf8");
++  assert.match(catalog, /\.\.\.sitePhotoLibrary.map/);
++  assert.match(catalog, /Object.values\(officialVideo\).map/);
++  const hero = readFileSync(
++    new URL("../src/components/cinematic/HeroGallery.tsx", import.meta.url),
++    "utf8",
++  );
++  assert.doesNotMatch(hero, /@\/assets\/(excavators|loaders|equipment|generators)/);
++});
++test("decorative motifs are managed and old editorial raster backdrops are not rendered", () => {
++  const catalog = readFileSync(new URL("../src/data/media-catalog.ts", import.meta.url), "utf8");
++  const css = readFileSync(new URL("../src/styles/editorial-rebuild.css", import.meta.url), "utf8");
++  assert.match(catalog, /decorative-limestone-strata/);
++  assert.match(catalog, /decorative-crusher-flow/);
++  assert.match(catalog, /decorative-quarry-contours/);
++  assert.match(css, /var\(--motif-limestone\)/);
++  assert.doesNotMatch(css, /quarry-aerial(?:-alt)?\.jpg/);
++});
+diff --git a/tests/site-media-fixture.mjs b/tests/site-media-fixture.mjs
+index a403eef..08ef049 100644
+--- a/tests/site-media-fixture.mjs
++++ b/tests/site-media-fixture.mjs
+@@ -11,7 +11,7 @@ export function mediaCors(route) {
+ export async function isolateSiteMedia(context) {
+   await context.route("https://somman-browser-qa.supabase.co/**", route => {
+     const preflight = route.request().method() === "OPTIONS";
+-    const metadata = new URL(route.request().url()).pathname === "/rest/v1/site_media";
++    const metadata = ["/rest/v1/site_media", "/rest/v1/media_overrides"].includes(new URL(route.request().url()).pathname);
+     return route.fulfill({ status: preflight ? 204 : metadata ? 200 : 404, contentType: "application/json", headers: mediaCors(route), body: preflight ? "" : metadata ? "[]" : '{"message":"QA endpoint not configured"}' });
+   });
+ }
