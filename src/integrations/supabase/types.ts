@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      media_overrides: {
+        Row: {
+          fit: string
+          focal_x: number
+          focal_y: number
+          replacement_id: string
+          target_key: string
+          title_ar: string
+          title_en: string
+          updated_at: string
+        }
+        Insert: {
+          fit?: string
+          focal_x?: number
+          focal_y?: number
+          replacement_id: string
+          target_key: string
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Update: {
+          fit?: string
+          focal_x?: number
+          focal_y?: number
+          replacement_id?: string
+          target_key?: string
+          title_ar?: string
+          title_en?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_media: {
         Row: {
           created_at: string
@@ -121,13 +154,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
       somman_try_public_action: {
         Args: { p_scope: string }
         Returns: {
