@@ -207,7 +207,9 @@ export function MediaStudio() {
         <div>
           <span className="media-studio__eyebrow">AL SOMMAN / MEDIA STUDIO</span>
           <h1>مكتبة الموقع. تحت إدارتك.</h1>
-          <p>الصور، الفيديوهات، أغلفتها والمستندات في مكان واحد. التصورات المولدة مسموحة للمعدات فقط.</p>
+          <p>
+            الصور، الفيديوهات، أغلفتها والمستندات في مكان واحد. التصورات المولدة مسموحة للمعدات فقط.
+          </p>
         </div>
         <div className="admin-header__actions">
           <a href="/" target="_blank" rel="noreferrer">
