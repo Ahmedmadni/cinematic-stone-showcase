@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Repository hygiene
         shell: bash
         run: |
@@ -42,7 +42,7 @@ jobs:
             exit 1
           fi
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Set up Bun
@@ -56,7 +56,7 @@ jobs:
       - name: Media management regression tests
         run: bun run test:media
       - name: Media studio lint
-        run: bunx eslint src/components/ManagedImage.tsx src/components/MediaStudio.tsx src/components/UploadedMediaManager.tsx src/components/ProductionLines.tsx src/lib/media-management.ts src/lib/media-rules.ts src/data/media-catalog.ts
+        run: bunx eslint src/components/ManagedImage.tsx src/components/MediaStudio.tsx src/components/UploadedMediaManager.tsx src/components/MediaAuditLog.tsx src/components/ProductionLines.tsx src/lib/media-management.ts src/lib/media-rules.ts src/lib/media-upload.ts src/lib/site-media.ts src/data/media-catalog.ts
       - name: TypeScript check
         run: bunx tsc --noEmit
       - name: ESLint (experience code and logic rules)
@@ -64,8 +64,6 @@ jobs:
           bunx eslint src/components/cinematic src/components/GalleryLightbox.tsx src/components/GallerySlides.tsx src/components/AutoVisual.tsx src/components/SiteLoader.tsx src/components/SiteVideoLoop.tsx src/components/SiteMediaReel.tsx src/components/FullSiteTour.tsx src/components/SitePhotoArchive.tsx src/components/EvidenceDocument.tsx src/components/ProjectAssistant.tsx src/lib/cinematic-progress.ts src/lib/gallery-gestures.ts src/lib/quarry-question-scope.ts src/lib/site-language.ts src/lib/project-qa.server.ts src/lib/public-ai-budget.ts src/lib/assistant-stream.ts src/lib/public-response-security.ts src/lib/error-redaction.ts src/lib/error-capture.ts src/lib/lovable-error-reporting.ts src/server.ts src/lib/shared-public-quota.ts src/lib/shared-public-quota.server.ts src/lib/public-inquiry-guard.server.ts src/lib/inquiries.functions.ts src/lib/inquiry-schema.ts src/data/*.ts src/routes/index.tsx tests/*.test.mjs --rule "prettier/prettier: off"
       - name: Production build
         run: bun run build
-
-
 
   shared-quota-db:
     name: Shared quota PostgreSQL integration (disposable)
@@ -88,9 +86,9 @@ jobs:
           --health-retries 12
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Install isolated PostgreSQL client
@@ -100,16 +98,15 @@ jobs:
           SOMMAN_TEST_DATABASE_URL: postgres://postgres:somman_ci_only@127.0.0.1:5432/somman_qa
         run: node tests/shared-quota-db-smoke.mjs
 
-
   browser-smoke:
     name: Chromium visual interaction smoke
     runs-on: ubuntu-latest
     timeout-minutes: 18
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Set up Bun
@@ -144,7 +141,7 @@ jobs:
           node tests/performance-smoke.mjs || (cat /tmp/somman-qa-server.log && exit 1)
       - name: Upload screenshots and QA summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: somman-browser-qa
           path: /tmp/somman-browser-artifacts
@@ -161,9 +158,9 @@ jobs:
         engine: [firefox, webkit]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Set up Node.js 22
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
       - name: Set up Bun
@@ -191,7 +188,7 @@ jobs:
           node tests/video-browser-smoke.mjs || (cat /tmp/somman-cross-browser-server.log && exit 1)
       - name: Upload engine-specific screenshots
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: somman-${{ matrix.engine }}-qa
           path: /tmp/somman-cross-browser-artifacts/${{ matrix.engine }}/
