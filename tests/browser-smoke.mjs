@@ -775,7 +775,7 @@ try {
     const src = await iframe.getAttribute("src");
     assert.ok(src?.includes("maps.google.com/maps?"));
     assert.match(src ?? "", /25\.515292%2C48\.362458/);
-    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في المشهد التصوري" });
+    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في عرض الموقع" });
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
@@ -1017,7 +1017,7 @@ try {
     await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
     await iframe.waitFor({ state: "attached", timeout: 5000 });
     assert.equal(await iframe.count(), 1);
-    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في المشهد التصوري" });
+    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في عرض الموقع" });
     await hotspot.tap();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     const state = await mobilePage.evaluate(() => ({
