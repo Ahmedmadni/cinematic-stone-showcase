@@ -59,13 +59,13 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Explore the documented Al Somman quarry and crushing plant investment opportunity in Saudi Arabia through actual-site photography, three quarry records, two production lines, equipment and support facilities.",
+          "Explore the Al Somman quarry and crushing plant investment opportunity in Saudi Arabia: three quarry records, two production lines, equipment and support facilities.",
       },
       { property: "og:title", content: "Al Somman Quarry & Crushing Plant | Al Ostool" },
       {
         property: "og:description",
         content:
-          "A bilingual investment presentation using actual Al Somman site photography and film. Current permit status remains subject to document verification.",
+          "A bilingual investment presentation of Al Somman quarry, its production lines, equipment and facilities. Current permit status remains subject to document verification.",
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
@@ -116,12 +116,12 @@ const siteGallery = [
     slides: [
       {
         image: officialMedia.equipment.lineup.image,
-        label: "معدات ثقيلة فعلية داخل الموقع",
+        label: "معدات ثقيلة داخل الموقع",
         origin: "actual-site" as const,
       },
     ],
     title: "حفارات الاستخراج",
-    description: "تصوير فعلي للمعدات بالموقع، دون إضافة معدات افتراضية.",
+    description: "معدات الاستخراج والحفر داخل موقع الصمان.",
     replacement: "معدات الاستخراج في الصمان",
     number: "01",
   },
@@ -139,7 +139,7 @@ const siteGallery = [
       },
     ],
     title: "الشيولات والتحميل",
-    description: "تصوير فعلي للمعدات بالموقع، دون إضافة معدات افتراضية.",
+    description: "معدات التحميل والحفر العاملة داخل الموقع.",
     replacement: "شيولات التحميل بالموقع",
     number: "02",
   },
@@ -147,7 +147,7 @@ const siteGallery = [
     slides: [
       {
         image: officialMedia.facilities.weighbridge.image,
-        label: "ميزان الشاحنات الفعلي بالموقع",
+        label: "ميزان الشاحنات بالموقع",
         origin: "actual-site" as const,
       },
       {
@@ -162,7 +162,7 @@ const siteGallery = [
       },
     ],
     title: "الموازين والمرافق التشغيلية",
-    description: "تصوير فعلي للموازين وخزانات المياه والوقود.",
+    description: "ميزان الشاحنات وخزانات المياه والوقود.",
     replacement: "الموازين والمرافق التشغيلية",
     number: "03",
   },
@@ -170,17 +170,17 @@ const siteGallery = [
     slides: [
       {
         image: officialMedia.facilities.office.image,
-        label: "المكاتب الفعلية بالموقع",
+        label: "مكاتب الإدارة بالموقع",
         origin: "actual-site" as const,
       },
       {
         image: officialMedia.facilities.workshop.image,
-        label: "الورشة الفعلية بالموقع",
+        label: "ورشة الصيانة بالموقع",
         origin: "actual-site" as const,
       },
     ],
     title: "المكاتب ومنطقة الصيانة",
-    description: "تصوير فعلي لمكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.",
+    description: "مكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.",
     replacement: "المكاتب والورشة",
     number: "04",
   },
@@ -198,7 +198,7 @@ const siteGallery = [
       },
     ],
     title: "الطرق والساحات",
-    description: "تصوير فعلي لمدخل الكسارة وطرق الدخول والساحات الداخلية.",
+    description: "مدخل الكسارة وطرق الدخول والساحات الداخلية.",
     replacement: "الطرق والساحات الداخلية",
     number: "05",
   },
@@ -206,7 +206,7 @@ const siteGallery = [
     slides: [
       {
         image: officialMedia.facilities.housing.image,
-        label: "سكن العمال الفعلي بالموقع",
+        label: "سكن العاملين بالموقع",
         origin: "actual-site" as const,
       },
       {
@@ -221,7 +221,7 @@ const siteGallery = [
       },
     ],
     title: "سكن العمال والمرافق",
-    description: "تصوير فعلي لسكن العمال والسكن الإضافي والمصلى والاستراحة.",
+    description: "سكن العاملين والسكن الإضافي والمصلى والاستراحة.",
     replacement: "سكن العمال بالموقع",
     number: "06",
   },
@@ -482,9 +482,6 @@ function Index() {
               CHAPTER 01 / THE AWAKENING
             </span>
             <div className="hero-content">
-              <span className="photo-placeholder hero-photo-label">
-                {t("صور وفيديوهات فعلية من موقع الصمان.")}
-              </span>
               <div className="hero-kicker">
                 <span className="kicker-dot" /> {t("أصل صناعي في قلب الصمان")}{" "}
                 <span className="kicker-rule" />
@@ -580,7 +577,7 @@ function Index() {
               <figure className="image-feature reveal">
                 <div className="image-window">
                   <span className="photo-placeholder">
-                    {t("تصوير فعلي · خطوط التكسير والسيور — مجمع كسارات الصمان")}
+                    {t("خطوط التكسير والسيور — مجمع كسارات الصمان")}
                   </span>
                   <AutoVisual
                     className="actual-site-visual"
@@ -592,19 +589,19 @@ function Index() {
                           image: i.url,
                           alt:
                             (language === "ar" ? i.title_ar : i.title_en) ||
-                            t("تصوير فعلي من الموقع"),
+                            t("مجمع كسارات الصمان"),
                           origin: "actual-site" as const,
                         })),
                       {
                         image: officialMedia.production.crusher.image,
-                        alt: t("تصوير فعلي لخط التكسير في كسارة الصمان"),
+                        alt: t("خط التكسير في كسارة الصمان"),
                         origin: "actual-site",
                         width: 1600,
                         height: 900,
                       },
                       {
                         image: officialMedia.production.conveyor.image,
-                        alt: t("تصوير فعلي لسيور وخطوط الإنتاج في الصمان"),
+                        alt: t("سيور وخطوط الإنتاج في الصمان"),
                         origin: "actual-site",
                         width: 1600,
                         height: 900,
@@ -614,11 +611,10 @@ function Index() {
                 </div>
                 <figcaption>
                   <span className="latin" dir="ltr">
-                    FIG. 01 — ACTUAL PRODUCTION
+                    FIG. 01 — PRODUCTION
                   </span>
                   <span>
-                    {t("خطوط الكسارات والفرز — مجمع كسارات الصمان")}{" "}
-                    <small>{t("تصوير فعلي من الموقع")}</small>
+                    {t("خطوط الكسارات والفرز — مجمع كسارات الصمان")}
                   </span>
                 </figcaption>
               </figure>
@@ -661,7 +657,7 @@ function Index() {
                   <span>{t("موقعٌ متكامل.")}</span>
                   <WordSlide words={siteGallery.slice(0, 3).map((item) => t(item.title))} />
                 </h2>
-                <p>{t("تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول.")}</p>
+                <p>{t("المكاتب والورشة والموازين والسكن والمعدات وطرق الدخول ضمن موقع الصمان.")}</p>
               </div>
               <div className="site-gallery">
                 {siteGallery.map((item, index) => (
@@ -682,12 +678,7 @@ function Index() {
                         <h3>{t(item.title)}</h3>
                         <p>{t(item.description)}</p>
                       </div>
-                      <small>
-                        {item.slides.every((slide) => slide.origin === "actual-site")
-                          ? t("تصوير فعلي من موقع الصمان")
-                          : t("ACTUAL SITE + CURATED EDITORIAL")}{" "}
-                        · {t(item.replacement)}
-                      </small>
+                      <small>{t(item.replacement)}</small>
                     </figcaption>
                   </figure>
                 ))}
@@ -1061,7 +1052,7 @@ function Index() {
         </aside>
         <footer className="site-footer">
           <span>{t("© شركة الأسطول الآلي")}</span>
-          <span>{t("صور وفيديوهات فعلية من موقع الصمان.")}</span>
+          <span>{t("مجمع كسارات الصمان · شركة الأسطول الآلي")}</span>
           <a href="#البداية">{t("العودة للأعلى ↑")}</a>
         </footer>
       </div>
