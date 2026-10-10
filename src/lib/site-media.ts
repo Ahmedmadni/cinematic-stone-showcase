@@ -1,10 +1,20 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { hasSupabaseBrowserConfig, supabase } from "@/integrations/supabase/client";
 
 export type SiteMediaSection = "hero" | "production" | "fleet" | "facilities" | "quarry";
 export type SiteMediaItem = {
-  id: string; section: SiteMediaSection; kind: "image" | "video";
-  storage_path: string; title_ar: string; title_en: string; sort_order: number; url: string;
+  id: string;
+  section: SiteMediaSection;
+  kind: "image" | "video";
+  storage_path: string;
+  poster_path: string | null;
+  title_ar: string;
+  title_en: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+  url: string;
+  poster_url: string | null;
 };
 
 export const SITE_MEDIA_BUCKET = "site-media";
@@ -17,16 +27,46 @@ export const siteMediaSections: { id: SiteMediaSection; ar: string; en: string }
 ];
 
 let cache: Promise<SiteMediaItem[]> | null = null;
+let expires = 0;
 
 export async function fetchSiteMedia(force = false): Promise<SiteMediaItem[]> {
-  if (cache && !force) return cache;
+  if (!hasSupabaseBrowserConfig()) return [];
+  if (cache && !force && Date.now() < expires) return cache;
+  expires = Date.now() + 5 * 60_000;
   cache = (async () => {
-    const { data, error } = await supabase.from("site_media").select("*").order("sort_order").order("created_at", { ascending: false });
-    if (error || !data?.length) return [];
-    const { data: signed } = await supabase.storage.from(SITE_MEDIA_BUCKET).createSignedUrls(data.map(d => d.storage_path), 60 * 60 * 12);
-    const urls = new Map((signed ?? []).map(s => [s.path, s.signedUrl]));
-    return data.flatMap(d => { const url = urls.get(d.storage_path); return url ? [{ ...(d as Omit<SiteMediaItem, "url">), url }] : []; });
-  })().catch(() => []);
+    await Promise.resolve();
+    const { data, error } = await supabase
+      .from("site_media")
+      .select("*")
+      .order("sort_order")
+      .order("created_at", { ascending: false });
+    if (error) throw error;
+    if (!data?.length) return [];
+    const paths = [
+      ...new Set(data.flatMap((item) => [item.storage_path, item.poster_path].filter(Boolean))),
+    ] as string[];
+    const { data: signed, error: signingError } = await supabase.storage
+      .from(SITE_MEDIA_BUCKET)
+      .createSignedUrls(paths, 60 * 60);
+    if (signingError) throw signingError;
+    const urls = new Map((signed ?? []).map((s) => [s.path, s.signedUrl]));
+    return data.flatMap((d) => {
+      const url = urls.get(d.storage_path);
+      return url
+        ? [
+            {
+              ...(d as Omit<SiteMediaItem, "url" | "poster_url">),
+              url,
+              poster_url: d.poster_path ? (urls.get(d.poster_path) ?? null) : null,
+            },
+          ]
+        : [];
+    });
+  })().catch((error) => {
+    cache = null;
+    expires = 0;
+    throw error;
+  });
   return cache;
 }
 
@@ -35,8 +75,24 @@ export function useSiteMedia(section: SiteMediaSection) {
   const [items, setItems] = useState<SiteMediaItem[]>([]);
   useEffect(() => {
     let alive = true;
-    fetchSiteMedia().then(all => { if (alive) setItems(all.filter(i => i.section === section)); });
-    return () => { alive = false; };
+    const refresh = () => {
+      if (!document.hidden)
+        void fetchSiteMedia()
+          .then((all) => {
+            if (alive) setItems(all.filter((i) => i.section === section));
+          })
+          .catch(() => {
+            /* Keep built-in media available offline. */
+          });
+    };
+    refresh();
+    const timer = window.setInterval(refresh, 5 * 60_000);
+    document.addEventListener("visibilitychange", refresh);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      document.removeEventListener("visibilitychange", refresh);
+    };
   }, [section]);
   return items;
 }

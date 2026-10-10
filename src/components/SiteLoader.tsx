@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useEffect, useRef, useState } from "react";
 import logo from "@/assets/official/brand/alostool-logo.png";
 
@@ -24,7 +25,7 @@ export function SiteLoader({ language, onEntered }: { language: string; onEntere
       exitTimer = window.setTimeout(() => {
         node?.close(); document.documentElement.style.overflow = originalOverflow;
         setPhase("done"); callback.current();
-      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 900);
+      }, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 350);
     }
     complete.current = finish;
     const settled = () => { if (!finished) { loaded += 1; setCount(loaded); if (loaded === 2) finish("ready"); } };
@@ -45,9 +46,10 @@ export function SiteLoader({ language, onEntered }: { language: string; onEntere
   }, []);
   if (phase === "done") return null;
   return <dialog ref={dialog} className={"site-loader" + (phase === "leaving" ? " is-leaving" : "")} data-entry-outcome={outcome} aria-label={en ? "Preparing the presentation" : "تجهيز العرض"} onCancel={event => { event.preventDefault(); complete.current("skipped"); }}>
-    <img src={logo} alt="" width={420} height={544} className="site-loader__logo" />
+    <ManagedImage mediaContext="SiteLoader" src={logo} alt="" width={420} height={544} className="site-loader__logo" />
     <div className="site-loader__bar" role="progressbar" aria-label={en ? "Essential media readiness" : "جاهزية الوسائط الأساسية"} aria-valuemin={0} aria-valuemax={2} aria-valuenow={count}><span style={{ transform: `scaleX(${count / 2})` }} /></div>
     <p className="site-loader__label" aria-live="polite">{phase === "loading" ? (en ? "Preparing the presentation" : "جارٍ تجهيز العرض") : (en ? "Opening the presentation" : "جارٍ فتح العرض")}</p>
+    <small className="site-loader__detail">{en ? 'Preparing the opening photograph and typography. Videos load when needed.' : 'تجهيز الصورة الافتتاحية والخطوط. تُحمّل الفيديوهات عند الحاجة.'}</small>
     <button type="button" onClick={() => complete.current("skipped")}>{en ? "Enter presentation" : "الدخول إلى العرض"}</button>
   </dialog>;
 }

@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownLeft, Gauge, Mouse, Pickaxe, Truck, Zap } from "lucide-react";
@@ -5,12 +6,8 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import { fleetFacts } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
-import excavators from "@/assets/excavators.jpg";
-import loaders from "@/assets/loaders-maintenance.jpg";
-import weighbridges from "@/assets/generators-weighbridge.jpg";
-import equipment from "@/assets/equipment.jpg";
 
-const images = [excavators, loaders, weighbridges, equipment] as const;
+const images = [officialMedia.equipment.lineup.image, officialMedia.equipment.front.image, officialMedia.facilities.weighbridge.image, officialMedia.facilities.workshop.image] as const;
 const icons = [Pickaxe, Truck, Gauge, Zap] as const;
 const sceneTotal = fleetFacts.length;
 
@@ -74,12 +71,12 @@ export function FleetExperience() {
 
       <div className="fleet-experience__scroll" id="fleet-scroll-track" ref={trackRef}>
         <div className="fleet-experience__composition">
-          <div className="fleet-experience__stage" aria-label={t("مشاهد توضيحية لفئات المعدات")}>
+          <div className="fleet-experience__stage" aria-label={language === 'en' ? 'Al Somman equipment' : 'معدات الصمان'}>
             {fleetFacts.map((item, index) => (
-              <img
+              <ManagedImage mediaContext="FleetExperience"
                 key={item.id}
                 src={images[index]}
-                alt={index === selected ? t("مشهد توضيحي لفئة") + " " + t(item.name) + " — " + t("وليس صورة موثقة للموقع") : ""}
+                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Maintenance workshop; generator detail is unavailable' : 'ورشة الصيانة؛ لا تتوفر لقطة تفصيلية للمولدات') : t(item.name)) : ""}
                 aria-hidden={index !== selected}
                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
@@ -90,7 +87,7 @@ export function FleetExperience() {
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
             <AtmosphereLayers variant="fleet" />
-            <span className="fleet-experience__photo-note">{t("مشاهد المعدات الرئيسية محفوظة كتصوير تحريري مكمل؛ الصور الفعلية للموقع موضحة أدناه.")}</span>
+            <span className="fleet-experience__photo-note">{language === 'en' ? 'The power chapter shows the support workshop; a generator detail is unavailable.' : 'يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر لقطة تفصيلية للمولدات.'}</span>
             <div className="fleet-experience__headline">
               <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
               <strong key={current.id}>{t(current.name)}</strong>
@@ -125,12 +122,12 @@ export function FleetExperience() {
                 );
               })}
             </div>
-            <div className="fleet-experience__actual-evidence" aria-label={t("تصوير فعلي لمعدات موقع الصمان")}>
-              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">ACTUAL SITE / 02</span>{t("تصوير فعلي للمعدات")}</span>
+            <div className="fleet-experience__actual-evidence" aria-label={t("معدات موقع الصمان")}>
+              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">AL SOMMAN / 02</span>{t("معدات الموقع")}</span>
               <div className="fleet-experience__actual-grid">
                 {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
                   <figure key={item.image}>
-                    <img
+                    <ManagedImage mediaContext="FleetExperience"
                       className="actual-site-photo"
                       src={item.image}
                       alt={language === "en" ? item.en : item.ar}

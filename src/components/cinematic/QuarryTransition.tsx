@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { officialMedia } from "@/data/official-media";
 import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
@@ -16,10 +17,10 @@ export function QuarryTransition() {
     >
       <div className="cinematic-bridge__sticky">
         <div className="cinematic-bridge__shot cinematic-bridge__shot--quarry" aria-hidden="true">
-          <img className="actual-site-photo" src={officialMedia.hero[2].image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+          <ManagedImage mediaContext="QuarryTransition" className="actual-site-photo" src={officialMedia.hero[2].image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
         </div>
         <div className="cinematic-bridge__shot cinematic-bridge__shot--production" aria-hidden="true">
-          <img className="actual-site-photo" src={officialMedia.production.crusher.image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+          <ManagedImage mediaContext="QuarryTransition" className="actual-site-photo" src={officialMedia.production.crusher.image} alt="" loading="lazy" decoding="async" width={1600} height={900} />
         </div>
         <div className="cinematic-bridge__shadow" aria-hidden="true" />
         <AtmosphereLayers variant="bridge" />
@@ -41,7 +42,7 @@ export function QuarryTransition() {
           </a>
         </div>
         <div className="cinematic-bridge__footer">
-          <span>{t("تصوير فعلي من موقع محجر وكسارة الصمان")}</span>
+          <span>{t("محجر وكسارة الصمان")}</span>
           <span className="latin" dir="ltr">02 — PRODUCTION</span>
         </div>
         <div className="cinematic-bridge__meter" aria-hidden="true"><span /></div>

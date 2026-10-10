@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useState } from "react";
 import { ArrowDownLeft, ArrowUpLeft, Images } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
@@ -32,7 +33,7 @@ export function SitePhotoArchive() {
     <div className="site-photo-archive" data-archive-open={open}>
       <div className="site-photo-archive__header">
         <div><span className="latin" dir="ltr">AL SOMMAN / 77 PHOTOGRAPHS</span>
-          <h3>{en ? "The site, in its own photographs." : "الموقع، بعدسة التصوير الفعلي."}</h3>
+          <h3>{en ? "Al Somman photo archive." : "أرشيف صور الصمان."}</h3>
           <p>{en ? "Browse the supplied photographs of production, equipment, support facilities and quarry benches." : "استعرض الصور المرفقة للإنتاج والمعدات والمرافق ومصاطب المحجر."}</p>
         </div>
         <button className="site-photo-archive__toggle" type="button" aria-expanded={open} aria-controls="site-photo-library" onClick={() => setOpen(value => !value)}>
@@ -48,7 +49,7 @@ export function SitePhotoArchive() {
         </div>
         <div className="site-photo-archive__grid">
           {filtered.slice(0, limit).map(photo => <button className="site-photo-archive__photo" type="button" key={photo.id} onClick={() => setSelected(photo.id)} aria-label={(en ? "View photograph: " : "عرض الصورة: ") + (en ? photo.en : photo.ar)}>
-            <img className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
+            <ManagedImage mediaContext="SitePhotoArchive" className="actual-site-photo" src={photo.thumbnail} width={photo.width} height={photo.height} alt={en ? photo.en : photo.ar} loading="lazy" decoding="async" data-media-origin="actual-site" />
             <span><small className="latin">{photo.id.replace("photo-", "")}</small>{en ? photo.en : photo.ar}</span>
           </button>)}
         </div>
@@ -57,7 +58,7 @@ export function SitePhotoArchive() {
           {limit < filtered.length && <button type="button" onClick={() => setLimit(value => value + PAGE_SIZE)}>{en ? "Show more photographs" : "عرض المزيد من الصور"}<ArrowDownLeft size={18} aria-hidden="true" /></button>}
         </div>
       </div>}
-      {current && <GalleryLightbox title={en ? "Al Somman site photographs" : "صور موقع الصمان"} replacement={en ? "Supplied site photography" : "التصوير المرفق للموقع"} image={current.image} label={en ? current.en : current.ar} origin="actual-site" position={selectedIndex + 1} total={filtered.length} onNext={() => move(1)} onPrevious={() => move(-1)} onRequestClose={() => setSelected(null)} />}
+      {current && <GalleryLightbox title={en ? "Al Somman photographs" : "صور الصمان"} replacement={en ? "Al Somman archive" : "أرشيف الصمان"} image={current.image} label={en ? current.en : current.ar} origin="actual-site" position={selectedIndex + 1} total={filtered.length} onNext={() => move(1)} onPrevious={() => move(-1)} onRequestClose={() => setSelected(null)} />}
     </div>
   );
 }

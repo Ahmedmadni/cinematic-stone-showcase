@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useEffect, useRef, useState } from "react";
 
 type Visual = {
@@ -46,7 +47,7 @@ export function AutoVisual({ images, className = "", interval = 7200, eager = fa
 
   return (
     <div ref={frame} className={`auto-visual ${className}`} data-auto-active={active} data-auto-playing={playing ? "playing" : "paused"}>
-      {images.map((item, index) => <img
+      {images.map((item, index) => <ManagedImage mediaContext="AutoVisual"
         key={item.image}
         src={item.image}
         alt={index === active ? item.alt : ""}

@@ -17,7 +17,11 @@ const output = process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts";
 const results = [];
 await mkdir(output, { recursive: true });
 
-const browser = await chromium.launch({ headless: true, args: ["--no-sandbox"] });
+const browser = await chromium.launch({
+  headless: true,
+  executablePath: process.env.PLAYWRIGHT_EXECUTABLE_PATH || undefined,
+  args: ["--no-sandbox"],
+});
 async function openWithRetry(page, url) {
   let lastError;
   for (let attempt = 0; attempt < 24; attempt++) {
@@ -117,15 +121,13 @@ try {
     }
     const carousel = desktopPage.locator(".hero-gallery");
     assert.equal(await carousel.count(), 1);
-    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await desktopPage.locator(".hero-gallery__toolbar").count(), 0);
     assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
     assert.equal(await desktopPage.locator(".hero-media__breaker").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media__loading").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
     assert.equal(await carousel.locator(".hero-gallery__photo--active").getAttribute("data-media-origin"), "actual-site");
-    const heroMediaNotice = await desktopPage.locator(".hero-photo-label").innerText();
-    assert.match(heroMediaNotice, /actual|فعلي/i);
-    assert.match(heroMediaNotice, /supplementary|مكمل/i);
+    assert.equal(await desktopPage.locator(".hero-photo-label").count(), 0);
     await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
   });
 
@@ -136,20 +138,13 @@ try {
     });
     const page = await context.newPage();
     let releaseSecond;
-    let releaseThird;
     const secondGate = new Promise(resolve => { releaseSecond = resolve; });
-    const thirdGate = new Promise(resolve => { releaseThird = resolve; });
     let deferredRoutes = 0;
     // Gates exercise genuinely pending images without depending on CI speed.
     await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, async route => {
       if (route.request().resourceType() !== "image") return route.continue();
       deferredRoutes++;
       await secondGate;
-      await route.continue();
-    });
-    await page.route(/\/(?:loaders-maintenance\.jpg|hero-quarry-site-01[^/]*\.webp)(?:\?.*)?$/, async route => {
-      if (route.request().resourceType() !== "image") return route.continue();
-      await thirdGate;
       await route.continue();
     });
     try {
@@ -160,19 +155,13 @@ try {
         "first hero photo must be discoverable as an image preload");
       await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
         null, { timeout: 6500 });
-      await page.locator(".hero-gallery__dots button").nth(1).click();
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "1");
+      await page.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
+      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "1", null, { timeout: 10000 });
       assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
       assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
       assert.equal(await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"), firstSrc);
       assert.ok(await page.locator(".hero-gallery__photo--outgoing").evaluate(image => image.complete && image.naturalWidth > 0));
-      // Skip the pending second scene. It must never replace the valid backdrop.
-      await page.locator(".hero-gallery__dots button").nth(2).click();
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "2");
-      assert.equal(await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"), firstSrc);
-      assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
       releaseSecond();
-      releaseThird();
       await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
         null, { timeout: 10000 });
       assert.ok(deferredRoutes >= 1, "test must actually hold the second hero image");
@@ -182,30 +171,31 @@ try {
       await page.screenshot({ path: output + "/hero-loaded-no-flash.png", animations: "disabled" });
     } finally {
       releaseSecond();
-      releaseThird();
       await context.close();
     }
   });
 
-  await caseRun("failed later hero image returns to the last decoded visitor selection", async () => {
-    const context = await mediaContext(browser, { reducedMotion: "reduce" });
+  await caseRun("failed later hero image returns to the last decoded scene", async () => {
+    const context = await mediaContext(browser, { reducedMotion: "no-preference" });
     const page = await context.newPage();
-    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
-      ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
+    let failedRequests = 0;
+    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, route => {
+      if (route.request().resourceType() !== "image") return route.continue();
+      failedRequests += 1;
+      return route.fulfill({ status: 404, body: "missing" });
+    });
     try {
       await openWithRetry(page, baseURL);
       await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true");
-      await page.locator(".hero-gallery__dots button").nth(3).click();
+      await page.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
+      for (let attempt = 0; attempt < 48 && failedRequests === 0; attempt += 1) {
+        await page.waitForTimeout(250);
+      }
+      assert.ok(failedRequests > 0, "the failed-image recovery test must exercise the second scene");
       await page.waitForFunction(() => {
         const hero = document.querySelector(".hero-gallery");
-        return hero?.dataset.heroActive === "3" && hero.dataset.heroImageReady === "true";
-      });
-      await page.locator(".hero-gallery__dots button").nth(1).click();
-      await page.waitForFunction(() => {
-        const hero = document.querySelector(".hero-gallery");
-        return hero?.dataset.heroActive === "3" && hero.dataset.heroImageReady === "true";
-      });
-      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+        return hero?.dataset.heroActive === "0" && hero.dataset.heroImageReady === "true";
+      }, null, { timeout: 12000 });
       assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(image => image.complete && image.naturalWidth > 0));
     } finally { await context.close(); }
   });
@@ -221,9 +211,7 @@ try {
       assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
       assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
       assert.ok(await page.locator("#hero-title").isVisible());
-      await page.locator(".hero-gallery__dots button").nth(2).click();
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true");
-      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-error"), "false");
+      assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
     } finally { await context.close(); }
   });
 
@@ -500,7 +488,7 @@ try {
     assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
   });
 
-  await caseRun("source photo backgrounds and quarry record gallery rotate only when visible", async () => {
+  await caseRun("source photo backgrounds rotate while quarry selection stays explicit", async () => {
     const production = desktopPage.locator(".image-feature .auto-visual");
     await production.scrollIntoViewIfNeeded();
     await desktopPage.mouse.move(0, 0);
@@ -514,15 +502,13 @@ try {
 
     const quarry = desktopPage.locator(".quarry-cards");
     await quarry.scrollIntoViewIfNeeded();
-    await desktopPage.mouse.move(0, 0);
-    await desktopPage.waitForFunction(() =>
-      document.querySelector(".quarry-cards")?.getAttribute("data-quarry-gallery-autoplay") === "playing",
-      null, { timeout: 8000 });
     const initial = await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label");
-    await desktopPage.waitForFunction(previous =>
-      document.querySelector(".quarry-cards__site.is-selected")?.getAttribute("aria-label") !== previous,
-      initial, { timeout: 14900 });
+    assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
+    await desktopPage.waitForTimeout(6500);
+    assert.equal(await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"), initial,
+      "quarry records must not change without a deliberate selection");
     await quarry.locator(".quarry-cards__site").nth(1).click();
+    assert.notEqual(await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"), initial);
     assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
   });
 
@@ -592,7 +578,7 @@ try {
     }
   });
 
-  await caseRun("hero clarity and genuine scroll-driven zigzag masks", async () => {
+  await caseRun("hero clarity and scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
     const hero = desktopPage.locator(".hero-gallery__photo--active");
     await hero.waitFor({ state: "visible" });
@@ -602,11 +588,11 @@ try {
       objectFit: getComputedStyle(image).objectFit,
       visible: getComputedStyle(image).visibility,
     }));
-    assert.ok(heroState.loaded, "hero first scene should be a sharp, documented illustrative image: " + JSON.stringify(heroState));
+    assert.ok(heroState.loaded, "hero first scene should load sharply: " + JSON.stringify(heroState));
     assert.equal(heroState.objectFit, "cover");
     assert.equal(heroState.visible, "visible");
     assert.equal(await desktopPage.locator(".hero-gallery__photo--active").count(), 1);
-    assert.equal(await desktopPage.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await desktopPage.locator(".hero-gallery__toolbar").count(), 0);
 
     for (const spec of [
       { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
@@ -642,15 +628,14 @@ try {
     await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
   });
 
-  await caseRun("ten hero photos autoplay sequentially and visitor can pause or choose", async () => {
+  await caseRun("hero photographs rotate quietly without visible transport controls", async () => {
     // Use a clean page instead of inheriting several scroll chapters, focus
     // targets and browser history changes from preceding visual tests.
     const isolatedHeroContext = await mediaContext(browser, { viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference" });
     const heroPage = await isolatedHeroContext.newPage();
     try {
     await openWithRetry(heroPage, baseURL);
-    await heroPage.getByRole("button", { name: "Show photographs", exact: true }).click();
-    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    await heroPage.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
     const carousel = heroPage.locator(".hero-gallery");
     await heroPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
     await heroPage.mouse.move(0, 0);
@@ -660,68 +645,90 @@ try {
       document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
       first, { timeout: 10000 });
     assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
-    const dots = heroPage.locator(".hero-gallery__dots button");
-    assert.equal(await dots.count(), 10);
-    await dots.nth(7).click();
-    assert.equal(await carousel.getAttribute("data-hero-active"), "7");
-    assert.equal(await carousel.getAttribute("data-hero-playing"), "false");
-    await heroPage.locator(".hero-gallery__motion-toggle").click();
-    await heroPage.mouse.move(0, 0);
-    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
-    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
-    await dots.nth(3).focus();
-    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "false", null, { timeout: 5000 });
-    await heroPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
-    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 5000 });
-    await heroPage.screenshot({ path: output + "/desktop-hero-slide-08.png", animations: "disabled" });
+    assert.equal(await heroPage.locator(".hero-gallery__toolbar").count(), 0);
+    assert.equal(await heroPage.locator(".hero-film-mode").count(), 0);
+    assert.equal(await heroPage.locator('[data-video-section="hero"] button').count(), 0);
+    await heroPage.screenshot({ path: output + "/desktop-hero-quiet-rotation.png", animations: "disabled" });
     } finally {
       await isolatedHeroContext.close();
     }
   });
 
-  await caseRun("all six subject galleries independently enable timed autoplay", async () => {
+  await caseRun("subject galleries autoplay only when multiple photographs are available", async () => {
     const galleries = desktopPage.locator(".site-gallery .gallery-slider");
     assert.equal(await galleries.count(), 6);
+    const movePointerOutside = async (gallery) => {
+      const box = await gallery.boundingBox();
+      const viewport = desktopPage.viewportSize();
+      assert.ok(box && viewport, "gallery and viewport geometry must be available");
+      const outside = [
+        [1, 1],
+        [viewport.width - 1, 1],
+        [1, viewport.height - 1],
+        [viewport.width - 1, viewport.height - 1],
+      ].find(([x, y]) => x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height);
+      assert.ok(outside, "pointer must have a location outside the visible gallery");
+      await desktopPage.mouse.move(
+        Math.max(1, Math.min(viewport.width - 1, box.x + box.width / 2)),
+        Math.max(1, Math.min(viewport.height - 1, box.y + box.height / 2)),
+      );
+      await desktopPage.mouse.move(outside[0], outside[1]);
+      await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
+    };
     for (let index = 0; index < 6; index++) {
       const gallery = galleries.nth(index);
       await gallery.scrollIntoViewIfNeeded();
-      await desktopPage.mouse.move(0, 0);
-      await desktopPage.waitForFunction(i => {
-        const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
-        return element?.getAttribute("data-gallery-autoplay") === "playing";
-      }, index, { timeout: 9000 });
-      assert.equal(await gallery.locator(".gallery-slide").count(), [3, 4, 5, 2, 2, 3][index]);
-      assert.equal(await gallery.getByRole("button", { name: /Pause.*slideshow|إيقاف عرض/ }).count(), 1);
+      await movePointerOutside(gallery);
+      const slideCount = await gallery.locator(".gallery-slide").count();
+      assert.ok(slideCount >= 1, `gallery ${index + 1} must contain at least one photograph`);
+      assert.equal(await gallery.locator(".gallery-slide-controls").count(), 0);
+      if (slideCount > 1) {
+        await desktopPage.waitForFunction(i => {
+          const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
+          return element?.getAttribute("data-gallery-autoplay") === "playing";
+        }, index, { timeout: 12000 });
+      } else {
+        assert.equal(await gallery.getAttribute("data-gallery-autoplay"), "paused");
+      }
     }
-    const firstGallery = galleries.first();
+    const firstMultiIndex = await galleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(firstMultiIndex >= 0, "at least one subject gallery must contain multiple photographs");
+    const firstGallery = galleries.nth(firstMultiIndex);
     await firstGallery.scrollIntoViewIfNeeded();
     // A touchscreen may synthesize mouse compatibility events. A touch
     // pointerover must not freeze the card's auto-rotation indefinitely.
-    await desktopPage.mouse.move(0, 0);
+    await movePointerOutside(firstGallery);
     await firstGallery.evaluate((element) => {
       element.dispatchEvent(new PointerEvent("pointerover", {
         bubbles: true, pointerType: "touch",
       }));
     });
     assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
-    await desktopPage.mouse.move(0, 0);
-    await desktopPage.waitForFunction(() =>
-      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-autoplay") === "playing");
+    await movePointerOutside(firstGallery);
+    await desktopPage.waitForFunction(index =>
+      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-autoplay") === "playing",
+      firstMultiIndex);
     const initial = await firstGallery.getAttribute("data-gallery-active");
-    await desktopPage.waitForFunction(before =>
-      document.querySelector(".site-gallery .gallery-slider")?.getAttribute("data-gallery-active") !== before,
-      initial, { timeout: 10500 });
+    await desktopPage.waitForFunction(({ before, index }) =>
+      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-active") !== before,
+      { before: initial, index: firstMultiIndex }, { timeout: 10500 });
     await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
   });
 
   await caseRun("native gallery keyboard navigation, focus trap and focus restoration", async () => {
-    const button = desktopPage.locator(".gallery-image-button").first();
+    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+    const firstMultiIndex = await galleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(firstMultiIndex >= 0, "lightbox keyboard QA requires a gallery with multiple photographs");
+    const button = galleries.nth(firstMultiIndex).locator(".gallery-image-button");
     await button.scrollIntoViewIfNeeded();
     await button.click();
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
+    assert.equal(await dialog.locator(".lightbox-toolbar button").count(), 1);
 
     // Native modal dialog must keep keyboard focus inside the enlarged gallery.
     for (let step = 0; step < 8; step++) {
@@ -740,18 +747,12 @@ try {
       initial, { timeout: 5000 });
     const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
     assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused",
-      "manual keyboard navigation must pause autoplay");
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
 
     await desktopPage.keyboard.press("ArrowLeft");
     await desktopPage.waitForFunction(previous =>
       document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
       afterRight, { timeout: 5000 });
-
-    await dialog.getByRole("button", { name: "تشغيل معرض الصور" }).click();
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "playing");
-    await dialog.getByRole("button", { name: "إيقاف معرض الصور" }).click();
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
 
     await desktopPage.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 8000 });
@@ -762,7 +763,7 @@ try {
     const location = desktopPage.locator(".somman-location-experience");
     await location.scrollIntoViewIfNeeded();
     assert.ok(await location.getByRole("heading", { name: "خريطة القمر الصناعي" }).isVisible());
-    assert.ok(await location.getByRole("heading", { name: "منظور مجسّم تصوري" }).isVisible());
+    assert.ok(await location.getByRole("heading", { name: "المشهد الجوي للصمان" }).isVisible());
     const iframe = location.locator('iframe[title*="Google Maps"]');
     assert.equal(await iframe.count(), 0, "Google Maps must not load before visitor opt-in");
     const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
@@ -774,7 +775,7 @@ try {
     const src = await iframe.getAttribute("src");
     assert.ok(src?.includes("maps.google.com/maps?"));
     assert.match(src ?? "", /25\.515292%2C48\.362458/);
-    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في المشهد التصوري" });
+    const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في عرض الموقع" });
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
@@ -889,15 +890,11 @@ try {
     await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
   });
 
-  await caseRun("real browser mobile swipe handlers preserve vertical page scroll", async () => {
+  await caseRun("quiet mobile galleries preserve vertical scroll and lightbox swipe", async () => {
     await openWithRetry(motionPage, baseURL);
     await motionPage.evaluate(() => scrollTo({ top: 0, behavior: "instant" }));
-    const hero = motionPage.locator(".hero-gallery");
-    const dots = motionPage.locator(".hero-gallery__dots .hero-gallery__dot");
-    assert.equal(await dots.count(), 10);
-    const dot = await dots.first().boundingBox();
-    assert.ok(dot && dot.width >= 24 && dot.height >= 30, "10 dots need substantial touch hit regions on a phone");
-    const start = Number(await hero.getAttribute("data-hero-active"));
+    assert.equal(await motionPage.locator(".hero-gallery__toolbar").count(), 0);
+    assert.equal(await motionPage.locator('[data-video-section="hero"] button').count(), 0);
 
     async function dispatchSwipe(selector, fromX, toX, fromY, toY) {
       await motionPage.evaluate(({selector,fromX,toX,fromY,toY}) => {
@@ -918,17 +915,12 @@ try {
       }, { selector, fromX, toX, fromY, toY });
     }
 
-    await dispatchSwipe(".hero-cinematic", 300, 110, 330, 340);
-    await motionPage.waitForFunction(previous =>
-      Number(document.querySelector(".hero-gallery")?.getAttribute("data-hero-active")) === ((previous + 1) % 10),
-      start, {timeout: 4500});
-    assert.equal(await hero.getAttribute("data-hero-playing"), "false", "manual swipe should pause autoplay");
-    const afterHorizontal = await hero.getAttribute("data-hero-active");
-    await dispatchSwipe(".hero-cinematic", 260, 246, 250, 400);
-    assert.equal(await hero.getAttribute("data-hero-active"), afterHorizontal, "vertical gestures must never change images");
-
     // Inspect the enlarged gallery in the same touch-enabled browser.
-    const thumbnail = motionPage.locator(".gallery-image-button").first();
+    const touchGalleries = motionPage.locator(".site-gallery .gallery-slider");
+    const touchGalleryIndex = await touchGalleries.evaluateAll(elements =>
+      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
+    assert.ok(touchGalleryIndex >= 0, "mobile lightbox swipe QA requires a gallery with multiple photographs");
+    const thumbnail = touchGalleries.nth(touchGalleryIndex).locator(".gallery-image-button");
     await thumbnail.scrollIntoViewIfNeeded();
     await thumbnail.tap();
     const dialog = motionPage.locator("dialog.gallery-lightbox--native");
@@ -938,7 +930,7 @@ try {
     await motionPage.waitForFunction(previous => 
       document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
       firstLabel, {timeout:4000});
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused", "manual lightbox swipe pauses playback");
+    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
     await dialog.getByRole("button", {name:"Close image"}).click();
     await dialog.waitFor({state:"hidden", timeout:4500});
     await motionPage.screenshot({path: output + "/mobile-swipe-controls.png",animations:"disabled"});
@@ -970,20 +962,17 @@ try {
     assert.notEqual(state.bridgePosition, "sticky");
     await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
     assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
-    assert.ok(await mobilePage.locator(".hero-gallery__motion-toggle").isDisabled(), "no ineffective Play button under reduced motion");
+    assert.equal(await mobilePage.locator(".hero-gallery__toolbar").count(), 0);
     const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
     assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
-    await mobilePage.locator(".hero-gallery__dots button").nth(5).tap();
-    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active"), "5");
-    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
     const firstGallery = mobilePage.locator(".site-gallery .gallery-slider").first();
     await firstGallery.scrollIntoViewIfNeeded();
     assert.equal(await firstGallery.getAttribute("data-gallery-autoplay"), "paused");
-    assert.ok(await firstGallery.locator(".gallery-slide-controls button").first().isDisabled(), "gallery autoplay is disabled when motion is reduced");
+    assert.equal(await firstGallery.locator(".gallery-slide-controls").count(), 0);
     const quarries = mobilePage.locator(".quarry-cards");
     await quarries.scrollIntoViewIfNeeded();
     assert.equal(await quarries.getAttribute("data-quarry-gallery-autoplay"), "paused");
-    assert.ok(await quarries.locator(".quarry-cards__autoplay-tools button").isDisabled(), "quarry autoplay disabled under reduced motion");
+    assert.equal(await quarries.locator(".quarry-cards__autoplay-tools").count(), 0);
 
     // All remaining reduced-motion map / permit checks intentionally exercise
     // the persisted Arabic alternative after checking new English default.
@@ -1028,7 +1017,7 @@ try {
     await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
     await iframe.waitFor({ state: "attached", timeout: 5000 });
     assert.equal(await iframe.count(), 1);
-    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في المشهد التصوري" });
+    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في عرض الموقع" });
     await hotspot.tap();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
     const state = await mobilePage.evaluate(() => ({

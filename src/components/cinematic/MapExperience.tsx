@@ -1,7 +1,8 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 import { ArrowUpLeft, Compass, ExternalLink, Layers3, MapPinned, MoveUpRight } from "lucide-react";
-import quarryAerial from "@/assets/quarry-aerial.jpg";
+import { officialMedia } from '@/data/official-media';
 import { googleMapsOpenUrl, googleSatelliteEmbedSource, quarryReferenceCenter } from "@/data/quarry-map";
 
 const MAP_TILT_DAMPING = 0.08;
@@ -13,21 +14,21 @@ const landmarks = [
     id: "extraction",
     name: "مناطق الاستخراج",
     heading: "مساحات الحجر الخام",
-    detail: "تمثيل بصري لمدرجات الاستخراج ومسارات المعدات الثقيلة، وليس حدًا مساحيًا موثقًا.",
+    detail: "مدرجات الاستخراج ومسارات حركة المعدات الثقيلة.",
     x: "32%", y: "33%",
   },
   {
     id: "production",
     name: "الكسارات والفرز",
     heading: "منظومة الإنتاج",
-    detail: "تصور تخطيطي لموقعي خطوط التكسير والسيور والفرز؛ لا يعكس توزيع المعدات الفعلي.",
+    detail: "خطوط التكسير والسيور ومراحل فرز مواد الإنتاج.",
     x: "68%", y: "49%",
   },
   {
     id: "operations",
     name: "المرافق والخدمات",
     heading: "البنية التشغيلية",
-    detail: "تمثيل تقريبي للمكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.",
+    detail: "المكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.",
     x: "48%", y: "76%",
   },
 ] as const;
@@ -35,10 +36,9 @@ const landmarks = [
 /**
  * Dual map experience:
  *  1) live interactive Google satellite iframe at reference coordinates;
- *  2) separate simulated oblique aerial concept using existing project art.
+ *  2) a supplied Al Somman photograph with category navigation markers.
  *
- * Do NOT imply simulated 3D image is from Google, actual drone photography,
- * or accurate licensed quarry geospatial geometry.
+ * Marker positions are navigation aids, not surveyed quarry geometry.
  */
 export function MapExperience() {
   const { t, language } = useSiteLanguage();
@@ -113,10 +113,10 @@ export function MapExperience() {
   }
 
   return (
-    <div className="somman-location-experience" aria-label={t("الخريطة التفاعلية والمنظور التصوري لمحجر الصمان")}>
+    <div className="somman-location-experience" aria-label={t("الخريطة التفاعلية وعرض موقع محجر الصمان")}>
       <div className="somman-location-experience__topline">
         <span><MapPinned size={18} aria-hidden="true" /> {t("استكشف الموقع من الأعلى")}</span>
-        <span className="latin" dir="ltr">SATELLITE / 3D CONCEPT</span>
+        <span className="latin" dir="ltr">SATELLITE / AL SOMMAN</span>
       </div>
       <div className="somman-location-experience__grid">
         <div className="somman-location-experience__google">
@@ -139,7 +139,7 @@ export function MapExperience() {
             ) : (
               <div className="somman-location-experience__map-prompt">
                 <MapPinned size={44} strokeWidth={1.3} aria-hidden="true" />
-                <h4>{t("استكشف محيط المحجر فعليًا")}</h4>
+                <h4>{t("استكشف محيط المحجر")}</h4>
                 <p>{t("اضغط لتحميل خريطة Google التفاعلية بوضع القمر الصناعي. سيتصل متصفحك بخوادم Google.")}</p>
                 <button type="button" onClick={() => setMapAllowed(true)}>{t("تحميل Google Maps")} <MoveUpRight size={18} aria-hidden="true"/></button>
                 <a href={googleMapsOpenUrl} target="_blank" rel="noopener noreferrer">{t("أو افتح الموقع مباشرة في خرائط Google")}</a>
@@ -153,18 +153,18 @@ export function MapExperience() {
         </div>
         <div className="somman-location-experience__simulation">
           <div className="somman-location-experience__panel-title">
-            <div><span className="latin" dir="ltr">02 / CONCEPTUAL AERIAL</span><h3>{t("منظور مجسّم تصوري")}</h3></div>
-            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {t("تخيّلي")}</span>
+            <div><span className="latin" dir="ltr">02 / AERIAL VIEW</span><h3>{language === 'en' ? 'Al Somman aerial view' : 'المشهد الجوي للصمان'}</h3></div>
+            <span className="somman-location-experience__simulation-badge"><Layers3 size={15} aria-hidden="true"/> {language === 'en' ? 'Site overview' : 'نظرة على الموقع'}</span>
           </div>
           <div
             className="somman-location-experience__scene"
             ref={sceneRef}
             onPointerMove={onPointerMove}
             onPointerLeave={resetTilt}
-            aria-label={t("رسم تصوري علوي لكسارات ومحجر صخري")}
+            aria-label={language === 'en' ? 'Aerial view with category selectors' : 'مشهد جوي مع أزرار الفئات'}
           >
             <div className="somman-location-experience__scene-camera" aria-hidden="true">
-              <img src={quarryAerial} alt="" loading="lazy" decoding="async" width="1536" height="1024"/>
+              <ManagedImage mediaContext="MapExperience" src={officialMedia.hero[0].image} alt="" loading="lazy" decoding="async" width="1600" height="900"/>
               <div className="somman-location-experience__shadow" />
             </div>
             <span className="somman-location-experience__compass" aria-hidden="true"><Compass size={24}/> N</span>
@@ -173,7 +173,7 @@ export function MapExperience() {
                 key={landmark.id}
                 type="button"
                 aria-pressed={focus === landmark.id}
-                aria-label={t("استعرض") + " " + t(landmark.name) + " " + t("في المشهد التصوري")}
+                aria-label={t("استعرض") + " " + t(landmark.name) + " " + t("في عرض الموقع")}
                 className={"somman-location-experience__hotspot" + (focus === landmark.id ? " is-active" : "")}
                 style={{ left: landmark.x, top: landmark.y }}
                 onClick={() => setFocus(landmark.id)}
@@ -182,14 +182,14 @@ export function MapExperience() {
               </button>
             ))}
             <div className="somman-location-experience__scene-caption">
-              <small className="latin" dir="ltr">ILLUSTRATIVE VIEW / NOT SURVEY DATA</small>
+              <small className="latin" dir="ltr">AERIAL VIEW / MARKERS ARE NOT SURVEY DATA</small>
               <strong>{t(active.heading)}</strong>
               <p>{t(active.detail)}</p>
             </div>
           </div>
           <div className="somman-location-experience__scene-footer">
-            <span>{t("تصور بصري مستوحى من طبيعة محاجر الحجر الجيري؛ ليس صورة Google Earth أو تصويرًا موثقًا لموقع الشركة.")}</span>
-            <a href="#التواصل">{t("استفسر عن صور الموقع الحقيقية")} <ArrowUpLeft size={15} aria-hidden="true"/></a>
+            <span>{language === 'en' ? 'Category markers are navigation aids, not surveyed positions or permit boundaries.' : 'علامات الفئات للتنقل فقط، ولا تحدد مواضع مساحية أو حدود تراخيص.'}</span>
+            <a href="#site-gallery-title">{language === 'en' ? 'Browse the site photographs' : 'تصفح صور الموقع'} <ArrowUpLeft size={15} aria-hidden="true"/></a>
           </div>
         </div>
       </div>

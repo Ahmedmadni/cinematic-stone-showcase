@@ -1,3 +1,4 @@
+import { ManagedImage } from '@/components/ManagedImage';
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { ArrowUpLeft, X } from "lucide-react";
 import { useSiteLanguage } from "@/lib/site-language";
@@ -40,7 +41,7 @@ function DocumentDialog({ document, title, onClose }: { document: SuppliedDocume
   return <dialog ref={dialog} onKeyDown={handleKeyDown} className="evidence-document-dialog" aria-label={title} onCancel={event => { event.preventDefault(); onClose(); }} onClick={event => { if (event.target === event.currentTarget) onClose(); }}>
     <div className="evidence-document-dialog__bar"><strong>{title}</strong><button ref={closeButton} type="button" onClick={onClose} aria-label={en ? "Close document" : "إغلاق المستند"}><X size={22} aria-hidden="true" /></button></div>
     <p>{en ? "Supplied document copy. Current validity and surveillance reviews require verification with the issuing authority." : "نسخة المستند المرفقة. يلزم التحقق من السريان الحالي ومراجعات المتابعة لدى الجهة المصدرة."}</p>
-    <div className="evidence-document-dialog__image"><img src={document.image} width={document.width} height={document.height} alt={title} decoding="async" /></div>
+    <div className="evidence-document-dialog__image"><ManagedImage mediaContext="EvidenceDocument" src={document.image} width={document.width} height={document.height} alt={title} decoding="async" /></div>
     <a href={document.image} target="_blank" rel="noopener noreferrer">{en ? "Open original scan" : "فتح نسخة المستند الأصلية المرفقة"}<ArrowUpLeft size={18} aria-hidden="true" /></a>
   </dialog>;
 }
@@ -52,7 +53,7 @@ export function EvidenceDocument({ document, title }: { document: SuppliedDocume
   if (!document) return null;
   return <div className="evidence-document">
     <button type="button" className="evidence-document__trigger" onClick={() => setOpen(true)}>
-      <img src={document.thumbnail} width={document.width} height={document.height} alt="" loading="lazy" decoding="async" />
+      <ManagedImage mediaContext="EvidenceDocument" src={document.thumbnail} width={document.width} height={document.height} alt="" loading="lazy" decoding="async" />
       <span><small>{language === "en" ? "SUPPLIED DOCUMENT" : "المستند المرفق"}</small><strong>{language === "en" ? "View supplied scan" : "عرض نسخة المستند"}</strong><span>{title}</span></span><ArrowUpLeft size={21} aria-hidden="true" />
     </button>
     {open && <DocumentDialog document={document} title={title} onClose={() => setOpen(false)} />}

@@ -96,16 +96,16 @@ const response = await page.goto(baseURL, { waitUntil: "domcontentloaded", timeo
 assert.ok(response && response.status() < 500, "performance page failed to load");
 
 // Performance runs use Vite's dev server in CI, where network throttling also
-// slows the development module graph. Wait for the first real interactive
-// control instead of relying on the cinematic director's internal RAF marker.
-const heroDots = page.locator(".hero-gallery__dots button");
-await heroDots.first().waitFor({ state: "visible", timeout: 90_000 });
+// slows the development module graph. Wait for the primary action instead of
+// relying on the cinematic director's internal RAF marker.
+await page.locator(".hero-discover").waitFor({ state: "visible", timeout: 90_000 });
 await page.waitForTimeout(2_500);
 const cinemaReadyObserved = await page.locator('[data-cinema-ready="true"]').count() > 0;
 
 // Create a few real user interactions so Event Timing can expose an INP candidate.
-for (const index of [1, 2, 3, 4]) {
-  await heroDots.nth(index).click();
+const languageToggle = page.locator(".somman-tool--language");
+for (let index = 0; index < 4; index += 1) {
+  await languageToggle.click();
   await page.waitForTimeout(120);
 }
 

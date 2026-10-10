@@ -17,7 +17,7 @@ import quarryPoster from "@/assets/official/video/quarry-poster.webp";
 import fullTour from "@/assets/official/video/full-tour.mp4";
 import fullTourPoster from "@/assets/official/video/full-tour-poster.webp";
 
-export type SiteVideo = { id: string; src: string; webm?: string; poster: string; ar: string; en: string };
+export type SiteVideo = { id: string; src: string; webm?: string | undefined; poster: string; ar: string; en: string };
 export const officialVideo = {
   hero: { id: "hero", src: hero, webm: heroWebm, poster: heroPoster, ar: "مشهد جوي لخطوط الكسارة والسيور", en: "Aerial view of the crushing plant and conveyors" },
   production: { id: "production", src: production, webm: productionWebm, poster: productionPoster, ar: "خطوط التكسير والفرز والسيور", en: "Crushing, screening and conveyor lines" },

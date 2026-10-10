@@ -11,7 +11,7 @@ export function mediaCors(route) {
 export async function isolateSiteMedia(context) {
   await context.route("https://somman-browser-qa.supabase.co/**", route => {
     const preflight = route.request().method() === "OPTIONS";
-    const metadata = new URL(route.request().url()).pathname === "/rest/v1/site_media";
+    const metadata = ["/rest/v1/site_media", "/rest/v1/media_overrides"].includes(new URL(route.request().url()).pathname);
     return route.fulfill({ status: preflight ? 204 : metadata ? 200 : 404, contentType: "application/json", headers: mediaCors(route), body: preflight ? "" : metadata ? "[]" : '{"message":"QA endpoint not configured"}' });
   });
 }
