@@ -69,9 +69,12 @@ export const Route = createFileRoute("/")({
       },
       { property: "og:url", content: "/" },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: officialMedia.hero[0].image },
+      { property: "og:image:alt", content: officialMedia.hero[0].en },
       { property: "og:locale", content: "en_US" },
       { property: "og:locale:alternate", content: "ar_SA" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: officialMedia.hero[0].image },
     ],
     links: [{ rel: "canonical", href: "/" }],
     scripts: [
@@ -613,9 +616,7 @@ function Index() {
                   <span className="latin" dir="ltr">
                     FIG. 01 — PRODUCTION
                   </span>
-                  <span>
-                    {t("خطوط الكسارات والفرز — مجمع كسارات الصمان")}
-                  </span>
+                  <span>{t("خطوط الكسارات والفرز — مجمع كسارات الصمان")}</span>
                 </figcaption>
               </figure>
               <div className="production-detail reveal">
