@@ -72,7 +72,7 @@ try {
     assert.match(await page.locator('meta[name="description"]').first().getAttribute("content") ?? "", /Somman/i);
     assert.ok(await page.locator("#hero-title").isVisible());
     assert.equal(await page.locator(".site-gallery .gallery-slider").count(), 6);
-    assert.equal(await page.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
     assert.equal(await page.locator(".somman-floating-tools button").count(), 2);
     assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
     await page.screenshot({
@@ -95,14 +95,12 @@ try {
     await page.waitForFunction(() => document.documentElement.lang === "en", null, { timeout: 8000 });
   });
 
-  await check("Ten separate photos and manual reduced-motion slideshow navigation", async () => {
+  await check("Reduced-motion hero remains static and control-free", async () => {
     const hero = page.locator(".hero-gallery");
-    const dots = page.locator(".hero-gallery__dots button");
-    await dots.nth(4).click();
-    assert.equal(await hero.getAttribute("data-hero-active"), "4");
+    assert.equal(await hero.getAttribute("data-hero-active"), "0");
     assert.equal(await hero.getAttribute("data-hero-playing"), "false");
     assert.equal(await hero.locator(".hero-gallery__photo--active").count(), 1);
-    assert.ok(await page.locator(".hero-gallery__motion-toggle").isDisabled());
+    assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
     await page.screenshot({
       path: output + "/02-manual-slide.png",
       animations: "disabled",
@@ -116,7 +114,7 @@ try {
     const dialog = page.locator("dialog.gallery-lightbox--native");
     await dialog.waitFor({ state: "visible", timeout: 8000 });
     assert.equal(await dialog.evaluate(el => el instanceof HTMLDialogElement && el.open), true);
-    assert.equal(await dialog.locator(".lightbox-toolbar button").count(), 2);
+    assert.equal(await dialog.locator(".lightbox-toolbar button").count(), 1);
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden", timeout: 7000 });
   });
@@ -169,12 +167,8 @@ try {
     }));
     assert.ok(diagnostics.overhang <= 8, "Horizontal scrolling on phone: " + JSON.stringify(diagnostics));
     assert.equal(diagnostics.paused, "false");
-    const dots = mobilePage.locator(".hero-gallery__dots button");
-    assert.equal(await dots.count(), 10);
-    const bounds = await dots.first().boundingBox();
-    assert.ok(bounds && bounds.width >= 24 && bounds.height >= 30);
-    await dots.nth(2).tap();
-    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active"), "2");
+    assert.equal(await mobilePage.locator(".hero-gallery__toolbar").count(), 0);
+    assert.equal(await mobilePage.locator('[data-video-section="hero"] button').count(), 0);
     await mobilePage.screenshot({
       path: output + "/03-mobile-gallery.png",
       animations: "disabled",

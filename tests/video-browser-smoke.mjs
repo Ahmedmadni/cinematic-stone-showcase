@@ -75,15 +75,17 @@ try {
       console.log("[VIDEO " + engine + "] decoding section " + id);
       await decoded(stage.locator("video"));
       await page.waitForFunction(section => document.querySelector('[data-video-section="' + section + '"]')?.getAttribute("data-video-playing") === "true", id);
-      assert.equal(await hero.locator("video").evaluate(node => node.paused), true);
-      await stage.locator("button").click();
-      await page.waitForFunction(section => document.querySelector('[data-video-section="' + section + '"] video')?.paused, id);
+      if (await hero.locator("video").count()) {
+        assert.equal(await hero.locator("video").evaluate(node => node.paused), true);
+      }
+      assert.equal(await stage.locator("button").count(), 0);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-      assert.equal(await stage.locator("video").evaluate(node => node.paused), true);
+      await page.waitForFunction(section => document.querySelector('[data-video-section="' + section + '"] video')?.paused, id);
     }
-    await page.locator('.hero-film-mode').click();
+    await page.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
+    await page.waitForFunction(() => !document.querySelector('[data-video-section="hero"]'));
     assert.equal(await hero.count(), 0);
-    assert.equal(await page.locator(".hero-gallery__dots button").count(), 10);
+    assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
     await context.close();
   });
 
@@ -113,7 +115,7 @@ try {
     const { context, page } = await fresh();
     await page.route(/\.(?:mp4|webm)(?:\?|$)/, route => isFilmRequest(route.request()) ? route.abort() : route.continue());
     await visit(page);
-    await page.waitForFunction(() => document.querySelector('[data-video-section="hero"]')?.getAttribute("data-video-failed") === "true");
+    await page.waitForFunction(() => !document.querySelector('[data-video-section="hero"]'));
     assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(node => node.complete && node.naturalWidth > 0));
     await page.locator('[data-video-section="production"]').scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector('[data-video-section="production"]')?.getAttribute("data-video-failed") === "true");
@@ -153,20 +155,14 @@ try {
     await context.close();
   });
 
-  await check("mobile Arabic media controls and tour remain within viewport", async () => {
+  await check("mobile Arabic media stays uncluttered and tour remains within viewport", async () => {
     const { context, page } = await fresh({ viewport: { width: 390, height: 844 }, hasTouch: true, reducedMotion: "reduce" });
     await visit(page);
     await page.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" }).click();
     await page.waitForFunction(() => document.documentElement.lang === "ar");
-    const lead = await page.locator(".hero-lead").boundingBox();
-    const toolbar = await page.locator(".hero-gallery__toolbar").boundingBox();
-    for (const selector of ['.hero-film-mode', '[data-video-section="hero"] button']) {
-      const control = await page.locator(selector).boundingBox();
-      assert.ok(control && control.x >= 0 && control.x + control.width <= 391 && control.height >= 44);
-      for (const text of [lead, toolbar]) {
-        assert.ok(text && !(control.x < text.x + text.width && control.x + control.width > text.x && control.y < text.y + text.height && control.y + control.height > text.y), "film controls must not cover the introduction or photo controls");
-      }
-    }
+    assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
+    assert.equal(await page.locator(".hero-film-mode").count(), 0);
+    assert.equal(await page.locator('[data-video-section="hero"] button').count(), 0);
     await page.screenshot({ path: output + "/03-mobile-arabic-hero.png" });
     await page.locator(".site-tour__open").click();
     await decoded(page.locator(".site-tour-dialog video"));
@@ -179,17 +175,13 @@ try {
   });
 
   if (engine === "chromium") {
-    await check("data saver defers film until explicit play; hidden tab pauses it", async () => {
+    await check("data saver keeps ambient films deferred without transport controls", async () => {
       const { context, page } = await fresh();
       await page.addInitScript(() => Object.defineProperty(navigator, "connection", { value: { saveData: true }, configurable: true }));
       await visit(page);
       assert.equal(await page.locator("video").count(), 0);
-      await page.getByRole("button", { name: "Play site video", exact: true }).first().click();
-      const video = page.locator('[data-video-section="hero"] video');
-      await decoded(video);
-      await page.waitForFunction(() => !document.querySelector('[data-video-section="hero"] video')?.paused);
-      await page.evaluate(() => { Object.defineProperty(document, "hidden", { configurable: true, value: true }); document.dispatchEvent(new Event("visibilitychange")); });
-      await page.waitForFunction(() => document.querySelector('[data-video-section="hero"] video')?.paused);
+      assert.equal(await page.locator(".site-video__toggle").count(), 0);
+      assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(node => node.complete && node.naturalWidth > 0));
       await context.close();
     });
 

@@ -71,3 +71,34 @@ test("decorative motifs are managed and old editorial raster backdrops are not r
   assert.match(css, /var\(--motif-limestone\)/);
   assert.doesNotMatch(css, /quarry-aerial(?:-alt)?\.jpg/);
 });
+test("generated concepts are restricted to equipment and public media stays uncluttered", () => {
+  const catalog = readFileSync(new URL("../src/data/media-catalog.ts", import.meta.url), "utf8");
+  assert.match(catalog, /equipmentEditorialFiles/);
+  for (const excluded of [
+    "quarry-aerial.jpg",
+    "site-roads.jpg",
+    "offices-workshop.jpg",
+    "worker-housing-recreation.jpg",
+  ])
+    assert.doesNotMatch(
+      catalog.match(/const equipmentEditorialFiles[\s\S]*?\]\);/)?.[0] ?? "",
+      new RegExp(excluded.replace(".", "\\.")),
+    );
+
+  const publicSources = [
+    "../src/components/cinematic/HeroGallery.tsx",
+    "../src/components/GallerySlides.tsx",
+    "../src/components/GalleryLightbox.tsx",
+    "../src/components/SiteVideoLoop.tsx",
+    "../src/components/cinematic/QuarryAtlas.tsx",
+    "../src/routes/index.tsx",
+  ].map((url) => readFileSync(new URL(url, import.meta.url), "utf8")).join("\n");
+  assert.doesNotMatch(
+    publicSources,
+    /hero-gallery__toolbar|gallery-slide-controls|site-video__toggle|quarry-cards__autoplay-tools/,
+  );
+  assert.doesNotMatch(
+    publicSources,
+    /صور وفيديوهات فعلية|تصوير فعلي من موقع الصمان|ACTUAL SITE \+ CURATED EDITORIAL/,
+  );
+});
