@@ -10,7 +10,9 @@ import {
   validateMediaFile,
 } from "@/lib/media-management";
 import { SITE_MEDIA_BUCKET, siteMediaSections, type SiteMediaSection } from "@/lib/site-media";
+import { createVideoPoster, optimizeImageForUpload } from "@/lib/media-upload";
 import { UploadedMediaManager } from "./UploadedMediaManager";
+import { MediaAuditLog } from "./MediaAuditLog";
 import provenance from "@/data/media-provenance.json";
 
 export function MediaStudio() {
@@ -147,24 +149,53 @@ export function MediaStudio() {
           errors.push(`${file.name}: ${invalid}`);
           continue;
         }
-        const path = `${section}/${crypto.randomUUID()}.${allowedMediaTypes[file.type]}`;
-        setStatus(`جارٍ رفع ${file.name}…`);
+        let prepared = file;
+        try {
+          prepared = await optimizeImageForUpload(file);
+        } catch {
+          errors.push(`${file.name}: تعذّر تحويل الصورة إلى WebP.`);
+          continue;
+        }
+        const preparedInvalid = validateMediaFile(prepared);
+        if (preparedInvalid) {
+          errors.push(`${file.name}: ${preparedInvalid}`);
+          continue;
+        }
+        setStatus(
+          file.type.startsWith("image/")
+            ? `جارٍ تحسين ورفع ${file.name}…`
+            : `جارٍ تجهيز غلاف ورفع ${file.name}…`,
+        );
+        const poster = await createVideoPoster(file);
+        const path = `${section}/${crypto.randomUUID()}.${allowedMediaTypes[prepared.type]}`;
         const uploaded = await supabase.storage
           .from(SITE_MEDIA_BUCKET)
-          .upload(path, file, { contentType: file.type, upsert: false });
+          .upload(path, prepared, { contentType: prepared.type, upsert: false });
         if (uploaded.error) {
           errors.push(`${file.name}: تعذّر الرفع.`);
           continue;
         }
+        let posterPath: string | null = null;
+        if (poster) {
+          const candidate = `${section}/posters/${crypto.randomUUID()}.webp`;
+          const posterUpload = await supabase.storage
+            .from(SITE_MEDIA_BUCKET)
+            .upload(candidate, poster, { contentType: "image/webp", upsert: false });
+          if (posterUpload.error) errors.push(`${file.name}: رُفع الفيديو دون غلاف تلقائي.`);
+          else posterPath = candidate;
+        }
         const inserted = await supabase.from("site_media").insert({
           section,
-          kind: file.type.startsWith("video/") ? "video" : "image",
+          kind: prepared.type.startsWith("video/") ? "video" : "image",
           storage_path: path,
+          poster_path: posterPath,
           title_ar: file.name.replace(/\.[^.]+$/, ""),
           title_en: file.name.replace(/\.[^.]+$/, ""),
         });
         if (inserted.error) {
-          const cleanup = await supabase.storage.from(SITE_MEDIA_BUCKET).remove([path]);
+          const cleanup = await supabase.storage
+            .from(SITE_MEDIA_BUCKET)
+            .remove([path, posterPath].filter(Boolean) as string[]);
           errors.push(
             `${file.name}: تعذّر حفظ السجل.${cleanup.error ? ` يلزم تنظيف ${path} من التخزين.` : " أُلغي رفع الملف."}`,
           );
@@ -230,7 +261,7 @@ export function MediaStudio() {
       <section className="media-studio__stats">
         <div>
           <strong>77</strong>
-          <span>صورة فعلية موثقة</span>
+          <span>صورة في مكتبة الموقع</span>
         </div>
         <div>
           <strong>6</strong>
@@ -296,12 +327,13 @@ export function MediaStudio() {
         {status}
       </p>
       {isAdmin && <UploadedMediaManager />}
+      {isAdmin && <MediaAuditLog />}
       {isAdmin && (
         <section className="admin-card">
-          <h2>رفع وسائط حقيقية</h2>
+          <h2>رفع وسائط الموقع</h2>
           <p>
-            WebP للصور؛ MP4 أو WebM للفيديو. حد الملف 50 ميجابايت. تظهر الملفات في القسم المحدد عند
-            نجاح الرفع.
+            تُحوّل صور JPEG وPNG تلقائيًا إلى WebP، ويُنشأ غلاف للفيديو متى سمح المتصفح بذلك. يدعم
+            الفيديو MP4 وWebM، وحد الملف 50 ميجابايت.
           </p>
           <label>
             القسم
