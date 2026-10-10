@@ -198,7 +198,7 @@ export function MediaStudio() {
     posters: "أغلفة الفيديو",
     hero: "الواجهة",
     fleet: "المعدات المرفوعة",
-    supplementary: "أرشيف الصور التوضيحية السابقة",
+    supplementary: "تصورات المعدات فقط",
     decorative: "الرسوم الهندسية الزخرفية",
   };
   return (
@@ -207,7 +207,7 @@ export function MediaStudio() {
         <div>
           <span className="media-studio__eyebrow">AL SOMMAN / MEDIA STUDIO</span>
           <h1>مكتبة الموقع. تحت إدارتك.</h1>
-          <p>الصور الحقيقية، الفيديوهات، أغلفتها والمستندات في مكان واحد.</p>
+          <p>الصور، الفيديوهات، أغلفتها والمستندات في مكان واحد. التصورات المولدة مسموحة للمعدات فقط.</p>
         </div>
         <div className="admin-header__actions">
           <a href="/" target="_blank" rel="noreferrer">

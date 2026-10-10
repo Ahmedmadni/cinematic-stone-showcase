@@ -52,7 +52,7 @@ export function ProductionLines() {
           );
         })}
       </div>
-      <h3>{en ? "Aggregate, from the actual site." : "البحص، من الموقع الفعلي."}</h3>
+      <h3>{en ? "Aggregate products." : "منتجات البحص."}</h3>
       <div className="production-lines__grid">
         {products.map((product) => (
           <figure key={product.id}>
@@ -61,8 +61,8 @@ export function ProductionLines() {
               src={product.image}
               alt={
                 en
-                  ? "Actual aggregate stockpiles beneath production conveyors"
-                  : "مخزون فعلي للبحص أسفل سيور الإنتاج"
+                  ? "Aggregate stockpiles beneath production conveyors"
+                  : "مخزون البحص أسفل سيور الإنتاج"
               }
               loading="lazy"
               width={1600}
@@ -70,8 +70,8 @@ export function ProductionLines() {
             />
             <figcaption>
               {en
-                ? "Actual stockpiles and discharge conveyors. Photographs do not establish aggregate grading, laboratory results or available quantities."
-                : "مخزون المنتج وسيور التفريغ كما تظهر في التصوير الفعلي. لا تُستنتج المقاسات أو نتائج الفحص أو الكميات المتاحة من الصورة."}
+                ? "Stockpiles and discharge conveyors. Images do not establish aggregate grading, laboratory results or available quantities."
+                : "مخزون المنتج وسيور التفريغ. لا تُستنتج المقاسات أو نتائج الفحص أو الكميات المتاحة من الصورة."}
             </figcaption>
           </figure>
         ))}

@@ -5,7 +5,7 @@ import { officialVideo } from "@/data/official-video";
 import { SiteVideoLoop } from "@/components/SiteVideoLoop";
 
 type ReelItem = Pick<SiteMediaItem, "id" | "kind" | "url" | "title_ar" | "title_en"> & { poster?: string; webm?: string };
-/** Admin uploads remain first; the verified clip is always the built-in fallback. */
+/** Admin uploads remain first; the bundled clip is always the fallback. */
 export function SiteMediaReel({ section, language, videosOnly = false, interval = 6200 }: { section: SiteMediaSection; language: string; videosOnly?: boolean; interval?: number }) {
   const uploads = useSiteMedia(section);
   const items = useMemo<ReelItem[]>(() => {
@@ -36,7 +36,7 @@ export function SiteMediaReel({ section, language, videosOnly = false, interval 
     return () => window.clearTimeout(timer);
   }, [playing, current, items.length, interval]);
   if (!current) return null;
-  const title = language === "ar" ? current.title_ar || "تصوير فعلي من الموقع" : current.title_en || "Actual site footage";
+  const title = language === "ar" ? current.title_ar || "مشهد من موقع الصمان" : current.title_en || "Al Somman site scene";
   return <div className="site-media-reel reveal is-visible" ref={frame}>
     {current.kind === "video" ? <SiteVideoLoop key={current.id} video={{ id: section, src: current.url, ...(current.webm ? { webm: current.webm } : {}), poster: current.poster ?? officialVideo[section].poster, ar: current.title_ar || officialVideo[section].ar, en: current.title_en || officialVideo[section].en }} language={language} onUnavailable={() => { if (!current.id.startsWith("builtin-")) setActive(items.length - 1); }} onEnded={items.length > 1 ? () => setActive(value => (value + 1) % items.length) : undefined} /> : <figure className="site-media-reel__stage"><ManagedImage mediaContext="SiteMediaReel" src={current.url} alt={title} className="site-media-reel__frame active actual-site-photo" loading="lazy" decoding="async" onError={() => setActive(items.length - 1)} /><figcaption className="photo-placeholder">{title}</figcaption></figure>}
   </div>;

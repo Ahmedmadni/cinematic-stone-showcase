@@ -115,8 +115,8 @@ function TourDialog({
               ? "Selected site video."
               : "فيديو الموقع المختار."
             : en
-              ? "2:57 · Actual site footage · Original recording has no audio."
-              : "٢:٥٧ · تصوير فعلي للموقع · التسجيل الأصلي دون صوت."}
+              ? "2:57 · Complete route · Original recording has no audio."
+              : "٢:٥٧ · الجولة الكاملة · التسجيل الأصلي دون صوت."}
       </p>
     </dialog>
   );

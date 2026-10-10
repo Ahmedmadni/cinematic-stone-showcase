@@ -1,6 +1,5 @@
 import { ManagedImage } from "@/components/ManagedImage";
 import { useEffect, useRef, useState } from "react";
-import { Pause, Play } from "lucide-react";
 import type { SiteVideo } from "@/data/official-video";
 import { useManagedVideo } from "@/lib/media-management";
 
@@ -30,8 +29,6 @@ export function SiteVideoLoop({
   const [pageVisible, setPageVisible] = useState(true);
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [requested, setRequested] = useState(false);
-  const [manuallyStarted, setManuallyStarted] = useState(false);
-  const [paused, setPaused] = useState(false);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [actuallyPlaying, setActuallyPlaying] = useState(false);
@@ -68,7 +65,7 @@ export function SiteVideoLoop({
     };
   }, [hero]);
   const shouldPlay =
-    enabled && visible && pageVisible && !paused && !failed && (motionAllowed || manuallyStarted);
+    enabled && visible && pageVisible && !failed && motionAllowed;
   useEffect(() => {
     if (shouldPlay) setRequested(true);
   }, [shouldPlay]);
@@ -79,7 +76,6 @@ export function SiteVideoLoop({
     if (shouldPlay && requested) {
       void node.play().catch(() => {
         if (!cancelled) {
-          setPaused(true);
           setActuallyPlaying(false);
         }
       });
@@ -89,7 +85,7 @@ export function SiteVideoLoop({
       node.pause();
     };
   }, [shouldPlay, requested, video.src]);
-  const covered = enabled && ready && !failed && (motionAllowed || manuallyStarted);
+  const covered = enabled && ready && !failed && motionAllowed;
   useEffect(() => {
     onCoverChange?.(covered);
     return () => onCoverChange?.(false);
@@ -104,12 +100,6 @@ export function SiteVideoLoop({
   function sourceError() {
     failedSources.current += 1;
     if (failedSources.current >= (video.webm ? 2 : 1)) fail();
-  }
-  function toggle() {
-    if (failed) return;
-    setManuallyStarted(true);
-    setRequested(true);
-    setPaused(actuallyPlaying);
   }
   return (
     <figure
@@ -166,41 +156,10 @@ export function SiteVideoLoop({
             )}
           </video>
         )}
-        <button
-          type="button"
-          className="site-video__toggle"
-          onClick={toggle}
-          disabled={failed || !enabled}
-          aria-label={
-            actuallyPlaying
-              ? en
-                ? "Pause site video"
-                : "إيقاف فيديو الموقع"
-              : en
-                ? "Play site video"
-                : "تشغيل فيديو الموقع"
-          }
-          aria-pressed={actuallyPlaying}
-        >
-          {actuallyPlaying ? (
-            <Pause size={17} aria-hidden="true" />
-          ) : (
-            <Play size={17} aria-hidden="true" />
-          )}
-          <span>
-            {actuallyPlaying
-              ? en
-                ? "Pause film"
-                : "إيقاف المقطع"
-              : en
-                ? "Play film"
-                : "تشغيل المقطع"}
-          </span>
-        </button>
       </div>
       {!hero && (
         <figcaption>
-          <span className="latin">ACTUAL SITE / FILM</span>
+          <span className="latin">AL SOMMAN / FILM</span>
           <span>{title}</span>
           {failed && (
             <small>
