@@ -61,7 +61,7 @@ export async function refreshMediaManagement(force = false) {
           id: `upload-${u.id}`,
           kind: u.kind,
           url: u.url,
-          thumbnail: u.kind === "image" ? u.url : "",
+          thumbnail: u.kind === "image" ? u.url : (u.poster_url ?? ""),
           ar: u.title_ar,
           en: u.title_en,
           category: u.section,
