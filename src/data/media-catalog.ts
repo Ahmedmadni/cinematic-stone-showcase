@@ -98,7 +98,19 @@ export const mediaCatalog: CatalogAsset[] = [
   })),
 ];
 
-// Retain old editorial assets in the library without presenting them as site evidence.
+// Illustrative/generated raster assets are permitted for equipment only.
+// Non-equipment legacy concepts remain out of the admin picker and public site.
+const equipmentEditorialFiles = new Set([
+  "crushing-plant-alt.jpg",
+  "crushing-plant.jpg",
+  "equipment.jpg",
+  "excavators-alt.jpg",
+  "excavators.jpg",
+  "generators-weighbridge-alt.jpg",
+  "generators-weighbridge.jpg",
+  "loaders-maintenance-alt.jpg",
+  "loaders-maintenance.jpg",
+]);
 const editorialAssets = import.meta.glob<string>("/src/assets/*.{jpg,jpeg,png,webp}", {
   eager: true,
   query: "?url",
@@ -106,13 +118,14 @@ const editorialAssets = import.meta.glob<string>("/src/assets/*.{jpg,jpeg,png,we
 });
 for (const [path, url] of Object.entries(editorialAssets)) {
   const name = path.split("/").pop()!;
+  if (!equipmentEditorialFiles.has(name)) continue;
   mediaCatalog.push({
     id: `editorial-${name}`,
     kind: "image",
     url,
     thumbnail: url,
-    ar: `أصل توضيحي سابق — ${name}`,
-    en: `Legacy editorial asset — ${name}`,
+    ar: `تصور معدات — ${name}`,
+    en: `Equipment concept — ${name}`,
     category: "supplementary",
     origin: "supplementary",
   });
