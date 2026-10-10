@@ -42,7 +42,7 @@ export function QuarryTransition() {
           </a>
         </div>
         <div className="cinematic-bridge__footer">
-          <span>{t("تصوير فعلي من موقع محجر وكسارة الصمان")}</span>
+          <span>{t("محجر وكسارة الصمان")}</span>
           <span className="latin" dir="ltr">02 — PRODUCTION</span>
         </div>
         <div className="cinematic-bridge__meter" aria-hidden="true"><span /></div>

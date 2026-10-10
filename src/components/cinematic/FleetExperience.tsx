@@ -71,12 +71,12 @@ export function FleetExperience() {
 
       <div className="fleet-experience__scroll" id="fleet-scroll-track" ref={trackRef}>
         <div className="fleet-experience__composition">
-          <div className="fleet-experience__stage" aria-label={language === 'en' ? 'Actual site equipment photographs' : 'صور المعدات الفعلية بالموقع'}>
+          <div className="fleet-experience__stage" aria-label={language === 'en' ? 'Al Somman equipment' : 'معدات الصمان'}>
             {fleetFacts.map((item, index) => (
               <ManagedImage mediaContext="FleetExperience"
                 key={item.id}
                 src={images[index]}
-                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Actual maintenance workshop; not a generator close-up' : 'ورشة الصيانة الفعلية؛ ليست صورة تفصيلية للمولدات') : t(item.name)) : ""}
+                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Maintenance workshop; generator detail is unavailable' : 'ورشة الصيانة؛ لا تتوفر لقطة تفصيلية للمولدات') : t(item.name)) : ""}
                 aria-hidden={index !== selected}
                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
@@ -87,7 +87,7 @@ export function FleetExperience() {
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
             <AtmosphereLayers variant="fleet" />
-            <span className="fleet-experience__photo-note">{language === 'en' ? 'Actual supplied photographs. The power chapter shows the support workshop, not a verified generator close-up.' : 'صور فعلية مرفقة. يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر صورة تفصيلية مؤكدة للمولدات.'}</span>
+            <span className="fleet-experience__photo-note">{language === 'en' ? 'The power chapter shows the support workshop; a generator detail is unavailable.' : 'يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر لقطة تفصيلية للمولدات.'}</span>
             <div className="fleet-experience__headline">
               <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
               <strong key={current.id}>{t(current.name)}</strong>
@@ -122,8 +122,8 @@ export function FleetExperience() {
                 );
               })}
             </div>
-            <div className="fleet-experience__actual-evidence" aria-label={t("تصوير فعلي لمعدات موقع الصمان")}>
-              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">ACTUAL SITE / 02</span>{t("تصوير فعلي للمعدات")}</span>
+            <div className="fleet-experience__actual-evidence" aria-label={t("معدات موقع الصمان")}>
+              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">AL SOMMAN / 02</span>{t("معدات الموقع")}</span>
               <div className="fleet-experience__actual-grid">
                 {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
                   <figure key={item.image}>

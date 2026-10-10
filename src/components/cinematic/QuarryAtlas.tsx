@@ -1,7 +1,7 @@
 import { ManagedImage } from '@/components/ManagedImage';
 import { useSiteLanguage } from "@/lib/site-language";
-import { useEffect, useRef, useState } from "react";
-import { ArrowUpLeft, FileCheck2, MapPin, Mountain, Pause, Play } from "lucide-react";
+import { useState } from "react";
+import { ArrowUpLeft, FileCheck2, MapPin, Mountain } from "lucide-react";
 import { quarrySites, totalQuarryArea } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
 
@@ -11,54 +11,18 @@ const images = [
   officialMedia.hero[1].image,
 ] as const;
 
-/**
- * Three document-supported quarry records, rendered against actual Al Somman
- * site photography. The photos provide site context only and do not assert
- * which licensed parcel is shown, its legal boundary or its current status.
- */
+/** Three quarry records paired with supplied Al Somman photographs. */
 export function QuarryAtlas() {
   const { t, language } = useSiteLanguage();
-  const frame = useRef<HTMLDivElement>(null);
   const [selected, setSelected] = useState(0);
-  const [inView, setInView] = useState(false);
-  const [motionAllowed, setMotionAllowed] = useState(false);
-  const [pageVisible, setPageVisible] = useState(true);
-  const [interacting, setInteracting] = useState(false);
-  const [manuallyPaused, setManuallyPaused] = useState(false);
   const current = quarrySites[selected] ?? quarrySites[0];
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => setInView(entry?.isIntersecting ?? false), { threshold: 0.15 });
-    const element = frame.current;
-    if (element) observer.observe(element);
-    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const onMotion = () => setMotionAllowed(!mq.matches);
-    const onPage = () => setPageVisible(!document.hidden);
-    onMotion(); onPage();
-    mq.addEventListener("change", onMotion);
-    document.addEventListener("visibilitychange", onPage);
-    return () => {
-      observer.disconnect();
-      mq.removeEventListener("change", onMotion);
-      document.removeEventListener("visibilitychange", onPage);
-    };
-  }, []);
-
-  const playing = inView && motionAllowed && pageVisible && !interacting && !manuallyPaused;
-  useEffect(() => {
-    if (!playing) return;
-    const timer = window.setTimeout(() => setSelected(index => (index + 1) % quarrySites.length), 11500);
-    return () => window.clearTimeout(timer);
-  }, [playing, selected]);
 
   function chooseSite(index: number) {
     setSelected(index);
-    // Keep historical licence details stable after a visitor selects them.
-    setManuallyPaused(true);
   }
 
   return (
-    <div className="quarry-atlas quarry-cards" ref={frame} data-quarry-gallery-autoplay={playing ? "playing" : "paused"} aria-label={t("المحاجر الثلاثة وملفات تراخيصها")} onMouseEnter={() => setInteracting(true)} onMouseLeave={() => setInteracting(false)} onFocusCapture={() => setInteracting(true)} onBlurCapture={(event) => {if(!event.currentTarget.contains(event.relatedTarget)) setInteracting(false);}}>
+    <div className="quarry-atlas quarry-cards" data-quarry-gallery-autoplay="paused" aria-label={t("المحاجر الثلاثة وملفات تراخيصها")}>
       <div className="quarry-cards__heading">
         <div>
           <span className="latin" dir="ltr">THREE QUARRIES / LICENSE RECORDS</span>
@@ -72,7 +36,6 @@ export function QuarryAtlas() {
         </div>
       </div>
 
-      <div className="quarry-cards__autoplay-tools"><span className="latin" dir="ltr">01—03 / PHOTO RECORDS</span><button type="button" disabled={!motionAllowed} aria-pressed={!manuallyPaused && motionAllowed} title={!motionAllowed ? (language === "en" ? "Autoplay disabled by reduced motion" : "التحريك التلقائي معطل") : undefined} aria-label={manuallyPaused ? (language === "en" ? "Resume quarry photo gallery" : "تشغيل عرض صور المحاجر") : (language === "en" ? "Pause quarry photo gallery" : "إيقاف عرض صور المحاجر")} onClick={() => setManuallyPaused(previous => !previous)}>{manuallyPaused ? <Play size={17} aria-hidden="true" /> : <Pause size={17} aria-hidden="true" />}</button></div>
       <div className="quarry-cards__layout">
         <div className="quarry-cards__gallery" role="group" aria-label={t("اختيار أحد المحاجر")}>
           {quarrySites.map((entry, index) => (
@@ -96,7 +59,7 @@ export function QuarryAtlas() {
           ))}
         </div>
 
-        <div className="quarry-cards__information" aria-live={playing ? "off" : "polite"} aria-atomic="true">
+        <div className="quarry-cards__information" aria-live="polite" aria-atomic="true">
           <span className="quarry-cards__info-eyebrow">
             <FileCheck2 size={18} aria-hidden="true" />
             {t("سجل ترخيص — بيانات تاريخية من المستند")}
@@ -123,7 +86,7 @@ export function QuarryAtlas() {
       </div>
 
       <div className="quarry-cards__footer">
-        <span><Mountain size={17} aria-hidden="true"/> {t("الصور من موقع الصمان الفعلي، لكنها لا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.")}</span>
+        <span><Mountain size={17} aria-hidden="true"/> {t("ثلاثة محاجر ضمن منظومة الصمان التشغيلية.")}</span>
         <a href="#location-title">{t("مراجعة الموقع الاسترشادي في Google Maps")} <MapPin size={16} aria-hidden="true"/></a>
       </div>
     </div>

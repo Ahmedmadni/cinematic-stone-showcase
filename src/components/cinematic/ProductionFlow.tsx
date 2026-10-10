@@ -87,7 +87,7 @@ export function ProductionFlow() {
                 );
               })}
             </div>
-            <p className="production-flow__scroll-note">{t("يعرض هذا الفصل الصور الفعلية للمحجر والتكسير ومعدات التحميل.")}</p>
+            <p className="production-flow__scroll-note">{t("يعرض هذا الفصل المحجر والتكسير ومعدات التحميل.")}</p>
           </div>
 
           <div className="production-flow__visual" aria-live="polite" aria-atomic="true">
@@ -95,7 +95,7 @@ export function ProductionFlow() {
               <ManagedImage mediaContext="ProductionFlow"
                 src={(stepPhotos[index] ?? stepPhotos[0]).image}
                 key={step.id}
-                alt={active === index ? ((stepPhotos[index] ?? stepPhotos[0]).origin === "actual-site" ? t("تصوير فعلي من موقع الصمان لمرحلة") : t("مشهد معدات توضيحي مكمل لمرحلة")) + " " + t(step.title) : ""}
+                alt={active === index ? t("المرحلة") + " " + t(step.title) : ""}
                 aria-hidden={active !== index}
                 className={"production-flow__photo production-flow__photo--" + index + ((stepPhotos[index] ?? stepPhotos[0]).origin === "actual-site" ? " actual-site-photo" : "") + (index === active ? " is-active" : index === active - 1 ? " is-underlay" : "")}
                 loading="lazy"

@@ -13,10 +13,8 @@ export function HeroSiteFilm({ entered }: { entered: boolean }) {
   const [film, setFilm] = useState(true);
   const [covered, setCovered] = useState(false);
   const cover = useCallback((value: boolean) => setCovered(value), []);
-  const photographs = useCallback(() => setFilm(false), []);
   return <>
-    <HeroGallery suspended={!entered || (film && covered)} onRequestPhotographs={photographs} />
-    {film && <SiteVideoLoop key={uploadedVideo?.id ?? "official-hero"} video={uploadedVideo ? { id: "hero", poster: officialVideo.hero.poster, src: uploadedVideo.url, ar: uploadedVideo.title_ar || officialVideo.hero.ar, en: uploadedVideo.title_en || officialVideo.hero.en } : officialVideo.hero} language={language} hero enabled={entered} onCoverChange={cover} onUnavailable={() => { if (uploadedVideo) setFailedUpload(uploadedVideo.id); }} />}
-    <button className="hero-film-mode" type="button" onClick={() => setFilm(value => !value)}>{film ? (language === "en" ? "Show photographs" : "عرض الصور") : (language === "en" ? "Show site film" : "عرض فيديو الموقع")}</button>
+    <HeroGallery suspended={!entered || (film && covered)} />
+    {film && <SiteVideoLoop key={uploadedVideo?.id ?? "official-hero"} video={uploadedVideo ? { id: "hero", poster: officialVideo.hero.poster, src: uploadedVideo.url, ar: uploadedVideo.title_ar || officialVideo.hero.ar, en: uploadedVideo.title_en || officialVideo.hero.en } : officialVideo.hero} language={language} hero enabled={entered} onCoverChange={cover} onEnded={() => setFilm(false)} onUnavailable={() => { if (uploadedVideo) setFailedUpload(uploadedVideo.id); else setFilm(false); }} />}
   </>;
 }
