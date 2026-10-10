@@ -52,6 +52,35 @@ test("media migration removes automatic admin grants and restricts mutations", (
   assert.match(sql, /52428800/);
   assert.doesNotMatch(sql, /insert into public.user_roles|new\.email/);
 });
+test("media workflow migration registers posters, ordering and admin-only audit history", () => {
+  const sql = readFileSync(
+    new URL("../supabase/migrations/20261010130000_media_workflow_controls.sql", import.meta.url),
+    "utf8",
+  );
+  assert.match(sql, /add column if not exists poster_path text/);
+  assert.match(sql, /site_media_section_sort_order_idx/);
+  assert.match(sql, /create table if not exists public\.media_audit_log/);
+  assert.match(sql, /alter table public\.media_audit_log enable row level security/);
+  assert.match(sql, /Admins read media audit log/);
+  assert.match(sql, /security definer[\s\S]*set search_path = ''/);
+  assert.match(sql, /media\.storage_path = name or media\.poster_path = name/);
+  assert.doesNotMatch(
+    sql,
+    /grant (insert|update|delete|all) on public\.media_audit_log to authenticated/,
+  );
+});
+test("upload pipeline creates WebP images and optional video posters", () => {
+  const upload = readFileSync(new URL("../src/lib/media-upload.ts", import.meta.url), "utf8");
+  const studio = readFileSync(
+    new URL("../src/components/MediaStudio.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(upload, /image\/webp/);
+  assert.match(upload, /MAX_IMAGE_EDGE = 2400/);
+  assert.match(upload, /createVideoPoster/);
+  assert.match(studio, /poster_path: posterPath/);
+  assert.match(studio, /optimizeImageForUpload/);
+});
 test("all supplied photos and six videos are catalogued from canonical sources", () => {
   const catalog = readFileSync(new URL("../src/data/media-catalog.ts", import.meta.url), "utf8");
   assert.match(catalog, /\.\.\.sitePhotoLibrary.map/);
@@ -92,7 +121,9 @@ test("generated concepts are restricted to equipment and public media stays uncl
     "../src/components/SiteVideoLoop.tsx",
     "../src/components/cinematic/QuarryAtlas.tsx",
     "../src/routes/index.tsx",
-  ].map((url) => readFileSync(new URL(url, import.meta.url), "utf8")).join("\n");
+  ]
+    .map((url) => readFileSync(new URL(url, import.meta.url), "utf8"))
+    .join("\n");
   assert.doesNotMatch(
     publicSources,
     /hero-gallery__toolbar|gallery-slide-controls|site-video__toggle|quarry-cards__autoplay-tools/,
