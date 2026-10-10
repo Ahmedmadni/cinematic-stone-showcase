@@ -119,6 +119,10 @@ try {
     assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(node => node.complete && node.naturalWidth > 0));
     await page.locator('[data-video-section="production"]').scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector('[data-video-section="production"]')?.getAttribute("data-video-failed") === "true");
+    await page.waitForFunction(() => {
+      const image = document.querySelector('[data-video-section="production"] img');
+      return image?.complete && image.naturalWidth > 0;
+    });
     assert.ok(await page.locator('[data-video-section="production"] img').evaluate(node => node.complete && node.naturalWidth > 0));
     await page.locator(".site-tour__open").click();
     await page.locator(".site-tour-dialog p").filter({ hasText: "could not play" }).waitFor();
@@ -212,3 +216,4 @@ try {
   }
   await writeFile(output + "/results.json", JSON.stringify(results, null, 2));
 } finally { await browser.close(); }
+
