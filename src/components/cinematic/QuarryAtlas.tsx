@@ -48,7 +48,7 @@ export function QuarryAtlas() {
               aria-label={t("عرض ملف") + " " + t(entry.name)}
               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
-              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index].image} alt="" loading="lazy" decoding="async" width={images[index].width} height={images[index].height} />
+              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index]!.image} alt="" loading="lazy" decoding="async" width={images[index]!.width} height={images[index]!.height} />
               <span className="quarry-cards__shade" aria-hidden="true" />
               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
               <span className="quarry-cards__site-label">

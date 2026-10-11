@@ -83,14 +83,14 @@ export function FleetExperience() {
             {fleetFacts.map((item, index) => (
               <ManagedImage mediaContext="FleetExperience"
                 key={item.id}
-                src={sceneImages[index].image}
+                src={sceneImages[index]!.image}
                 alt={index === selected ? t(item.name) : ""}
                 aria-hidden={index !== selected}
                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
                 decoding="async"
-                width={sceneImages[index].width}
-                height={sceneImages[index].height}
+                width={sceneImages[index]!.width}
+                height={sceneImages[index]!.height}
               />
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
