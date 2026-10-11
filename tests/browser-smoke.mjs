@@ -277,7 +277,7 @@ try {
     assert.ok(await tile.evaluate(element => document.activeElement === element), "closing archive image restores focus to its tile");
     await archive.getByRole("button", { name: /All photographs/ }).click();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    for (let expected = 16; expected <= 80; expected += 8) {
+    for (let expected = 16; expected <= 96; expected += 8) {
       await archive.getByRole("button", { name: "Show more photographs" }).click();
       assert.equal(await archive.locator(".site-photo-archive__photo").count(), Math.min(expected, 94));
     }
