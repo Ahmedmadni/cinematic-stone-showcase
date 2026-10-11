@@ -51,4 +51,3 @@ export function placeMediaItem<T extends OrderableMedia>(
     sectionIds,
   );
 }
-
