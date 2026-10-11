@@ -10,7 +10,8 @@ import { mediaContext } from "./site-media-fixture.mjs";
 import { mkdir, writeFile } from "node:fs/promises";
 import { pathToFileURL } from "node:url";
 
-const modulePath = process.env.PLAYWRIGHT_MODULE_PATH ?? "/tmp/somman-browser-qa/node_modules/playwright/index.mjs";
+const modulePath =
+  process.env.PLAYWRIGHT_MODULE_PATH ?? "/tmp/somman-browser-qa/node_modules/playwright/index.mjs";
 const { chromium } = await import(pathToFileURL(modulePath).href);
 const baseURL = process.env.BASE_URL ?? "http://127.0.0.1:4173";
 const output = process.env.QA_OUTPUT_DIR ?? "/tmp/somman-browser-artifacts";
@@ -59,50 +60,68 @@ try {
   const runtimeErrors = [];
   desktopPage.on("pageerror", (error) => runtimeErrors.push(error.message));
 
-  await caseRun("localhost responses expose release security headers without breaking development", async () => {
-    // This is the first browser case, so wait for the background Vite process
-    // instead of racing its cold startup in GitHub Actions.
-    await openWithRetry(desktopPage, baseURL);
-    const response = await desktopPage.request.get(baseURL + "/");
-    assert.equal(response.headers()["x-content-type-options"], "nosniff");
-    assert.equal(response.headers()["x-frame-options"], "DENY");
-    assert.equal(response.headers()["referrer-policy"], "strict-origin-when-cross-origin");
-    assert.match(response.headers()["permissions-policy"] ?? "", /camera=\(\)/);
-    assert.equal(response.headers()["strict-transport-security"], undefined);
+  await caseRun(
+    "localhost responses expose release security headers without breaking development",
+    async () => {
+      // This is the first browser case, so wait for the background Vite process
+      // instead of racing its cold startup in GitHub Actions.
+      await openWithRetry(desktopPage, baseURL);
+      const response = await desktopPage.request.get(baseURL + "/");
+      assert.equal(response.headers()["x-content-type-options"], "nosniff");
+      assert.equal(response.headers()["x-frame-options"], "DENY");
+      assert.equal(response.headers()["referrer-policy"], "strict-origin-when-cross-origin");
+      assert.match(response.headers()["permissions-policy"] ?? "", /camera=\(\)/);
+      assert.equal(response.headers()["strict-transport-security"], undefined);
 
-    const api = await desktopPage.request.post(baseURL + "/api/public/ask", {
-      data: { question: "write me a poem", history: [], language: "en" },
-    });
-    assert.equal(api.headers()["cache-control"], "no-store");
-    assert.equal(api.headers()["x-content-type-options"], "nosniff");
-  });
+      const api = await desktopPage.request.post(baseURL + "/api/public/ask", {
+        data: { question: "write me a poem", history: [], language: "en" },
+      });
+      assert.equal(api.headers()["cache-control"], "no-store");
+      assert.equal(api.headers()["x-content-type-options"], "nosniff");
+    },
+  );
 
-  await caseRun("English-first metadata, crawler boundaries and keyboard skip navigation", async () => {
-    await openWithRetry(desktopPage, baseURL);
-    assert.match(await desktopPage.title(), /Al Somman Quarry/i);
-    assert.match(await desktopPage.locator('meta[name="description"]').getAttribute("content") ?? "", /Al Somman quarry/i);
-    assert.equal(await desktopPage.locator('meta[name="robots"]').getAttribute("content"), "index,follow,max-image-preview:large");
-    assert.equal(await desktopPage.locator('meta[name="theme-color"]').getAttribute("content"), "#252525");
+  await caseRun(
+    "English-first metadata, crawler boundaries and keyboard skip navigation",
+    async () => {
+      await openWithRetry(desktopPage, baseURL);
+      assert.match(await desktopPage.title(), /Al Somman Quarry/i);
+      assert.match(
+        (await desktopPage.locator('meta[name="description"]').getAttribute("content")) ?? "",
+        /Al Somman quarry/i,
+      );
+      assert.equal(
+        await desktopPage.locator('meta[name="robots"]').getAttribute("content"),
+        "index,follow,max-image-preview:large",
+      );
+      assert.equal(
+        await desktopPage.locator('meta[name="theme-color"]').getAttribute("content"),
+        "#252525",
+      );
 
-    const robots = await desktopPage.request.get(baseURL + "/robots.txt");
-    assert.equal(robots.status(), 200);
-    const robotsText = await robots.text();
-    assert.match(robotsText, /User-agent:\s*\*/i);
-    assert.match(robotsText, /Disallow:\s*\/api\//i);
-    assert.doesNotMatch(robotsText, /Sitemap:\s*https?:\/\//i);
+      const robots = await desktopPage.request.get(baseURL + "/robots.txt");
+      assert.equal(robots.status(), 200);
+      const robotsText = await robots.text();
+      assert.match(robotsText, /User-agent:\s*\*/i);
+      assert.match(robotsText, /Disallow:\s*\/api\//i);
+      assert.doesNotMatch(robotsText, /Sitemap:\s*https?:\/\//i);
 
-    const skip = desktopPage.locator(".skip-to-content");
-    assert.equal(await skip.innerText(), "Skip to main content");
-    await skip.focus();
-    await desktopPage.waitForFunction(() => {
-      const el = document.querySelector(".skip-to-content");
-      return el === document.activeElement && el instanceof HTMLElement
-        && getComputedStyle(el).transform !== "none";
-    });
-    await skip.press("Enter");
-    await desktopPage.waitForFunction(() => location.hash === "#main-content");
-    assert.equal(await desktopPage.evaluate(() => document.activeElement?.id), "main-content");
-  });
+      const skip = desktopPage.locator(".skip-to-content");
+      assert.equal(await skip.innerText(), "Skip to main content");
+      await skip.focus();
+      await desktopPage.waitForFunction(() => {
+        const el = document.querySelector(".skip-to-content");
+        return (
+          el === document.activeElement &&
+          el instanceof HTMLElement &&
+          getComputedStyle(el).transform !== "none"
+        );
+      });
+      await skip.press("Enter");
+      await desktopPage.waitForFunction(() => location.hash === "#main-content");
+      assert.equal(await desktopPage.evaluate(() => document.activeElement?.id), "main-content");
+    },
+  );
 
   await caseRun("desktop English default, icon-only tools and logical quarry hero", async () => {
     await openWithRetry(desktopPage, baseURL);
@@ -114,10 +133,20 @@ try {
     const controls = desktopPage.locator(".somman-floating-tools .somman-tool");
     assert.equal(await controls.count(), 2);
     for (const iconButton of await controls.all()) {
-      assert.ok(await iconButton.getAttribute("aria-label"), "icon-only control must have an accessible name");
-      assert.equal(await iconButton.locator("span").count(), 0, "floating controls should have SVG icon only");
+      assert.ok(
+        await iconButton.getAttribute("aria-label"),
+        "icon-only control must have an accessible name",
+      );
+      assert.equal(
+        await iconButton.locator("span").count(),
+        0,
+        "floating controls should have SVG icon only",
+      );
       const box = await iconButton.boundingBox();
-      assert.ok(box && box.width >= 44 && box.height >= 44, "icon control must be touch accessible");
+      assert.ok(
+        box && box.width >= 44 && box.height >= 44,
+        "icon control must be touch accessible",
+      );
     }
     const carousel = desktopPage.locator(".hero-gallery");
     assert.equal(await carousel.count(), 1);
@@ -126,290 +155,467 @@ try {
     assert.equal(await desktopPage.locator(".hero-media__breaker").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media__loading").count(), 0);
     assert.equal(await desktopPage.locator(".hero-media img[src*='equipment.jpg']").count(), 0);
-    assert.equal(await carousel.locator(".hero-gallery__photo--active").getAttribute("data-media-origin"), "actual-site");
+    assert.equal(
+      await carousel.locator(".hero-gallery__photo--active").getAttribute("data-media-origin"),
+      "actual-site",
+    );
     assert.equal(await desktopPage.locator(".hero-photo-label").count(), 0);
-    await desktopPage.screenshot({ path: output + "/desktop-hero-10-single-scene.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-hero-10-single-scene.png",
+      animations: "disabled",
+    });
   });
 
-
-  await caseRun("first hero image preloaded and outgoing scene stays until new image decodes", async () => {
-    const context = await mediaContext(browser, {
-      viewport: { width: 1240, height: 780 }, reducedMotion: "no-preference",
-    });
-    const page = await context.newPage();
-    let releaseSecond;
-    const secondGate = new Promise(resolve => { releaseSecond = resolve; });
-    let deferredRoutes = 0;
-    // Gates exercise genuinely pending images without depending on CI speed.
-    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, async route => {
-      if (route.request().resourceType() !== "image") return route.continue();
-      deferredRoutes++;
-      await secondGate;
-      await route.continue();
-    });
-    try {
-      await openWithRetry(page, baseURL);
-      const firstSrc = await page.locator(".hero-gallery__photo--active").getAttribute("src");
-      const preload = page.locator('link[rel="preload"][as="image"]');
-      assert.ok((await preload.evaluateAll(links => links.map(link => link.getAttribute("href")))).includes(firstSrc),
-        "first hero photo must be discoverable as an image preload");
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
-        null, { timeout: 6500 });
-      await page.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroActive === "1", null, { timeout: 10000 });
-      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
-      assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
-      assert.equal(await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"), firstSrc);
-      assert.ok(await page.locator(".hero-gallery__photo--outgoing").evaluate(image => image.complete && image.naturalWidth > 0));
-      releaseSecond();
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
-        null, { timeout: 10000 });
-      assert.ok(deferredRoutes >= 1, "test must actually hold the second hero image");
-      await page.waitForFunction(() => !document.querySelector(".hero-gallery__photo--outgoing"),
-        null, { timeout: 4000 });
-      assert.equal(await page.locator(".hero-gallery__photo--active").count(), 1);
-      await page.screenshot({ path: output + "/hero-loaded-no-flash.png", animations: "disabled" });
-    } finally {
-      releaseSecond();
-      await context.close();
-    }
-  });
+  await caseRun(
+    "first hero image preloaded and outgoing scene stays until new image decodes",
+    async () => {
+      const context = await mediaContext(browser, {
+        viewport: { width: 1240, height: 780 },
+        reducedMotion: "no-preference",
+      });
+      const page = await context.newPage();
+      let releaseSecond;
+      const secondGate = new Promise((resolve) => {
+        releaseSecond = resolve;
+      });
+      let deferredRoutes = 0;
+      // Gates exercise genuinely pending images without depending on CI speed.
+      await page.route(
+        /\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/,
+        async (route) => {
+          if (route.request().resourceType() !== "image") return route.continue();
+          deferredRoutes++;
+          await secondGate;
+          await route.continue();
+        },
+      );
+      try {
+        await openWithRetry(page, baseURL);
+        const firstSrc = await page.locator(".hero-gallery__photo--active").getAttribute("src");
+        const preload = page.locator('link[rel="preload"][as="image"]');
+        assert.ok(
+          (
+            await preload.evaluateAll((links) => links.map((link) => link.getAttribute("href")))
+          ).includes(firstSrc),
+          "first hero photo must be discoverable as an image preload",
+        );
+        await page.waitForFunction(
+          () => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
+          null,
+          { timeout: 6500 },
+        );
+        await page.evaluate(() =>
+          document
+            .querySelector('[data-video-section="hero"] video')
+            ?.dispatchEvent(new Event("ended")),
+        );
+        await page.waitForFunction(
+          () => document.querySelector(".hero-gallery")?.dataset.heroActive === "1",
+          null,
+          { timeout: 10000 },
+        );
+        assert.equal(
+          await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"),
+          "false",
+        );
+        assert.equal(await page.locator(".hero-gallery__photo--waiting").count(), 1);
+        assert.equal(
+          await page.locator(".hero-gallery__photo--outgoing").getAttribute("src"),
+          firstSrc,
+        );
+        assert.ok(
+          await page
+            .locator(".hero-gallery__photo--outgoing")
+            .evaluate((image) => image.complete && image.naturalWidth > 0),
+        );
+        releaseSecond();
+        await page.waitForFunction(
+          () => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
+          null,
+          { timeout: 10000 },
+        );
+        assert.ok(deferredRoutes >= 1, "test must actually hold the second hero image");
+        await page.waitForFunction(
+          () => !document.querySelector(".hero-gallery__photo--outgoing"),
+          null,
+          { timeout: 4000 },
+        );
+        assert.equal(await page.locator(".hero-gallery__photo--active").count(), 1);
+        await page.screenshot({
+          path: output + "/hero-loaded-no-flash.png",
+          animations: "disabled",
+        });
+      } finally {
+        releaseSecond();
+        await context.close();
+      }
+    },
+  );
 
   await caseRun("failed later hero image returns to the last decoded scene", async () => {
     const context = await mediaContext(browser, { reducedMotion: "no-preference" });
     const page = await context.newPage();
     let failedRequests = 0;
-    await page.route(/\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/, route => {
-      if (route.request().resourceType() !== "image") return route.continue();
-      failedRequests += 1;
-      return route.fulfill({ status: 404, body: "missing" });
-    });
+    await page.route(
+      /\/(?:excavators\.jpg|hero-tunnel-integration-01[^/]*\.webp)(?:\?.*)?$/,
+      (route) => {
+        if (route.request().resourceType() !== "image") return route.continue();
+        failedRequests += 1;
+        return route.fulfill({ status: 404, body: "missing" });
+      },
+    );
     try {
       await openWithRetry(page, baseURL);
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true");
-      await page.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
+      await page.waitForFunction(
+        () => document.querySelector(".hero-gallery")?.dataset.heroImageReady === "true",
+      );
+      await page.evaluate(() =>
+        document
+          .querySelector('[data-video-section="hero"] video')
+          ?.dispatchEvent(new Event("ended")),
+      );
       for (let attempt = 0; attempt < 48 && failedRequests === 0; attempt += 1) {
         await page.waitForTimeout(250);
       }
-      assert.ok(failedRequests > 0, "the failed-image recovery test must exercise the second scene");
-      await page.waitForFunction(() => {
-        const hero = document.querySelector(".hero-gallery");
-        return hero?.dataset.heroActive === "0" && hero.dataset.heroImageReady === "true";
-      }, null, { timeout: 12000 });
-      assert.ok(await page.locator(".hero-gallery__photo--active").evaluate(image => image.complete && image.naturalWidth > 0));
-    } finally { await context.close(); }
+      assert.ok(
+        failedRequests > 0,
+        "the failed-image recovery test must exercise the second scene",
+      );
+      await page.waitForFunction(
+        () => {
+          const hero = document.querySelector(".hero-gallery");
+          return hero?.dataset.heroActive === "0" && hero.dataset.heroImageReady === "true";
+        },
+        null,
+        { timeout: 12000 },
+      );
+      assert.ok(
+        await page
+          .locator(".hero-gallery__photo--active")
+          .evaluate((image) => image.complete && image.naturalWidth > 0),
+      );
+    } finally {
+      await context.close();
+    }
   });
 
   await caseRun("failed initial hero image never reports ready or starts autoplay", async () => {
     const context = await mediaContext(browser, { reducedMotion: "no-preference" });
     const page = await context.newPage();
-    await page.route(/\/(?:quarry-aerial\.jpg|hero-crusher-aerial-01[^/]*\.webp)(?:\?.*)?$/, route => route.request().resourceType() === "image"
-      ? route.fulfill({ status: 404, body: "missing" }) : route.continue());
+    await page.route(
+      /\/(?:quarry-aerial\.jpg|hero-crusher-aerial-01[^/]*\.webp)(?:\?.*)?$/,
+      (route) =>
+        route.request().resourceType() === "image"
+          ? route.fulfill({ status: 404, body: "missing" })
+          : route.continue(),
+    );
     try {
       await openWithRetry(page, baseURL);
-      await page.waitForFunction(() => document.querySelector(".hero-gallery")?.dataset.heroImageError === "true");
-      assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"), "false");
+      await page.waitForFunction(
+        () => document.querySelector(".hero-gallery")?.dataset.heroImageError === "true",
+      );
+      assert.equal(
+        await page.locator(".hero-gallery").getAttribute("data-hero-image-ready"),
+        "false",
+      );
       assert.equal(await page.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
       assert.ok(await page.locator("#hero-title").isVisible());
       assert.equal(await page.locator(".hero-gallery__toolbar").count(), 0);
-    } finally { await context.close(); }
-  });
-
-  await caseRun("floating language control translates the entire site and persists choice", async () => {
-    const arabic = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
-    assert.ok(await arabic.isVisible());
-    await arabic.click();
-    await desktopPage.waitForFunction(() =>
-      document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
-    assert.match(await desktopPage.locator(".overview-grid").innerText(), /ليست مجرد كسارة/);
-    const english = desktopPage.getByRole("button", { name: "Switch website to English" });
-    await english.click();
-    await desktopPage.waitForFunction(() =>
-      document.documentElement.lang === "en" && document.documentElement.dir === "ltr"
-      && document.querySelector(".presentation")?.getAttribute("data-language") === "en");
-    assert.ok(await desktopPage.getByRole("heading", { name: /More than a crushing plant/i }).isVisible());
-    assert.match(await desktopPage.locator(".fleet-experience__header").innerText(), /Four chapters/);
-    assert.match(await desktopPage.locator(".quarry-cards__heading").innerText(), /Three quarries/);
-    assert.match(await desktopPage.locator(".evidence-studio__header").innerText(), /Evidence/i);
-
-    const untranslated = await desktopPage.evaluate(() => {
-      const main = document.querySelector("main");
-      if (!main) return ["missing main"];
-      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
-      const leftovers = [];
-      let node;
-      while ((node = walker.nextNode())) {
-        const value = node.textContent?.trim() ?? "";
-        if (/[\u0621-\u064a]/.test(value)) leftovers.push(value.slice(0, 115));
-      }
-      return [...new Set(leftovers)].slice(0, 15);
-    });
-    assert.deepEqual(untranslated, [], "English view contains unlocalized Arabic copy: " + JSON.stringify(untranslated));
-
-    await desktopPage.reload({ waitUntil: "domcontentloaded" });
-    await desktopPage.waitForFunction(() => document.documentElement.lang === "en");
-    assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
-    await desktopPage.screenshot({ path: output + "/desktop-english-identity.png", animations: "disabled" });
-  });
-
-  await caseRun("complete actual-site library is opt-in, filtered and loaded in small batches", async () => {
-    await openWithRetry(desktopPage, baseURL);
-    const archive = desktopPage.locator(".site-photo-archive");
-    assert.equal(await archive.getAttribute("data-archive-open"), "false");
-    assert.equal(await archive.locator("img").count(), 0, "the 77-photo library must not mount hidden images before opt-in");
-    await archive.scrollIntoViewIfNeeded();
-    await archive.getByRole("button", { name: "Browse all 77 photographs" }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    await archive.getByRole("button", { name: /Equipment/ }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    await archive.getByRole("button", { name: /^Quarry/ }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 2);
-    const tile = archive.locator(".site-photo-archive__photo").first();
-    await tile.click();
-    const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
-    await dialog.waitFor({ state: "visible" });
-    assert.equal(await dialog.locator("img").getAttribute("data-media-origin"), "actual-site");
-    await desktopPage.waitForFunction(() => {
-      const image = document.querySelector("dialog.gallery-lightbox img");
-      return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
-    });
-    await dialog.getByRole("button", { name: "Close image" }).click();
-    assert.ok(await tile.evaluate(element => document.activeElement === element), "closing archive image restores focus to its tile");
-    await archive.getByRole("button", { name: /All photographs/ }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    for (let expected = 16; expected <= 80; expected += 8) {
-      await archive.getByRole("button", { name: "Show more photographs" }).click();
-      assert.equal(await archive.locator(".site-photo-archive__photo").count(), Math.min(expected, 77));
-    }
-    assert.equal(await archive.getByRole("button", { name: "Show more photographs" }).count(), 0);
-    await desktopPage.screenshot({ path: output + "/actual-site-library.png", animations: "disabled" });
-    await archive.getByRole("button", { name: "Close photo library" }).click();
-    assert.equal(await archive.locator("img").count(), 0);
-  });
-
-  await caseRun("supplied certificate and permit scans open without changing historical caveats", async () => {
-    const studio = desktopPage.locator(".evidence-studio");
-    await studio.scrollIntoViewIfNeeded();
-    await studio.getByRole("button", { name: /Management system certificates/ }).click();
-    await studio.getByRole("button", { name: "ISO 9001:2015", exact: true }).click();
-    assert.match(await studio.locator(".evidence-studio__certificate").innerText(), /QCC\/3F39\/0825/);
-    await studio.getByRole("button", { name: /View supplied scan/ }).click();
-    const doc = desktopPage.locator("dialog.evidence-document-dialog");
-    await doc.waitFor({ state: "visible" });
-    assert.match(await doc.locator("img").getAttribute("src"), /iso-9001/);
-    await desktopPage.waitForFunction(() => {
-      const image = document.querySelector("dialog.evidence-document-dialog img");
-      return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
-    });
-    assert.match(await doc.innerText(), /validity.*verification/i);
-    for (let step = 0; step < 5; step++) {
-      await desktopPage.keyboard.press("Tab");
-      assert.ok(await doc.evaluate(element => element.contains(document.activeElement)), "document modal must retain keyboard focus");
-    }
-    await desktopPage.screenshot({ path: output + "/supplied-certificate.png", animations: "disabled" });
-    await doc.getByRole("button", { name: "Close document" }).click();
-    assert.ok(await studio.locator(".evidence-document__trigger").evaluate(element => element === document.activeElement), "document close must restore trigger focus");
-    await studio.getByRole("button", { name: /Permit files/ }).click();
-    await studio.locator(".evidence-studio__permit-tab").filter({ hasText: /Al Ostool quarry 2/i }).click();
-    assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /14377125/);
-    assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /Expired/i);
-    await studio.getByRole("button", { name: /View supplied scan/ }).click();
-    await doc.waitFor({ state: "visible" });
-    assert.match(await doc.locator("img").getAttribute("src"), /14377125/);
-    await doc.press("Escape");
-    await doc.waitFor({ state: "hidden" });
-    assert.match(await studio.locator(".evidence-studio__disclaimer").innerText(), /renewal|current/i);
-    await studio.getByRole("button", { name: /Management system certificates/ }).click();
-  });
-
-  await caseRun("floating assistant refuses off-topic English requests without model access", async () => {
-    const toggle = desktopPage.getByRole("button", { name: "Open Al Somman assistant" });
-    await toggle.click();
-    const drawer = desktopPage.locator("#somman-assistant-drawer");
-    assert.ok(await drawer.isVisible());
-    await drawer.getByRole("textbox", { name: "Your quarry question" }).fill("What is the capital of France?");
-    await drawer.getByRole("button", { name: "Send question" }).click();
-    await desktopPage.waitForFunction(() =>
-      document.querySelector("#somman-assistant-drawer .assistant-msg.assistant")?.textContent?.includes("Sorry, I can only answer"),
-      null, { timeout: 12000 });
-    assert.match(await drawer.innerText(), /quarry and crushing plant/i);
-    await drawer.getByRole("button", { name: "Close assistant" }).click();
-    assert.equal(await toggle.getAttribute("aria-expanded"), "false");
-    assert.ok(!(await drawer.isVisible()));
-    const switchBack = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
-    await switchBack.click();
-    await desktopPage.waitForFunction(() => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl");
-  });
-
-  await caseRun("assistant handles success, upstream failures, truncated SSE and rate limits", async () => {
-    // These are synthetic responses; no paid AI calls or real user data are sent.
-    const chatContext = await mediaContext(browser, {
-      viewport: { width: 1050, height: 820 },
-      reducedMotion: "reduce",
-      locale: "en-US",
-    });
-    const page = await chatContext.newPage();
-    let mode = "success";
-    let requests = 0;
-    await page.route("**/api/public/ask", async route => {
-      requests++;
-      const posted = route.request().postDataJSON();
-      assert.equal(posted.language, "en");
-      assert.match(posted.question, /quarry/i);
-      if (mode === "busy") {
-        await route.fulfill({
-          status: 429,
-          contentType: "application/json",
-          headers: { "Retry-After": "12", "Cache-Control": "no-store" },
-          body: JSON.stringify({ error: "Too many quarry questions right now. Please retry shortly." }),
-        });
-        return;
-      }
-      const stream = mode === "success"
-        ? [
-          'data: {"type":"response.output_text.delta","delta":"Fourteen "}\n\n',
-          'data: {"type":"response.output_text.delta","delta":"excavators."}\n\n',
-          "data: [DONE]\n\n",
-        ].join("")
-        : mode === "failure"
-          ? 'event: response.failed\ndata: {"type":"response.failed","error":{"message":"PROVIDER_PRIVATE_DETAIL"}}\n\n'
-          : 'data: {"type":"response.output_text.delta","delta":"Partial excerpt."}\n\n';
-      await route.fulfill({ status: 200, contentType: "text/event-stream; charset=utf-8", body: stream });
-    });
-    try {
-      await openWithRetry(page, baseURL);
-      await page.getByRole("button", { name: "Open Al Somman assistant" }).click();
-      const drawer = page.locator("#somman-assistant-drawer");
-      const question = drawer.getByRole("textbox", { name: "Your quarry question" });
-      async function submit() {
-        await question.fill("How many excavators does the Al Somman quarry have?");
-        await drawer.getByRole("button", { name: "Send question" }).click();
-      }
-      await submit();
-      await page.waitForFunction(() =>
-        document.querySelector("#somman-assistant-drawer .assistant-msg.assistant")?.textContent?.includes("Fourteen excavators."),
-        null, { timeout: 7000 });
-      assert.equal(await drawer.locator(".assistant-error").count(), 0);
-      mode = "failure";
-      await submit();
-      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
-      assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
-      assert.doesNotMatch(await drawer.innerText(), /PROVIDER_PRIVATE_DETAIL/);
-      mode = "truncated";
-      await submit();
-      await drawer.locator(".assistant-msg.assistant").last().filter({ hasText: "Partial excerpt." }).waitFor({ state: "visible", timeout: 7000 });
-      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
-      assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
-      mode = "busy";
-      await submit();
-      await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
-      assert.match(await drawer.locator(".assistant-error").innerText(), /Too many quarry questions/i);
-      assert.equal(requests, 4, "all four test requests were intercepted in the browser");
-      await drawer.getByRole("button", { name: "Close assistant" }).click();
     } finally {
-      await chatContext.close();
+      await context.close();
     }
   });
+
+  await caseRun(
+    "floating language control translates the entire site and persists choice",
+    async () => {
+      const arabic = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
+      assert.ok(await arabic.isVisible());
+      await arabic.click();
+      await desktopPage.waitForFunction(
+        () => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl",
+      );
+      assert.match(await desktopPage.locator(".overview-grid").innerText(), /ليست مجرد كسارة/);
+      const english = desktopPage.getByRole("button", { name: "Switch website to English" });
+      await english.click();
+      await desktopPage.waitForFunction(
+        () =>
+          document.documentElement.lang === "en" &&
+          document.documentElement.dir === "ltr" &&
+          document.querySelector(".presentation")?.getAttribute("data-language") === "en",
+      );
+      assert.ok(
+        await desktopPage.getByRole("heading", { name: /More than a crushing plant/i }).isVisible(),
+      );
+      assert.match(
+        await desktopPage.locator(".fleet-experience__header").innerText(),
+        /Four chapters/,
+      );
+      assert.match(
+        await desktopPage.locator(".quarry-cards__heading").innerText(),
+        /Three quarries/,
+      );
+      assert.match(await desktopPage.locator(".evidence-studio__header").innerText(), /Evidence/i);
+
+      const untranslated = await desktopPage.evaluate(() => {
+        const main = document.querySelector("main");
+        if (!main) return ["missing main"];
+        const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+        const leftovers = [];
+        let node;
+        while ((node = walker.nextNode())) {
+          const value = node.textContent?.trim() ?? "";
+          if (/[\u0621-\u064a]/.test(value)) leftovers.push(value.slice(0, 115));
+        }
+        return [...new Set(leftovers)].slice(0, 15);
+      });
+      assert.deepEqual(
+        untranslated,
+        [],
+        "English view contains unlocalized Arabic copy: " + JSON.stringify(untranslated),
+      );
+
+      await desktopPage.reload({ waitUntil: "domcontentloaded" });
+      await desktopPage.waitForFunction(() => document.documentElement.lang === "en");
+      assert.equal(await desktopPage.locator(".presentation").getAttribute("dir"), "ltr");
+      await desktopPage.screenshot({
+        path: output + "/desktop-english-identity.png",
+        animations: "disabled",
+      });
+    },
+  );
+
+  await caseRun(
+    "complete actual-site library is opt-in, filtered and loaded in small batches",
+    async () => {
+      await openWithRetry(desktopPage, baseURL);
+      const archive = desktopPage.locator(".site-photo-archive");
+      assert.equal(await archive.getAttribute("data-archive-open"), "false");
+      assert.equal(
+        await archive.locator("img").count(),
+        0,
+        "the photo library must not mount hidden images before opt-in",
+      );
+      await archive.scrollIntoViewIfNeeded();
+      await archive.getByRole("button", { name: "Browse all 94 photographs" }).click();
+      assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
+      await archive.getByRole("button", { name: /Equipment/ }).click();
+      assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
+      await archive.getByRole("button", { name: /^Quarry/ }).click();
+      assert.equal(await archive.locator(".site-photo-archive__photo").count(), 2);
+      const tile = archive.locator(".site-photo-archive__photo").first();
+      await tile.click();
+      const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
+      await dialog.waitFor({ state: "visible" });
+      assert.equal(await dialog.locator("img").getAttribute("data-media-origin"), "actual-site");
+      await desktopPage.waitForFunction(() => {
+        const image = document.querySelector("dialog.gallery-lightbox img");
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
+      });
+      await dialog.getByRole("button", { name: "Close image" }).click();
+      assert.ok(
+        await tile.evaluate((element) => document.activeElement === element),
+        "closing archive image restores focus to its tile",
+      );
+      await archive.getByRole("button", { name: /All photographs/ }).click();
+      assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
+      for (let expected = 16; expected <= 80; expected += 8) {
+        await archive.getByRole("button", { name: "Show more photographs" }).click();
+        assert.equal(
+          await archive.locator(".site-photo-archive__photo").count(),
+          Math.min(expected, 94),
+        );
+      }
+      assert.equal(await archive.getByRole("button", { name: "Show more photographs" }).count(), 0);
+      await desktopPage.screenshot({
+        path: output + "/actual-site-library.png",
+        animations: "disabled",
+      });
+      await archive.getByRole("button", { name: "Close photo library" }).click();
+      assert.equal(await archive.locator("img").count(), 0);
+    },
+  );
+
+  await caseRun(
+    "supplied certificate and permit scans open without changing historical caveats",
+    async () => {
+      const studio = desktopPage.locator(".evidence-studio");
+      await studio.scrollIntoViewIfNeeded();
+      await studio.getByRole("button", { name: /Management system certificates/ }).click();
+      await studio.getByRole("button", { name: "ISO 9001:2015", exact: true }).click();
+      assert.match(
+        await studio.locator(".evidence-studio__certificate").innerText(),
+        /QCC\/3F39\/0825/,
+      );
+      await studio.getByRole("button", { name: /View supplied scan/ }).click();
+      const doc = desktopPage.locator("dialog.evidence-document-dialog");
+      await doc.waitFor({ state: "visible" });
+      assert.match(await doc.locator("img").getAttribute("src"), /iso-9001/);
+      await desktopPage.waitForFunction(() => {
+        const image = document.querySelector("dialog.evidence-document-dialog img");
+        return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
+      });
+      assert.match(await doc.innerText(), /validity.*verification/i);
+      for (let step = 0; step < 5; step++) {
+        await desktopPage.keyboard.press("Tab");
+        assert.ok(
+          await doc.evaluate((element) => element.contains(document.activeElement)),
+          "document modal must retain keyboard focus",
+        );
+      }
+      await desktopPage.screenshot({
+        path: output + "/supplied-certificate.png",
+        animations: "disabled",
+      });
+      await doc.getByRole("button", { name: "Close document" }).click();
+      assert.ok(
+        await studio
+          .locator(".evidence-document__trigger")
+          .evaluate((element) => element === document.activeElement),
+        "document close must restore trigger focus",
+      );
+      await studio.getByRole("button", { name: /Permit files/ }).click();
+      await studio
+        .locator(".evidence-studio__permit-tab")
+        .filter({ hasText: /Al Ostool quarry 2/i })
+        .click();
+      assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /14377125/);
+      assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /Expired/i);
+      await studio.getByRole("button", { name: /View supplied scan/ }).click();
+      await doc.waitFor({ state: "visible" });
+      assert.match(await doc.locator("img").getAttribute("src"), /14377125/);
+      await doc.press("Escape");
+      await doc.waitFor({ state: "hidden" });
+      assert.match(
+        await studio.locator(".evidence-studio__disclaimer").innerText(),
+        /renewal|current/i,
+      );
+      await studio.getByRole("button", { name: /Management system certificates/ }).click();
+    },
+  );
+
+  await caseRun(
+    "floating assistant refuses off-topic English requests without model access",
+    async () => {
+      const toggle = desktopPage.getByRole("button", { name: "Open Al Somman assistant" });
+      await toggle.click();
+      const drawer = desktopPage.locator("#somman-assistant-drawer");
+      assert.ok(await drawer.isVisible());
+      await drawer
+        .getByRole("textbox", { name: "Your quarry question" })
+        .fill("What is the capital of France?");
+      await drawer.getByRole("button", { name: "Send question" }).click();
+      await desktopPage.waitForFunction(
+        () =>
+          document
+            .querySelector("#somman-assistant-drawer .assistant-msg.assistant")
+            ?.textContent?.includes("Sorry, I can only answer"),
+        null,
+        { timeout: 12000 },
+      );
+      assert.match(await drawer.innerText(), /quarry and crushing plant/i);
+      await drawer.getByRole("button", { name: "Close assistant" }).click();
+      assert.equal(await toggle.getAttribute("aria-expanded"), "false");
+      assert.ok(!(await drawer.isVisible()));
+      const switchBack = desktopPage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" });
+      await switchBack.click();
+      await desktopPage.waitForFunction(
+        () => document.documentElement.lang === "ar" && document.documentElement.dir === "rtl",
+      );
+    },
+  );
+
+  await caseRun(
+    "assistant handles success, upstream failures, truncated SSE and rate limits",
+    async () => {
+      // These are synthetic responses; no paid AI calls or real user data are sent.
+      const chatContext = await mediaContext(browser, {
+        viewport: { width: 1050, height: 820 },
+        reducedMotion: "reduce",
+        locale: "en-US",
+      });
+      const page = await chatContext.newPage();
+      let mode = "success";
+      let requests = 0;
+      await page.route("**/api/public/ask", async (route) => {
+        requests++;
+        const posted = route.request().postDataJSON();
+        assert.equal(posted.language, "en");
+        assert.match(posted.question, /quarry/i);
+        if (mode === "busy") {
+          await route.fulfill({
+            status: 429,
+            contentType: "application/json",
+            headers: { "Retry-After": "12", "Cache-Control": "no-store" },
+            body: JSON.stringify({
+              error: "Too many quarry questions right now. Please retry shortly.",
+            }),
+          });
+          return;
+        }
+        const stream =
+          mode === "success"
+            ? [
+                'data: {"type":"response.output_text.delta","delta":"Fourteen "}\n\n',
+                'data: {"type":"response.output_text.delta","delta":"excavators."}\n\n',
+                "data: [DONE]\n\n",
+              ].join("")
+            : mode === "failure"
+              ? 'event: response.failed\ndata: {"type":"response.failed","error":{"message":"PROVIDER_PRIVATE_DETAIL"}}\n\n'
+              : 'data: {"type":"response.output_text.delta","delta":"Partial excerpt."}\n\n';
+        await route.fulfill({
+          status: 200,
+          contentType: "text/event-stream; charset=utf-8",
+          body: stream,
+        });
+      });
+      try {
+        await openWithRetry(page, baseURL);
+        await page.getByRole("button", { name: "Open Al Somman assistant" }).click();
+        const drawer = page.locator("#somman-assistant-drawer");
+        const question = drawer.getByRole("textbox", { name: "Your quarry question" });
+        async function submit() {
+          await question.fill("How many excavators does the Al Somman quarry have?");
+          await drawer.getByRole("button", { name: "Send question" }).click();
+        }
+        await submit();
+        await page.waitForFunction(
+          () =>
+            document
+              .querySelector("#somman-assistant-drawer .assistant-msg.assistant")
+              ?.textContent?.includes("Fourteen excavators."),
+          null,
+          { timeout: 7000 },
+        );
+        assert.equal(await drawer.locator(".assistant-error").count(), 0);
+        mode = "failure";
+        await submit();
+        await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+        assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
+        assert.doesNotMatch(await drawer.innerText(), /PROVIDER_PRIVATE_DETAIL/);
+        mode = "truncated";
+        await submit();
+        await drawer
+          .locator(".assistant-msg.assistant")
+          .last()
+          .filter({ hasText: "Partial excerpt." })
+          .waitFor({ state: "visible", timeout: 7000 });
+        await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+        assert.match(await drawer.locator(".assistant-error").innerText(), /interrupted/i);
+        mode = "busy";
+        await submit();
+        await drawer.locator(".assistant-error").waitFor({ state: "visible", timeout: 7000 });
+        assert.match(
+          await drawer.locator(".assistant-error").innerText(),
+          /Too many quarry questions/i,
+        );
+        assert.equal(requests, 4, "all four test requests were intercepted in the browser");
+        await drawer.getByRole("button", { name: "Close assistant" }).click();
+      } finally {
+        await chatContext.close();
+      }
+    },
+  );
 
   await caseRun("scrubbed quarry reveal advances with natural scroll", async () => {
     await desktopPage.evaluate(() => {
@@ -421,16 +627,27 @@ try {
     });
     // Scroll events and IntersectionObserver notifications have separate
     // frame scheduling; wait for both instead of reading a race-prone frame.
-    await desktopPage.waitForFunction(() => {
-      const root = document.querySelector(".presentation");
-      if (!root) return false;
-      const p = Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"));
-      return p > 0.15 && p < 0.85;
-    }, null, { timeout: 10000, polling: "raf" });
-    const sample = await desktopPage.locator(".presentation").evaluate((root) =>
-      Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"))
+    await desktopPage.waitForFunction(
+      () => {
+        const root = document.querySelector(".presentation");
+        if (!root) return false;
+        const p = Number.parseFloat(
+          getComputedStyle(root).getPropertyValue("--cinema-bridge-progress"),
+        );
+        return p > 0.15 && p < 0.85;
+      },
+      null,
+      { timeout: 10000, polling: "raf" },
     );
-    assert.ok(sample > 0.15 && sample < 0.85, "bridge progress should be mid-transition: " + sample);
+    const sample = await desktopPage
+      .locator(".presentation")
+      .evaluate((root) =>
+        Number.parseFloat(getComputedStyle(root).getPropertyValue("--cinema-bridge-progress")),
+      );
+    assert.ok(
+      sample > 0.15 && sample < 0.85,
+      "bridge progress should be mid-transition: " + sample,
+    );
   });
 
   await caseRun("three material journey photographs advance with real scroll", async () => {
@@ -443,22 +660,43 @@ try {
         if (!node) throw new Error("Material track missing");
         const rect = node.getBoundingClientRect();
         const start = window.scrollY + rect.top;
-        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 3), behavior: "instant" });
+        window.scrollTo({
+          top: start + Math.max(0, rect.height - innerHeight) * ((index + 0.5) / 3),
+          behavior: "instant",
+        });
       }, scene);
-      await desktopPage.waitForFunction((index) =>
-        document.querySelector(".presentation")?.getAttribute("data-cinema-material-scene") === String(index)
-        && document.querySelectorAll(".production-flow__step.is-active")[0] === document.querySelectorAll(".production-flow__step")[index],
-        scene, { timeout: 12000, polling: "raf" });
+      await desktopPage.waitForFunction(
+        (index) =>
+          document.querySelector(".presentation")?.getAttribute("data-cinema-material-scene") ===
+            String(index) &&
+          document.querySelectorAll(".production-flow__step.is-active")[0] ===
+            document.querySelectorAll(".production-flow__step")[index],
+        scene,
+        { timeout: 12000, polling: "raf" },
+      );
       assert.equal(await story.locator(".production-flow__photo.is-active").count(), 1);
-      assert.equal(await story.locator(".production-flow__step").nth(scene).getAttribute("aria-pressed"), "true");
+      assert.equal(
+        await story.locator(".production-flow__step").nth(scene).getAttribute("aria-pressed"),
+        "true",
+      );
     }
-    assert.equal(await story.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
-    await desktopPage.screenshot({ path: output + "/desktop-material-journey.png", animations: "disabled" });
+    assert.equal(
+      await story
+        .locator(".production-flow__story")
+        .evaluate((el) => getComputedStyle(el).position),
+      "sticky",
+    );
+    await desktopPage.screenshot({
+      path: output + "/desktop-material-journey.png",
+      animations: "disabled",
+    });
     const jump = story.locator(".production-flow__visual-marker");
     assert.equal(await jump.getAttribute("href"), "#equipment-title");
     assert.ok(await jump.isVisible(), "material journey must provide an actionable exit");
     await jump.click();
-    await desktopPage.waitForFunction(() => decodeURIComponent(location.hash) === "#equipment-title");
+    await desktopPage.waitForFunction(
+      () => decodeURIComponent(location.hash) === "#equipment-title",
+    );
   });
 
   await caseRun("all four fleet tabs advance with scrolling, not just clicks", async () => {
@@ -471,46 +709,89 @@ try {
         if (!node) throw new Error("Fleet track missing");
         const rect = node.getBoundingClientRect();
         const start = scrollY + rect.top;
-        window.scrollTo({ top: start + Math.max(0, rect.height - innerHeight) * ((index + .5) / 4), behavior: "instant" });
+        window.scrollTo({
+          top: start + Math.max(0, rect.height - innerHeight) * ((index + 0.5) / 4),
+          behavior: "instant",
+        });
       }, scene);
-      await desktopPage.waitForFunction((index) =>
-        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === String(index)
-        && document.querySelectorAll("#equipment-experience .fleet-experience__selector.is-selected")[0] === document.querySelectorAll("#equipment-experience .fleet-experience__selector")[index],
-        scene, { timeout: 12000, polling: "raf" });
+      await desktopPage.waitForFunction(
+        (index) =>
+          document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") ===
+            String(index) &&
+          document.querySelectorAll(
+            "#equipment-experience .fleet-experience__selector.is-selected",
+          )[0] ===
+            document.querySelectorAll("#equipment-experience .fleet-experience__selector")[index],
+        scene,
+        { timeout: 12000, polling: "raf" },
+      );
       assert.equal(await fleet.locator(".fleet-experience__image.is-active").count(), 1);
-      assert.equal(await fleet.locator(".fleet-experience__selector").nth(scene).getAttribute("aria-pressed"), "true");
+      assert.equal(
+        await fleet.locator(".fleet-experience__selector").nth(scene).getAttribute("aria-pressed"),
+        "true",
+      );
     }
-    await desktopPage.screenshot({ path: output + "/desktop-four-fleet-scroll.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-four-fleet-scroll.png",
+      animations: "disabled",
+    });
     await fleet.locator(".fleet-experience__selector").nth(1).click();
-    await desktopPage.waitForFunction(() =>
-      document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === "1",
-      null, { timeout: 15000, polling: "raf" });
-    assert.equal(await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"), "true");
+    await desktopPage.waitForFunction(
+      () =>
+        document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene") === "1",
+      null,
+      { timeout: 15000, polling: "raf" },
+    );
+    assert.equal(
+      await fleet.locator(".fleet-experience__selector").nth(1).getAttribute("aria-pressed"),
+      "true",
+    );
   });
 
-  await caseRun("source photo backgrounds rotate while quarry selection stays explicit", async () => {
-    const production = desktopPage.locator(".image-feature .auto-visual");
-    await production.scrollIntoViewIfNeeded();
-    await desktopPage.mouse.move(0, 0);
-    await desktopPage.waitForFunction(() =>
-      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-playing") === "playing",
-      null, { timeout: 8000 });
-    const first = await production.getAttribute("data-auto-active");
-    await desktopPage.waitForFunction(previous =>
-      document.querySelector(".image-feature .auto-visual")?.getAttribute("data-auto-active") !== previous,
-      first, { timeout: 10200 });
+  await caseRun(
+    "source photo backgrounds rotate while quarry selection stays explicit",
+    async () => {
+      const production = desktopPage.locator(".image-feature .auto-visual");
+      await production.scrollIntoViewIfNeeded();
+      await desktopPage.mouse.move(0, 0);
+      await desktopPage.waitForFunction(
+        () =>
+          document
+            .querySelector(".image-feature .auto-visual")
+            ?.getAttribute("data-auto-playing") === "playing",
+        null,
+        { timeout: 8000 },
+      );
+      const first = await production.getAttribute("data-auto-active");
+      await desktopPage.waitForFunction(
+        (previous) =>
+          document
+            .querySelector(".image-feature .auto-visual")
+            ?.getAttribute("data-auto-active") !== previous,
+        first,
+        { timeout: 10200 },
+      );
 
-    const quarry = desktopPage.locator(".quarry-cards");
-    await quarry.scrollIntoViewIfNeeded();
-    const initial = await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label");
-    assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
-    await desktopPage.waitForTimeout(6500);
-    assert.equal(await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"), initial,
-      "quarry records must not change without a deliberate selection");
-    await quarry.locator(".quarry-cards__site").nth(1).click();
-    assert.notEqual(await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"), initial);
-    assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
-  });
+      const quarry = desktopPage.locator(".quarry-cards");
+      await quarry.scrollIntoViewIfNeeded();
+      const initial = await quarry
+        .locator(".quarry-cards__site.is-selected")
+        .getAttribute("aria-label");
+      assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
+      await desktopPage.waitForTimeout(6500);
+      assert.equal(
+        await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"),
+        initial,
+        "quarry records must not change without a deliberate selection",
+      );
+      await quarry.locator(".quarry-cards__site").nth(1).click();
+      assert.notEqual(
+        await quarry.locator(".quarry-cards__site.is-selected").getAttribute("aria-label"),
+        initial,
+      );
+      assert.equal(await quarry.getAttribute("data-quarry-gallery-autoplay"), "paused");
+    },
+  );
 
   await caseRun("quarry permit photographic overview is no longer abstract tiles", async () => {
     const gallery = desktopPage.locator(".quarry-cards");
@@ -521,8 +802,14 @@ try {
     await second.click();
     assert.equal(await second.getAttribute("aria-pressed"), "true");
     assert.match(await gallery.locator(".quarry-cards__information").innerText(), /14377125/);
-    assert.match(await gallery.locator(".quarry-cards__information").innerText(), /منتهية بحسب نسخة العرض/);
-    await desktopPage.screenshot({ path: output + "/desktop-photographic-quarries.png", animations: "disabled" });
+    assert.match(
+      await gallery.locator(".quarry-cards__information").innerText(),
+      /منتهية بحسب نسخة العرض/,
+    );
+    await desktopPage.screenshot({
+      path: output + "/desktop-photographic-quarries.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("question suggestions are readable in the floating assistant", async () => {
@@ -537,46 +824,60 @@ try {
     assert.equal(await chips.count(), 4);
     assert.ok(await chips.first().isVisible());
     assert.ok((await chips.first().boundingBox())?.height >= 45);
-    await desktopPage.screenshot({ path: output + "/desktop-question-prompts.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-question-prompts.png",
+      animations: "disabled",
+    });
     await qa.getByRole("button", { name: "أغلق المساعد" }).click();
   });
 
-
-  await caseRun("closing assistant cancels an unfinished stream and clears busy state", async () => {
-    await openWithRetry(desktopPage, baseURL);
-    let intercepted = 0;
-    await desktopPage.route("**/api/public/ask", async route => {
-      intercepted += 1;
-      await new Promise(resolve => setTimeout(resolve, 2200));
-      await route.fulfill({
-        status: 200,
-        contentType: "text/event-stream; charset=utf-8",
-        body: 'data: {"type":"response.output_text.delta","delta":"late answer"}\n\ndata: [DONE]\n\n',
-      }).catch(() => {});
-    });
-    try {
-      await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
-      const drawer = desktopPage.locator("#somman-assistant-drawer");
-      const log = drawer.locator(".assistant-log");
-      await drawer.locator(".assistant-suggestions button").first().click();
-      await desktopPage.waitForFunction(() =>
-        document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "true",
-        null, { timeout: 2500 });
-      await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
-      await desktopPage.waitForTimeout(250);
-      assert.equal(intercepted, 1);
-      assert.equal(await drawer.isVisible(), false);
-      await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
-      await desktopPage.waitForFunction(() =>
-        document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "false",
-        null, { timeout: 2500 });
-      assert.equal(await drawer.locator(".assistant-msg.assistant").count(), 0,
-        "an aborted hidden request must not append a late paid answer");
-      await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
-    } finally {
-      await desktopPage.unroute("**/api/public/ask");
-    }
-  });
+  await caseRun(
+    "closing assistant cancels an unfinished stream and clears busy state",
+    async () => {
+      await openWithRetry(desktopPage, baseURL);
+      let intercepted = 0;
+      await desktopPage.route("**/api/public/ask", async (route) => {
+        intercepted += 1;
+        await new Promise((resolve) => setTimeout(resolve, 2200));
+        await route
+          .fulfill({
+            status: 200,
+            contentType: "text/event-stream; charset=utf-8",
+            body: 'data: {"type":"response.output_text.delta","delta":"late answer"}\n\ndata: [DONE]\n\n',
+          })
+          .catch(() => {});
+      });
+      try {
+        await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
+        const drawer = desktopPage.locator("#somman-assistant-drawer");
+        const log = drawer.locator(".assistant-log");
+        await drawer.locator(".assistant-suggestions button").first().click();
+        await desktopPage.waitForFunction(
+          () => document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "true",
+          null,
+          { timeout: 2500 },
+        );
+        await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
+        await desktopPage.waitForTimeout(250);
+        assert.equal(intercepted, 1);
+        assert.equal(await drawer.isVisible(), false);
+        await desktopPage.getByRole("button", { name: "فتح مساعد الصمان" }).click();
+        await desktopPage.waitForFunction(
+          () => document.querySelector(".assistant-log")?.getAttribute("aria-busy") === "false",
+          null,
+          { timeout: 2500 },
+        );
+        assert.equal(
+          await drawer.locator(".assistant-msg.assistant").count(),
+          0,
+          "an aborted hidden request must not append a late paid answer",
+        );
+        await drawer.getByRole("button", { name: "أغلق المساعد" }).click();
+      } finally {
+        await desktopPage.unroute("**/api/public/ask");
+      }
+    },
+  );
 
   await caseRun("hero clarity and scroll-driven zigzag masks", async () => {
     await openWithRetry(desktopPage, baseURL);
@@ -588,176 +889,293 @@ try {
       objectFit: getComputedStyle(image).objectFit,
       visible: getComputedStyle(image).visibility,
     }));
-    assert.ok(heroState.loaded, "hero first scene should load sharply: " + JSON.stringify(heroState));
+    assert.ok(
+      heroState.loaded,
+      "hero first scene should load sharply: " + JSON.stringify(heroState),
+    );
     assert.equal(heroState.objectFit, "cover");
     assert.equal(heroState.visible, "visible");
     assert.equal(await desktopPage.locator(".hero-gallery__photo--active").count(), 1);
     assert.equal(await desktopPage.locator(".hero-gallery__toolbar").count(), 0);
 
     for (const spec of [
-      { id: "material-scroll-track", chapterClass: ".production-flow__photo", count: 3, active: "cinema-material-scene" },
-      { id: "fleet-scroll-track", chapterClass: ".fleet-experience__image", count: 4, active: "cinema-fleet-scene" },
+      {
+        id: "material-scroll-track",
+        chapterClass: ".production-flow__photo",
+        count: 3,
+        active: "cinema-material-scene",
+      },
+      {
+        id: "fleet-scroll-track",
+        chapterClass: ".fleet-experience__image",
+        count: 4,
+        active: "cinema-fleet-scene",
+      },
     ]) {
       for (const index of [0, 1, spec.count - 1]) {
-        await desktopPage.evaluate(({ id, count, index }) => {
-          const section = document.getElementById(id);
-          if (!section) throw new Error("Missing track " + id);
-          const rect = section.getBoundingClientRect();
-          const top = window.scrollY + rect.top;
-          window.scrollTo({ top: top + (rect.height - window.innerHeight) * ((index + .13) / count), behavior: "instant" });
-        }, { ...spec, index });
-        await desktopPage.waitForFunction(({ active, index }) =>
-          document.querySelector(".presentation")?.getAttribute("data-" + active.replace(/[A-Z]/g, x => "-" + x.toLowerCase())) === String(index),
-          { active: spec.active, index }, { timeout: 11000, polling: "raf" });
-        const visual = await desktopPage.evaluate(({ selector, index }) => {
-          const image = document.querySelectorAll(selector)[index];
-          if (!image) throw new Error("Missing illustration #" + index);
-          const style = getComputedStyle(image);
-          return {
-            clip: style.clipPath,
-            mask: style.maskImage,
-            z: style.zIndex,
-            opacity: style.opacity,
-          };
-        }, { selector: spec.chapterClass, index });
-        assert.ok(visual.clip.startsWith("polygon("), "chapter " + spec.id + "/" + index + " must use jagged polygon reveal: " + JSON.stringify(visual));
+        await desktopPage.evaluate(
+          ({ id, count, index }) => {
+            const section = document.getElementById(id);
+            if (!section) throw new Error("Missing track " + id);
+            const rect = section.getBoundingClientRect();
+            const top = window.scrollY + rect.top;
+            window.scrollTo({
+              top: top + (rect.height - window.innerHeight) * ((index + 0.13) / count),
+              behavior: "instant",
+            });
+          },
+          { ...spec, index },
+        );
+        await desktopPage.waitForFunction(
+          ({ active, index }) =>
+            document
+              .querySelector(".presentation")
+              ?.getAttribute("data-" + active.replace(/[A-Z]/g, (x) => "-" + x.toLowerCase())) ===
+            String(index),
+          { active: spec.active, index },
+          { timeout: 11000, polling: "raf" },
+        );
+        const visual = await desktopPage.evaluate(
+          ({ selector, index }) => {
+            const image = document.querySelectorAll(selector)[index];
+            if (!image) throw new Error("Missing illustration #" + index);
+            const style = getComputedStyle(image);
+            return {
+              clip: style.clipPath,
+              mask: style.maskImage,
+              z: style.zIndex,
+              opacity: style.opacity,
+            };
+          },
+          { selector: spec.chapterClass, index },
+        );
+        assert.ok(
+          visual.clip.startsWith("polygon("),
+          "chapter " +
+            spec.id +
+            "/" +
+            index +
+            " must use jagged polygon reveal: " +
+            JSON.stringify(visual),
+        );
         assert.equal(visual.z, "1", "foreground image must paint above backdrop");
         assert.equal(visual.opacity, "1");
       }
     }
-    await desktopPage.screenshot({ path: output + "/desktop-soft-zigzag-reveal.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-soft-zigzag-reveal.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("hero photographs rotate quietly without visible transport controls", async () => {
     // Use a clean page instead of inheriting several scroll chapters, focus
     // targets and browser history changes from preceding visual tests.
-    const isolatedHeroContext = await mediaContext(browser, { viewport: { width: 1366, height: 900 }, reducedMotion: "no-preference" });
+    const isolatedHeroContext = await mediaContext(browser, {
+      viewport: { width: 1366, height: 900 },
+      reducedMotion: "no-preference",
+    });
     const heroPage = await isolatedHeroContext.newPage();
     try {
-    await openWithRetry(heroPage, baseURL);
-    await heroPage.evaluate(() => document.querySelector('[data-video-section="hero"] video')?.dispatchEvent(new Event("ended")));
-    const carousel = heroPage.locator(".hero-gallery");
-    await heroPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
-    await heroPage.mouse.move(0, 0);
-    await heroPage.waitForFunction(() => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true", null, { timeout: 9000 });
-    const first = await carousel.getAttribute("data-hero-active");
-    await heroPage.waitForFunction(previous =>
-      document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
-      first, { timeout: 10000 });
-    assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
-    assert.equal(await heroPage.locator(".hero-gallery__toolbar").count(), 0);
-    assert.equal(await heroPage.locator(".hero-film-mode").count(), 0);
-    assert.equal(await heroPage.locator('[data-video-section="hero"] button').count(), 0);
-    await heroPage.screenshot({ path: output + "/desktop-hero-quiet-rotation.png", animations: "disabled" });
+      await openWithRetry(heroPage, baseURL);
+      await heroPage.evaluate(() =>
+        document
+          .querySelector('[data-video-section="hero"] video')
+          ?.dispatchEvent(new Event("ended")),
+      );
+      const carousel = heroPage.locator(".hero-gallery");
+      await heroPage.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await heroPage.mouse.move(0, 0);
+      await heroPage.waitForFunction(
+        () => document.querySelector(".hero-gallery")?.getAttribute("data-hero-playing") === "true",
+        null,
+        { timeout: 9000 },
+      );
+      const first = await carousel.getAttribute("data-hero-active");
+      await heroPage.waitForFunction(
+        (previous) =>
+          document.querySelector(".hero-gallery")?.getAttribute("data-hero-active") !== previous,
+        first,
+        { timeout: 10000 },
+      );
+      assert.equal(await carousel.locator(".hero-gallery__photo--active").count(), 1);
+      assert.equal(await heroPage.locator(".hero-gallery__toolbar").count(), 0);
+      assert.equal(await heroPage.locator(".hero-film-mode").count(), 0);
+      assert.equal(await heroPage.locator('[data-video-section="hero"] button').count(), 0);
+      await heroPage.screenshot({
+        path: output + "/desktop-hero-quiet-rotation.png",
+        animations: "disabled",
+      });
     } finally {
       await isolatedHeroContext.close();
     }
   });
 
-  await caseRun("subject galleries autoplay only when multiple photographs are available", async () => {
-    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
-    assert.equal(await galleries.count(), 6);
-    const movePointerOutside = async (gallery) => {
-      const box = await gallery.boundingBox();
-      const viewport = desktopPage.viewportSize();
-      assert.ok(box && viewport, "gallery and viewport geometry must be available");
-      const outside = [
-        [1, 1],
-        [viewport.width - 1, 1],
-        [1, viewport.height - 1],
-        [viewport.width - 1, viewport.height - 1],
-      ].find(([x, y]) => x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height);
-      assert.ok(outside, "pointer must have a location outside the visible gallery");
-      await desktopPage.mouse.move(
-        Math.max(1, Math.min(viewport.width - 1, box.x + box.width / 2)),
-        Math.max(1, Math.min(viewport.height - 1, box.y + box.height / 2)),
-      );
-      await desktopPage.mouse.move(outside[0], outside[1]);
-      await desktopPage.evaluate(() => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); });
-    };
-    for (let index = 0; index < 6; index++) {
-      const gallery = galleries.nth(index);
-      await gallery.scrollIntoViewIfNeeded();
-      await movePointerOutside(gallery);
-      const slideCount = await gallery.locator(".gallery-slide").count();
-      assert.ok(slideCount >= 1, `gallery ${index + 1} must contain at least one photograph`);
-      assert.equal(await gallery.locator(".gallery-slide-controls").count(), 0);
-      if (slideCount > 1) {
-        await desktopPage.waitForFunction(i => {
-          const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
-          return element?.getAttribute("data-gallery-autoplay") === "playing";
-        }, index, { timeout: 12000 });
-      } else {
-        assert.equal(await gallery.getAttribute("data-gallery-autoplay"), "paused");
+  await caseRun(
+    "subject galleries autoplay only when multiple photographs are available",
+    async () => {
+      const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+      assert.equal(await galleries.count(), 6);
+      const movePointerOutside = async (gallery) => {
+        const box = await gallery.boundingBox();
+        const viewport = desktopPage.viewportSize();
+        assert.ok(box && viewport, "gallery and viewport geometry must be available");
+        const outside = [
+          [1, 1],
+          [viewport.width - 1, 1],
+          [1, viewport.height - 1],
+          [viewport.width - 1, viewport.height - 1],
+        ].find(
+          ([x, y]) => x < box.x || x > box.x + box.width || y < box.y || y > box.y + box.height,
+        );
+        assert.ok(outside, "pointer must have a location outside the visible gallery");
+        await desktopPage.mouse.move(
+          Math.max(1, Math.min(viewport.width - 1, box.x + box.width / 2)),
+          Math.max(1, Math.min(viewport.height - 1, box.y + box.height / 2)),
+        );
+        await desktopPage.mouse.move(outside[0], outside[1]);
+        await desktopPage.evaluate(() => {
+          if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
+        });
+      };
+      for (let index = 0; index < 6; index++) {
+        const gallery = galleries.nth(index);
+        await gallery.scrollIntoViewIfNeeded();
+        await movePointerOutside(gallery);
+        const slideCount = await gallery.locator(".gallery-slide").count();
+        assert.ok(slideCount >= 1, `gallery ${index + 1} must contain at least one photograph`);
+        assert.equal(await gallery.locator(".gallery-slide-controls").count(), 0);
+        if (slideCount > 1) {
+          await desktopPage.waitForFunction(
+            (i) => {
+              const element = document.querySelectorAll(".site-gallery .gallery-slider")[i];
+              return element?.getAttribute("data-gallery-autoplay") === "playing";
+            },
+            index,
+            { timeout: 12000 },
+          );
+        } else {
+          assert.equal(await gallery.getAttribute("data-gallery-autoplay"), "paused");
+        }
       }
-    }
-    const firstMultiIndex = await galleries.evaluateAll(elements =>
-      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
-    assert.ok(firstMultiIndex >= 0, "at least one subject gallery must contain multiple photographs");
-    const firstGallery = galleries.nth(firstMultiIndex);
-    await firstGallery.scrollIntoViewIfNeeded();
-    // A touchscreen may synthesize mouse compatibility events. A touch
-    // pointerover must not freeze the card's auto-rotation indefinitely.
-    await movePointerOutside(firstGallery);
-    await firstGallery.evaluate((element) => {
-      element.dispatchEvent(new PointerEvent("pointerover", {
-        bubbles: true, pointerType: "touch",
-      }));
-    });
-    assert.notEqual(await firstGallery.getAttribute("data-gallery-interaction"), "hover-paused", "touch pointer hover should not pause slideshow");
-    await movePointerOutside(firstGallery);
-    await desktopPage.waitForFunction(index =>
-      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-autoplay") === "playing",
-      firstMultiIndex);
-    const initial = await firstGallery.getAttribute("data-gallery-active");
-    await desktopPage.waitForFunction(({ before, index }) =>
-      document.querySelectorAll(".site-gallery .gallery-slider")[index]?.getAttribute("data-gallery-active") !== before,
-      { before: initial, index: firstMultiIndex }, { timeout: 10500 });
-    await desktopPage.screenshot({ path: output + "/desktop-six-auto-galleries.png", animations: "disabled" });
-  });
+      const firstMultiIndex = await galleries.evaluateAll((elements) =>
+        elements.findIndex((element) => element.querySelectorAll(".gallery-slide").length > 1),
+      );
+      assert.ok(
+        firstMultiIndex >= 0,
+        "at least one subject gallery must contain multiple photographs",
+      );
+      const firstGallery = galleries.nth(firstMultiIndex);
+      await firstGallery.scrollIntoViewIfNeeded();
+      // A touchscreen may synthesize mouse compatibility events. A touch
+      // pointerover must not freeze the card's auto-rotation indefinitely.
+      await movePointerOutside(firstGallery);
+      await firstGallery.evaluate((element) => {
+        element.dispatchEvent(
+          new PointerEvent("pointerover", {
+            bubbles: true,
+            pointerType: "touch",
+          }),
+        );
+      });
+      assert.notEqual(
+        await firstGallery.getAttribute("data-gallery-interaction"),
+        "hover-paused",
+        "touch pointer hover should not pause slideshow",
+      );
+      await movePointerOutside(firstGallery);
+      await desktopPage.waitForFunction(
+        (index) =>
+          document
+            .querySelectorAll(".site-gallery .gallery-slider")
+            [index]?.getAttribute("data-gallery-autoplay") === "playing",
+        firstMultiIndex,
+      );
+      const initial = await firstGallery.getAttribute("data-gallery-active");
+      await desktopPage.waitForFunction(
+        ({ before, index }) =>
+          document
+            .querySelectorAll(".site-gallery .gallery-slider")
+            [index]?.getAttribute("data-gallery-active") !== before,
+        { before: initial, index: firstMultiIndex },
+        { timeout: 10500 },
+      );
+      await desktopPage.screenshot({
+        path: output + "/desktop-six-auto-galleries.png",
+        animations: "disabled",
+      });
+    },
+  );
 
-  await caseRun("native gallery keyboard navigation, focus trap and focus restoration", async () => {
-    const galleries = desktopPage.locator(".site-gallery .gallery-slider");
-    const firstMultiIndex = await galleries.evaluateAll(elements =>
-      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
-    assert.ok(firstMultiIndex >= 0, "lightbox keyboard QA requires a gallery with multiple photographs");
-    const button = galleries.nth(firstMultiIndex).locator(".gallery-image-button");
-    await button.scrollIntoViewIfNeeded();
-    await button.click();
-    const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
-    await dialog.waitFor({ state: "visible", timeout: 8000 });
-    assert.equal(await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")), "إغلاق الصورة");
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
-    assert.equal(await dialog.locator(".lightbox-toolbar button").count(), 1);
+  await caseRun(
+    "native gallery keyboard navigation, focus trap and focus restoration",
+    async () => {
+      const galleries = desktopPage.locator(".site-gallery .gallery-slider");
+      const firstMultiIndex = await galleries.evaluateAll((elements) =>
+        elements.findIndex((element) => element.querySelectorAll(".gallery-slide").length > 1),
+      );
+      assert.ok(
+        firstMultiIndex >= 0,
+        "lightbox keyboard QA requires a gallery with multiple photographs",
+      );
+      const button = galleries.nth(firstMultiIndex).locator(".gallery-image-button");
+      await button.scrollIntoViewIfNeeded();
+      await button.click();
+      const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
+      await dialog.waitFor({ state: "visible", timeout: 8000 });
+      assert.equal(
+        await desktopPage.evaluate(() => document.activeElement?.getAttribute("aria-label")),
+        "إغلاق الصورة",
+      );
+      assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
+      assert.equal(await dialog.locator(".lightbox-toolbar button").count(), 1);
 
-    // Native modal dialog must keep keyboard focus inside the enlarged gallery.
-    for (let step = 0; step < 8; step++) {
-      await desktopPage.keyboard.press("Tab");
-      assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
-        "Tab escaped the open modal lightbox");
-    }
-    await desktopPage.keyboard.press("Shift+Tab");
-    assert.ok(await dialog.evaluate((element) => element.contains(document.activeElement)),
-      "Shift+Tab escaped the open modal lightbox");
+      // Native modal dialog must keep keyboard focus inside the enlarged gallery.
+      for (let step = 0; step < 8; step++) {
+        await desktopPage.keyboard.press("Tab");
+        assert.ok(
+          await dialog.evaluate((element) => element.contains(document.activeElement)),
+          "Tab escaped the open modal lightbox",
+        );
+      }
+      await desktopPage.keyboard.press("Shift+Tab");
+      assert.ok(
+        await dialog.evaluate((element) => element.contains(document.activeElement)),
+        "Shift+Tab escaped the open modal lightbox",
+      );
 
-    const initial = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
-    await desktopPage.keyboard.press("ArrowRight");
-    await desktopPage.waitForFunction(previous =>
-      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
-      initial, { timeout: 5000 });
-    const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
-    assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
-    assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
+      const initial = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+      await desktopPage.keyboard.press("ArrowRight");
+      await desktopPage.waitForFunction(
+        (previous) =>
+          document
+            .querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")
+            ?.textContent?.trim() !== previous,
+        initial,
+        { timeout: 5000 },
+      );
+      const afterRight = (await dialog.locator(".lightbox-toolbar .latin").innerText()).trim();
+      assert.notEqual(afterRight, initial, "ArrowRight must advance the lightbox");
+      assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
 
-    await desktopPage.keyboard.press("ArrowLeft");
-    await desktopPage.waitForFunction(previous =>
-      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous,
-      afterRight, { timeout: 5000 });
+      await desktopPage.keyboard.press("ArrowLeft");
+      await desktopPage.waitForFunction(
+        (previous) =>
+          document
+            .querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")
+            ?.textContent?.trim() !== previous,
+        afterRight,
+        { timeout: 5000 },
+      );
 
-    await desktopPage.keyboard.press("Escape");
-    await dialog.waitFor({ state: "hidden", timeout: 8000 });
-    assert.ok(await button.evaluate((element) => document.activeElement === element), "focus must return to the original photo button");
-  });
+      await desktopPage.keyboard.press("Escape");
+      await dialog.waitFor({ state: "hidden", timeout: 8000 });
+      assert.ok(
+        await button.evaluate((element) => document.activeElement === element),
+        "focus must return to the original photo button",
+      );
+    },
+  );
 
   await caseRun("live Google satellite link and independent simulated 3D view", async () => {
     const location = desktopPage.locator(".somman-location-experience");
@@ -767,7 +1185,10 @@ try {
     const iframe = location.locator('iframe[title*="Google Maps"]');
     assert.equal(await iframe.count(), 0, "Google Maps must not load before visitor opt-in");
     const externalLink = location.getByRole("link", { name: /فتح موقع المحجر الاسترشادي/ });
-    assert.match(await externalLink.getAttribute("href") ?? "", /^https:\/\/www\.google\.com\/maps\/search\//);
+    assert.match(
+      (await externalLink.getAttribute("href")) ?? "",
+      /^https:\/\/www\.google\.com\/maps\/search\//,
+    );
     const mapPrompt = location.locator(".somman-location-experience__map-prompt");
     assert.ok(await mapPrompt.isVisible());
     await mapPrompt.getByRole("button", { name: "تحميل Google Maps" }).click();
@@ -778,7 +1199,10 @@ try {
     const hotspot = location.getByRole("button", { name: "استعرض مناطق الاستخراج في عرض الموقع" });
     await hotspot.click();
     assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
-    assert.match(await location.locator(".somman-location-experience__scene-caption").innerText(), /مساحات الحجر الخام/);
+    assert.match(
+      await location.locator(".somman-location-experience__scene-caption").innerText(),
+      /مساحات الحجر الخام/,
+    );
 
     const conceptScene = location.locator(".somman-location-experience__scene");
     const conceptCamera = location.locator(".somman-location-experience__scene-camera");
@@ -789,34 +1213,52 @@ try {
     // leave the hover area before asserting the idle compositor state.
     await desktopPage.mouse.move(0, 0);
     await desktopPage.waitForTimeout(80);
-    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "auto");
+    assert.equal(
+      await conceptCamera.evaluate((element) => getComputedStyle(element).willChange),
+      "auto",
+    );
 
     await desktopPage.mouse.move(
       conceptBox.x + conceptBox.width * 0.92,
       conceptBox.y + conceptBox.height * 0.12,
     );
     await desktopPage.waitForTimeout(500);
-    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "transform");
+    assert.equal(
+      await conceptCamera.evaluate((element) => getComputedStyle(element).willChange),
+      "transform",
+    );
     const activeTilt = await conceptScene.evaluate((element) => ({
       x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
       y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
     }));
-    assert.ok(Math.abs(activeTilt.x) <= 1.61 && Math.abs(activeTilt.y) <= 1.61,
-      "conceptual map tilt must stay restrained: " + JSON.stringify(activeTilt));
-    assert.ok(Math.abs(activeTilt.x) + Math.abs(activeTilt.y) > 0.2,
-      "fine-pointer map tilt should remain perceptible");
+    assert.ok(
+      Math.abs(activeTilt.x) <= 1.61 && Math.abs(activeTilt.y) <= 1.61,
+      "conceptual map tilt must stay restrained: " + JSON.stringify(activeTilt),
+    );
+    assert.ok(
+      Math.abs(activeTilt.x) + Math.abs(activeTilt.y) > 0.2,
+      "fine-pointer map tilt should remain perceptible",
+    );
 
     await desktopPage.mouse.move(0, 0);
     await desktopPage.waitForTimeout(1100);
-    assert.equal(await conceptCamera.evaluate((element) => getComputedStyle(element).willChange), "auto");
+    assert.equal(
+      await conceptCamera.evaluate((element) => getComputedStyle(element).willChange),
+      "auto",
+    );
     const restingTilt = await conceptScene.evaluate((element) => ({
       x: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-x")) || 0,
       y: Number.parseFloat(getComputedStyle(element).getPropertyValue("--map-tilt-y")) || 0,
     }));
-    assert.ok(Math.abs(restingTilt.x) < 0.15 && Math.abs(restingTilt.y) < 0.15,
-      "conceptual map tilt should ease back to center: " + JSON.stringify(restingTilt));
+    assert.ok(
+      Math.abs(restingTilt.x) < 0.15 && Math.abs(restingTilt.y) < 0.15,
+      "conceptual map tilt should ease back to center: " + JSON.stringify(restingTilt),
+    );
 
-    await desktopPage.screenshot({ path: output + "/desktop-google-map-and-concept.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-google-map-and-concept.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("investor evidence buttons remain interactive", async () => {
@@ -827,8 +1269,14 @@ try {
     await secondPermit.click();
     assert.equal(await secondPermit.getAttribute("aria-pressed"), "true");
     assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /14377125/);
-    assert.match(await studio.locator(".evidence-studio__permit-card").innerText(), /منتهية بحسب نسخة العرض/);
-    await desktopPage.screenshot({ path: output + "/desktop-evidence.png", animations: "disabled" });
+    assert.match(
+      await studio.locator(".evidence-studio__permit-card").innerText(),
+      /منتهية بحسب نسخة العرض/,
+    );
+    await desktopPage.screenshot({
+      path: output + "/desktop-evidence.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("investor data consent is explicit and never auto-submits", async () => {
@@ -849,7 +1297,10 @@ try {
     await consent.uncheck();
     assert.equal(await consent.isChecked(), false);
     // Deliberately no submit action: browser QA must never insert real leads.
-    await desktopPage.screenshot({ path: output + "/desktop-investor-consent-empty.png", animations: "disabled" });
+    await desktopPage.screenshot({
+      path: output + "/desktop-investor-consent-empty.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("no uncaught desktop hydration errors", async () => {
@@ -874,20 +1325,37 @@ try {
       ["fleet-scroll-track", 4, "cinema-fleet-scene"],
     ]) {
       for (const scene of [0, count - 1]) {
-        await motionPage.evaluate(({ id, count, scene }) => {
-          const el = document.getElementById(id);
-          if (!el) throw new Error("Scene missing: " + id);
-          const bounds = el.getBoundingClientRect();
-          const start = scrollY + bounds.top;
-          window.scrollTo({ top: start + Math.max(0, bounds.height - innerHeight) * ((scene + .5) / count), behavior: "instant" });
-        }, { id, count, scene });
-        await motionPage.waitForFunction(({ key, scene }) =>
-          document.querySelector(".presentation")?.getAttribute("data-" + key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())) === String(scene),
-          { key: data, scene }, { timeout: 12000, polling: "raf" });
+        await motionPage.evaluate(
+          ({ id, count, scene }) => {
+            const el = document.getElementById(id);
+            if (!el) throw new Error("Scene missing: " + id);
+            const bounds = el.getBoundingClientRect();
+            const start = scrollY + bounds.top;
+            window.scrollTo({
+              top: start + Math.max(0, bounds.height - innerHeight) * ((scene + 0.5) / count),
+              behavior: "instant",
+            });
+          },
+          { id, count, scene },
+        );
+        await motionPage.waitForFunction(
+          ({ key, scene }) =>
+            document
+              .querySelector(".presentation")
+              ?.getAttribute("data-" + key.replace(/[A-Z]/g, (c) => "-" + c.toLowerCase())) ===
+            String(scene),
+          { key: data, scene },
+          { timeout: 12000, polling: "raf" },
+        );
       }
     }
-    assert.ok((await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5);
-    await motionPage.screenshot({ path: output + "/mobile-live-scroll-scenes.png", animations: "disabled" });
+    assert.ok(
+      (await motionPage.evaluate(() => document.documentElement.scrollWidth - innerWidth)) <= 5,
+    );
+    await motionPage.screenshot({
+      path: output + "/mobile-live-scroll-scenes.png",
+      animations: "disabled",
+    });
   });
 
   await caseRun("quiet mobile galleries preserve vertical scroll and lightbox swipe", async () => {
@@ -897,43 +1365,76 @@ try {
     assert.equal(await motionPage.locator('[data-video-section="hero"] button').count(), 0);
 
     async function dispatchSwipe(selector, fromX, toX, fromY, toY) {
-      await motionPage.evaluate(({selector,fromX,toX,fromY,toY}) => {
-        const element = document.querySelector(selector);
-        if (!element) throw new Error("Swipe target missing: " + selector);
-        function touchAt(x,y) {
-          return new Touch({ identifier: 1, target: element, clientX: x, clientY: y, pageX: x + scrollX, pageY: y + scrollY });
-        }
-        const start = touchAt(fromX, fromY), end = touchAt(toX, toY);
-        element.dispatchEvent(new TouchEvent("touchstart", {
-          bubbles: true, cancelable: true,
-          touches: [start], targetTouches: [start], changedTouches: [start],
-        }));
-        element.dispatchEvent(new TouchEvent("touchend", {
-          bubbles: true, cancelable: true,
-          touches: [], targetTouches: [], changedTouches: [end],
-        }));
-      }, { selector, fromX, toX, fromY, toY });
+      await motionPage.evaluate(
+        ({ selector, fromX, toX, fromY, toY }) => {
+          const element = document.querySelector(selector);
+          if (!element) throw new Error("Swipe target missing: " + selector);
+          function touchAt(x, y) {
+            return new Touch({
+              identifier: 1,
+              target: element,
+              clientX: x,
+              clientY: y,
+              pageX: x + scrollX,
+              pageY: y + scrollY,
+            });
+          }
+          const start = touchAt(fromX, fromY),
+            end = touchAt(toX, toY);
+          element.dispatchEvent(
+            new TouchEvent("touchstart", {
+              bubbles: true,
+              cancelable: true,
+              touches: [start],
+              targetTouches: [start],
+              changedTouches: [start],
+            }),
+          );
+          element.dispatchEvent(
+            new TouchEvent("touchend", {
+              bubbles: true,
+              cancelable: true,
+              touches: [],
+              targetTouches: [],
+              changedTouches: [end],
+            }),
+          );
+        },
+        { selector, fromX, toX, fromY, toY },
+      );
     }
 
     // Inspect the enlarged gallery in the same touch-enabled browser.
     const touchGalleries = motionPage.locator(".site-gallery .gallery-slider");
-    const touchGalleryIndex = await touchGalleries.evaluateAll(elements =>
-      elements.findIndex(element => element.querySelectorAll(".gallery-slide").length > 1));
-    assert.ok(touchGalleryIndex >= 0, "mobile lightbox swipe QA requires a gallery with multiple photographs");
+    const touchGalleryIndex = await touchGalleries.evaluateAll((elements) =>
+      elements.findIndex((element) => element.querySelectorAll(".gallery-slide").length > 1),
+    );
+    assert.ok(
+      touchGalleryIndex >= 0,
+      "mobile lightbox swipe QA requires a gallery with multiple photographs",
+    );
     const thumbnail = touchGalleries.nth(touchGalleryIndex).locator(".gallery-image-button");
     await thumbnail.scrollIntoViewIfNeeded();
     await thumbnail.tap();
     const dialog = motionPage.locator("dialog.gallery-lightbox--native");
-    await dialog.waitFor({state:"visible", timeout:9000});
+    await dialog.waitFor({ state: "visible", timeout: 9000 });
     const firstLabel = await dialog.locator(".lightbox-toolbar .latin").innerText();
     await dispatchSwipe("dialog.gallery-lightbox .lightbox-content", 290, 110, 280, 290);
-    await motionPage.waitForFunction(previous => 
-      document.querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")?.textContent?.trim() !== previous.trim(),
-      firstLabel, {timeout:4000});
+    await motionPage.waitForFunction(
+      (previous) =>
+        document
+          .querySelector("dialog.gallery-lightbox .lightbox-toolbar .latin")
+          ?.textContent?.trim() !== previous.trim(),
+      firstLabel,
+      { timeout: 4000 },
+    );
     assert.equal(await dialog.getAttribute("data-lightbox-autoplay"), "paused");
-    await dialog.getByRole("button", {name:"Close image"}).click();
-    await dialog.waitFor({state:"hidden", timeout:4500});
-    await motionPage.screenshot({path: output + "/mobile-swipe-controls.png",animations:"disabled"});
+    await dialog.getByRole("button", { name: "Close image" }).click();
+    await dialog.waitFor({ state: "hidden", timeout: 4500 });
+    await motionPage.screenshot({
+      path: output + "/mobile-swipe-controls.png",
+      animations: "disabled",
+    });
   });
 
   await fullMotionMobile.close();
@@ -953,15 +1454,25 @@ try {
     const state = await mobilePage.evaluate(() => ({
       overflow: document.documentElement.scrollWidth - window.innerWidth,
       fogDisplay: getComputedStyle(document.querySelector(".cinema-atmosphere")).display,
-      bridgePosition: getComputedStyle(document.querySelector(".cinematic-bridge__sticky")).position,
-      headingPresent: Boolean(document.querySelector("#hero-title")?.textContent?.includes("Somman")),
+      bridgePosition: getComputedStyle(document.querySelector(".cinematic-bridge__sticky"))
+        .position,
+      headingPresent: Boolean(
+        document.querySelector("#hero-title")?.textContent?.includes("Somman"),
+      ),
     }));
     assert.ok(state.headingPresent, "mobile h1 should be available");
     assert.ok(state.overflow <= 5, "unexpected mobile horizontal overflow " + state.overflow);
     assert.equal(state.fogDisplay, "none");
     assert.notEqual(state.bridgePosition, "sticky");
-    await mobilePage.screenshot({ path: output + "/mobile-reduced-motion.png", fullPage: false, animations: "disabled" });
-    assert.equal(await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"), "false");
+    await mobilePage.screenshot({
+      path: output + "/mobile-reduced-motion.png",
+      fullPage: false,
+      animations: "disabled",
+    });
+    assert.equal(
+      await mobilePage.locator(".hero-gallery").getAttribute("data-hero-playing"),
+      "false",
+    );
     assert.equal(await mobilePage.locator(".hero-gallery__toolbar").count(), 0);
     const initial = await mobilePage.locator(".hero-gallery").getAttribute("data-hero-active");
     assert.equal(initial, "0", "reduced motion must preserve the initial still hero frame");
@@ -978,18 +1489,22 @@ try {
     // the persisted Arabic alternative after checking new English default.
     await mobilePage.getByRole("button", { name: "تغيير لغة الموقع إلى العربية" }).click();
     await mobilePage.waitForFunction(() => document.documentElement.lang === "ar");
-
   });
 
   await caseRun("mobile Arabic photo archive and supplied scans fit the viewport", async () => {
     const archive = mobilePage.locator(".site-photo-archive");
     await archive.scrollIntoViewIfNeeded();
-    await archive.getByRole("button", { name: "تصفح الصور الـ77" }).tap();
+    await archive.getByRole("button", { name: "تصفح الصور الـ٩٤" }).tap();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
     await archive.getByRole("button", { name: /المرافق/ }).tap();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    assert.ok(await mobilePage.evaluate(() => document.documentElement.scrollWidth - innerWidth <= 5));
-    await mobilePage.screenshot({ path: output + "/mobile-arabic-photo-library.png", animations: "disabled" });
+    assert.ok(
+      await mobilePage.evaluate(() => document.documentElement.scrollWidth - innerWidth <= 5),
+    );
+    await mobilePage.screenshot({
+      path: output + "/mobile-arabic-photo-library.png",
+      animations: "disabled",
+    });
     await archive.getByRole("button", { name: "إغلاق معرض الصور" }).tap();
     const studio = mobilePage.locator(".evidence-studio");
     await studio.scrollIntoViewIfNeeded();
@@ -1002,118 +1517,190 @@ try {
       return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0;
     });
     const bounds = await doc.boundingBox();
-    assert.ok(bounds && bounds.x >= 0 && bounds.x + bounds.width <= 391, "scan modal exceeds phone viewport");
+    assert.ok(
+      bounds && bounds.x >= 0 && bounds.x + bounds.width <= 391,
+      "scan modal exceeds phone viewport",
+    );
     assert.match(await doc.innerText(), /يلزم التحقق من السريان الحالي/);
-    await mobilePage.screenshot({ path: output + "/mobile-arabic-certificate.png", animations: "disabled" });
+    await mobilePage.screenshot({
+      path: output + "/mobile-arabic-certificate.png",
+      animations: "disabled",
+    });
     await doc.getByRole("button", { name: "إغلاق المستند" }).tap();
     await doc.waitFor({ state: "hidden" });
   });
 
-  await caseRun("mobile reference map and 3D hotspots remain usable with reduced motion", async () => {
-    const location = mobilePage.locator(".somman-location-experience");
-    await location.scrollIntoViewIfNeeded();
-    const iframe = location.locator('iframe[title*="Google Maps"]');
-    assert.equal(await iframe.count(), 0, "mobile map must stay unloaded until opt-in");
-    await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
-    await iframe.waitFor({ state: "attached", timeout: 5000 });
-    assert.equal(await iframe.count(), 1);
-    const hotspot = location.getByRole("button", { name: "استعرض المرافق والخدمات في عرض الموقع" });
-    await hotspot.tap();
-    assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
-    const state = await mobilePage.evaluate(() => ({
-      overflow: document.documentElement.scrollWidth - window.innerWidth,
-      tilt: getComputedStyle(document.querySelector(".somman-location-experience__scene-camera")).transform,
-    }));
-    assert.ok(state.overflow <= 5, "mobile map panel added unexpected horizontal overflow " + state.overflow);
-    await mobilePage.screenshot({ path: output + "/mobile-google-map-and-concept.png", animations: "disabled" });
-  });
+  await caseRun(
+    "mobile reference map and 3D hotspots remain usable with reduced motion",
+    async () => {
+      const location = mobilePage.locator(".somman-location-experience");
+      await location.scrollIntoViewIfNeeded();
+      const iframe = location.locator('iframe[title*="Google Maps"]');
+      assert.equal(await iframe.count(), 0, "mobile map must stay unloaded until opt-in");
+      await location.getByRole("button", { name: "تحميل Google Maps" }).tap();
+      await iframe.waitFor({ state: "attached", timeout: 5000 });
+      assert.equal(await iframe.count(), 1);
+      const hotspot = location.getByRole("button", {
+        name: "استعرض المرافق والخدمات في عرض الموقع",
+      });
+      await hotspot.tap();
+      assert.equal(await hotspot.getAttribute("aria-pressed"), "true");
+      const state = await mobilePage.evaluate(() => ({
+        overflow: document.documentElement.scrollWidth - window.innerWidth,
+        tilt: getComputedStyle(document.querySelector(".somman-location-experience__scene-camera"))
+          .transform,
+      }));
+      assert.ok(
+        state.overflow <= 5,
+        "mobile map panel added unexpected horizontal overflow " + state.overflow,
+      );
+      await mobilePage.screenshot({
+        path: output + "/mobile-google-map-and-concept.png",
+        animations: "disabled",
+      });
+    },
+  );
 
   await caseRun("mobile investor documents can be selected by touch", async () => {
     const studio = mobilePage.locator(".evidence-studio");
     await studio.scrollIntoViewIfNeeded();
     await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).tap();
     assert.ok(await studio.locator(".evidence-studio__check-detail").isVisible());
-    assert.equal(await studio.getByRole("button", { name: /الفحص النافي للجهالة/ }).getAttribute("aria-pressed"), "true");
+    assert.equal(
+      await studio
+        .getByRole("button", { name: /الفحص النافي للجهالة/ })
+        .getAttribute("aria-pressed"),
+      "true",
+    );
   });
 
-  await caseRun("mobile reduced motion keeps manual material/fleet and quarry choices", async () => {
-    const material = mobilePage.locator(".production-flow--story");
-    await material.scrollIntoViewIfNeeded();
-    assert.notEqual(await material.locator(".production-flow__story").evaluate((el) => getComputedStyle(el).position), "sticky");
-    const lastMaterial = material.locator(".production-flow__step").last();
-    await lastMaterial.tap();
-    assert.equal(await lastMaterial.getAttribute("aria-pressed"), "true");
-    assert.equal(await material.locator(".production-flow__photo.is-active").count(), 1);
+  await caseRun(
+    "mobile reduced motion keeps manual material/fleet and quarry choices",
+    async () => {
+      const material = mobilePage.locator(".production-flow--story");
+      await material.scrollIntoViewIfNeeded();
+      assert.notEqual(
+        await material
+          .locator(".production-flow__story")
+          .evaluate((el) => getComputedStyle(el).position),
+        "sticky",
+      );
+      const lastMaterial = material.locator(".production-flow__step").last();
+      await lastMaterial.tap();
+      assert.equal(await lastMaterial.getAttribute("aria-pressed"), "true");
+      assert.equal(await material.locator(".production-flow__photo.is-active").count(), 1);
 
-    const fleet = mobilePage.locator("#equipment-experience");
-    await fleet.scrollIntoViewIfNeeded();
-    assert.notEqual(await fleet.locator(".fleet-experience__composition").evaluate((el) => getComputedStyle(el).position), "sticky");
-    const generators = fleet.locator(".fleet-experience__selector").last();
-    await generators.tap();
-    assert.equal(await generators.getAttribute("aria-pressed"), "true");
+      const fleet = mobilePage.locator("#equipment-experience");
+      await fleet.scrollIntoViewIfNeeded();
+      assert.notEqual(
+        await fleet
+          .locator(".fleet-experience__composition")
+          .evaluate((el) => getComputedStyle(el).position),
+        "sticky",
+      );
+      const generators = fleet.locator(".fleet-experience__selector").last();
+      await generators.tap();
+      assert.equal(await generators.getAttribute("aria-pressed"), "true");
 
-    const quarry = mobilePage.locator(".quarry-cards");
-    await quarry.scrollIntoViewIfNeeded();
-    const birzeit = quarry.getByRole("button", { name: "عرض ملف محجر بير زيت" });
-    await birzeit.tap();
-    assert.equal(await birzeit.getAttribute("aria-pressed"), "true");
-    const width = await mobilePage.evaluate(() => document.documentElement.scrollWidth - innerWidth);
-    assert.ok(width <= 5, "page overflows narrow mobile viewport: " + width);
-    await mobilePage.screenshot({ path: output + "/mobile-storytelling-reduced-motion.png", animations: "disabled" });
-  });
+      const quarry = mobilePage.locator(".quarry-cards");
+      await quarry.scrollIntoViewIfNeeded();
+      const birzeit = quarry.getByRole("button", { name: "عرض ملف محجر بير زيت" });
+      await birzeit.tap();
+      assert.equal(await birzeit.getAttribute("aria-pressed"), "true");
+      const width = await mobilePage.evaluate(
+        () => document.documentElement.scrollWidth - innerWidth,
+      );
+      assert.ok(width <= 5, "page overflows narrow mobile viewport: " + width);
+      await mobilePage.screenshot({
+        path: output + "/mobile-storytelling-reduced-motion.png",
+        animations: "disabled",
+      });
+    },
+  );
 
   await mobile.close();
 
-  await caseRun("phone, 200%-zoom-equivalent and tablet layouts preserve scroll chapter controls", async () => {
-    // 683 CSS px approximates the layout viewport seen at 200% browser zoom
-    // from a 1366px desktop, while 768px exercises the tablet breakpoint.
-    for (const [width, height] of [[320, 568], [360, 640], [390, 720], [683, 450], [768, 1024]]) {
-      const context = await mediaContext(browser, {
-        viewport: { width, height },
-        reducedMotion: "no-preference",
-        hasTouch: width < 400,
-        isMobile: width < 400,
-        deviceScaleFactor: 1,
-        locale: "ar-SA",
-      });
-      try {
-        const page = await context.newPage();
-        await openWithRetry(page, baseURL);
-        const measured = await page.evaluate(() => {
-          function item(selector) {
-            const element = document.querySelector(selector);
-            if (!element) throw new Error("Missing story element: " + selector);
+  await caseRun(
+    "phone, 200%-zoom-equivalent and tablet layouts preserve scroll chapter controls",
+    async () => {
+      // 683 CSS px approximates the layout viewport seen at 200% browser zoom
+      // from a 1366px desktop, while 768px exercises the tablet breakpoint.
+      for (const [width, height] of [
+        [320, 568],
+        [360, 640],
+        [390, 720],
+        [683, 450],
+        [768, 1024],
+      ]) {
+        const context = await mediaContext(browser, {
+          viewport: { width, height },
+          reducedMotion: "no-preference",
+          hasTouch: width < 400,
+          isMobile: width < 400,
+          deviceScaleFactor: 1,
+          locale: "ar-SA",
+        });
+        try {
+          const page = await context.newPage();
+          await openWithRetry(page, baseURL);
+          const measured = await page.evaluate(() => {
+            function item(selector) {
+              const element = document.querySelector(selector);
+              if (!element) throw new Error("Missing story element: " + selector);
+              return {
+                visible: element.getBoundingClientRect().width > 0,
+                client: element.clientHeight,
+                content: element.scrollHeight,
+                overflow: getComputedStyle(element).overflowY,
+              };
+            }
             return {
-              visible: element.getBoundingClientRect().width > 0,
-              client: element.clientHeight,
-              content: element.scrollHeight,
-              overflow: getComputedStyle(element).overflowY,
+              htmlOverflow: document.documentElement.scrollWidth - innerWidth,
+              material: item(".production-flow__navigation"),
+              equipment: item(".fleet-experience__console"),
             };
+          });
+          assert.ok(
+            measured.htmlOverflow <= 5,
+            width + "x" + height + " horizontal overflow: " + JSON.stringify(measured),
+          );
+          const skip = page.locator(".production-flow__visual-marker");
+          assert.ok(await skip.isVisible(), width + "x" + height + " material skip control hidden");
+          assert.equal(await skip.getAttribute("href"), "#equipment-title");
+          for (const [label, item] of [
+            ["material", measured.material],
+            ["equipment", measured.equipment],
+          ]) {
+            assert.ok(
+              item.visible && item.client > 0,
+              width + "x" + height + " " + label + " missing",
+            );
+            assert.ok(
+              item.content <= item.client + 4 || ["auto", "scroll"].includes(item.overflow),
+              width +
+                "x" +
+                height +
+                " " +
+                label +
+                " clipped (" +
+                item.content +
+                " > " +
+                item.client +
+                ", overflow=" +
+                item.overflow +
+                ")",
+            );
           }
-          return {
-            htmlOverflow: document.documentElement.scrollWidth - innerWidth,
-            material: item(".production-flow__navigation"),
-            equipment: item(".fleet-experience__console"),
-          };
-        });
-        assert.ok(measured.htmlOverflow <= 5, width + "x" + height + " horizontal overflow: " + JSON.stringify(measured));
-        const skip = page.locator(".production-flow__visual-marker");
-        assert.ok(await skip.isVisible(), width + "x" + height + " material skip control hidden");
-        assert.equal(await skip.getAttribute("href"), "#equipment-title");
-        for (const [label, item] of [["material", measured.material], ["equipment", measured.equipment]]) {
-          assert.ok(item.visible && item.client > 0, width + "x" + height + " " + label + " missing");
-          assert.ok(item.content <= item.client + 4 || ["auto", "scroll"].includes(item.overflow), 
-            width + "x" + height + " " + label + " clipped (" + item.content + " > " + item.client + ", overflow=" + item.overflow + ")");
+          await page.screenshot({
+            path: output + "/layout-" + width + "x" + height + ".png",
+            animations: "disabled",
+          });
+        } finally {
+          await context.close();
         }
-        await page.screenshot({
-          path: output + "/layout-" + width + "x" + height + ".png",
-          animations: "disabled",
-        });
-      } finally {
-        await context.close();
       }
-    }
-  });
+    },
+  );
 
   console.log("[BROWSER] " + results.length + " checks passed.");
   await writeFile(output + "/result.json", JSON.stringify({ baseURL, results }, null, 2));

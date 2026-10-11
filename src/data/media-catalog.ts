@@ -152,7 +152,7 @@ export const mediaContexts: Record<string, string> = {
   AutoVisual: "المشاهد المتبدلة",
   GallerySlides: "معارض الفئات",
   GalleryLightbox: "عارض الصور المكبرة",
-  SitePhotoArchive: "أرشيف الصور الـ77",
+  SitePhotoArchive: "أرشيف الصور الـ94",
   QuarryAtlas: "بطاقات المحاجر",
   QuarryTransition: "الانتقال بين المشاهد",
   ProductionFlow: "رحلة الإنتاج",
@@ -160,6 +160,7 @@ export const mediaContexts: Record<string, string> = {
   MapExperience: "الموقع والخريطة",
   EvidenceDocument: "المستندات",
   ProductionLines: "خطي الإنتاج والمنتجات",
+  InvestmentOffering: "العرض الاستثماري والمرافق",
   SiteMediaReel: "معرض وسائط الأقسام",
   BackdropMotif: "الرسوم الهندسية الزخرفية",
 };

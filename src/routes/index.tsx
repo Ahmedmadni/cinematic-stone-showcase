@@ -28,6 +28,7 @@ import { Label } from "@/components/ui/label";
 import { GallerySlides } from "@/components/GallerySlides";
 import { GalleryLightbox } from "@/components/GalleryLightbox";
 import { SitePhotoArchive } from "@/components/SitePhotoArchive";
+import { InvestmentOffering } from "@/components/InvestmentOffering";
 import { AutoVisual } from "@/components/AutoVisual";
 import { HeroSiteFilm } from "@/components/cinematic/HeroSiteFilm";
 import { FullSiteTour } from "@/components/FullSiteTour";
@@ -109,8 +110,8 @@ export const Route = createFileRoute("/")({
 });
 
 const facts = [
-  { number: "٧٤٣٬٢٨٢", unit: "م²", label: "إجمالي مساحات المحاجر" },
-  { number: "٤٬٥٠٠", unit: "م³ / يوم", label: "طاقة إنتاجية تصل إلى" },
+  { number: "743,282", unit: "م²", label: "إجمالي مساحات المحاجر" },
+  { number: "600", unit: "طن / ساعة", label: "الطاقة الاسمية للخطين" },
   { number: "٣", unit: "محاجر", label: "ضمن مجمع كسارات الصمان" },
 ];
 
@@ -724,6 +725,8 @@ function Index() {
               </p>
             </div>
           </section>
+
+          <InvestmentOffering />
 
           <section
             className="assurance-chapter section-pad"

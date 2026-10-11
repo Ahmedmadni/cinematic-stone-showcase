@@ -1,4 +1,4 @@
-import { ManagedImage } from '@/components/ManagedImage';
+import { ManagedImage } from "@/components/ManagedImage";
 import { useSiteLanguage } from "@/lib/site-language";
 import { useEffect, useRef, useState } from "react";
 import { ArrowDownLeft, Gauge, Mouse, Pickaxe, Truck, Zap } from "lucide-react";
@@ -6,8 +6,16 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import { fleetFacts } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
+import { investmentPhoto } from "@/data/investment-offering";
 
-const images = [officialMedia.equipment.lineup.image, officialMedia.equipment.front.image, officialMedia.facilities.weighbridge.image, officialMedia.facilities.workshop.image] as const;
+const generatorPhoto = investmentPhoto("photo-088");
+const sceneImages = [
+  { image: officialMedia.equipment.lineup.image, width: 1600, height: 900 },
+  { image: officialMedia.equipment.front.image, width: 1600, height: 1152 },
+  { image: officialMedia.facilities.weighbridge.image, width: 1600, height: 900 },
+  generatorPhoto,
+] as const;
+const supportPhotos = ["photo-085", "photo-086", "photo-090", "photo-091"].map(investmentPhoto);
 const icons = [Pickaxe, Truck, Gauge, Zap] as const;
 const sceneTotal = fleetFacts.length;
 
@@ -30,11 +38,13 @@ export function FleetExperience() {
     function onScrollChapter(event: Event) {
       const { index } = (event as CustomEvent<SceneUpdate>).detail;
       if (typeof index === "number" && index >= 0 && index < sceneTotal) {
-        setSelected((previous) => previous === index ? previous : index);
+        setSelected((previous) => (previous === index ? previous : index));
       }
     }
     window.addEventListener(fleetSceneEvent, onScrollChapter);
-    const activeScene = Number(document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene"));
+    const activeScene = Number(
+      document.querySelector(".presentation")?.getAttribute("data-cinema-fleet-scene"),
+    );
     if (Number.isInteger(activeScene) && activeScene >= 0 && activeScene < sceneTotal) {
       setSelected(activeScene);
     }
@@ -59,50 +69,80 @@ export function FleetExperience() {
       <div className="fleet-experience__header reveal">
         <div>
           <span className="fleet-experience__eyebrow">
-            <span className="latin" dir="ltr">03 / SCROLL-DRIVEN FLEET</span> {t("— الأصول والمعدات")}
+            <span className="latin" dir="ltr">
+              03 / SCROLL-DRIVEN FLEET
+            </span>{" "}
+            {t("— الأصول والمعدات")}
           </span>
-          <h2 id="equipment-title">{t("أربعة مشاهد.")} <em>{t("قوة واحدة.")}</em></h2>
+          <h2 id="equipment-title">
+            {t("أربعة مشاهد.")} <em>{t("قوة واحدة.")}</em>
+          </h2>
         </div>
         <div className="fleet-experience__introduction">
-          <p>{t("حرّك الصفحة لاكتشاف معدات المحجر واحدة تلو الأخرى؛ أو اختر أي فئة للانتقال مباشرة إلى مشهدها.")}</p>
-          <span className="fleet-experience__instruction"><Mouse size={17} aria-hidden="true" /> {t("مرّر لاكتشاف المشهد التالي")}</span>
+          <p>
+            {t(
+              "حرّك الصفحة لاكتشاف معدات المحجر واحدة تلو الأخرى؛ أو اختر أي فئة للانتقال مباشرة إلى مشهدها.",
+            )}
+          </p>
+          <span className="fleet-experience__instruction">
+            <Mouse size={17} aria-hidden="true" /> {t("مرّر لاكتشاف المشهد التالي")}
+          </span>
         </div>
       </div>
 
       <div className="fleet-experience__scroll" id="fleet-scroll-track" ref={trackRef}>
         <div className="fleet-experience__composition">
-          <div className="fleet-experience__stage" aria-label={language === 'en' ? 'Al Somman equipment' : 'معدات الصمان'}>
+          <div
+            className="fleet-experience__stage"
+            aria-label={language === "en" ? "Al Somman equipment" : "معدات الصمان"}
+          >
             {fleetFacts.map((item, index) => (
-              <ManagedImage mediaContext="FleetExperience"
+              <ManagedImage
+                mediaContext="FleetExperience"
                 key={item.id}
-                src={images[index]}
-                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Maintenance workshop; generator detail is unavailable' : 'ورشة الصيانة؛ لا تتوفر لقطة تفصيلية للمولدات') : t(item.name)) : ""}
+                src={sceneImages[index].image}
+                alt={index === selected ? t(item.name) : ""}
                 aria-hidden={index !== selected}
-                className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
+                className={
+                  "fleet-experience__image fleet-experience__image--" +
+                  index +
+                  (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")
+                }
                 loading="lazy"
                 decoding="async"
-                width={1536}
-                height={1024}
+                width={sceneImages[index].width}
+                height={sceneImages[index].height}
               />
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
             <AtmosphereLayers variant="fleet" />
-            <span className="fleet-experience__photo-note">{language === 'en' ? 'The power chapter shows the support workshop; a generator detail is unavailable.' : 'يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر لقطة تفصيلية للمولدات.'}</span>
             <div className="fleet-experience__headline">
-              <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
+              <span className="latin" dir="ltr">
+                {current.eyebrow} / {current.number}
+              </span>
               <strong key={current.id}>{t(current.name)}</strong>
             </div>
             <div className="fleet-experience__corners" aria-hidden="true" />
-            <div className="fleet-experience__image-progress" aria-hidden="true"><span /></div>
-            <span className="fleet-experience__stage-number latin" aria-hidden="true" dir="ltr">0{selected + 1} / 0{sceneTotal}</span>
+            <div className="fleet-experience__image-progress" aria-hidden="true">
+              <span />
+            </div>
+            <span className="fleet-experience__stage-number latin" aria-hidden="true" dir="ltr">
+              0{selected + 1} / 0{sceneTotal}
+            </span>
           </div>
 
           <div className="fleet-experience__console">
             <div className="fleet-experience__console-label">
-              <span className="latin" dir="ltr">EXPLORE / BY SCROLL</span>
+              <span className="latin" dir="ltr">
+                EXPLORE / BY SCROLL
+              </span>
               <span>{t("الأصول والمعدات")}</span>
             </div>
-            <div className="fleet-experience__selectors" role="group" aria-label={t("فئات معدات المحجر")}>
+            <div
+              className="fleet-experience__selectors"
+              role="group"
+              aria-label={t("فئات معدات المحجر")}
+            >
               {fleetFacts.map((item, index) => {
                 const Icon = icons[index] ?? Pickaxe;
                 return (
@@ -110,31 +150,53 @@ export function FleetExperience() {
                     key={item.id}
                     type="button"
                     aria-pressed={selected === index}
-                    aria-label={t("مشهد") + " " + (index + 1) + " " + t("من") + " " + sceneTotal + " — " + t(item.name)}
-                    className={"fleet-experience__selector" + (selected === index ? " is-selected" : "")}
+                    aria-label={
+                      t("مشهد") +
+                      " " +
+                      (index + 1) +
+                      " " +
+                      t("من") +
+                      " " +
+                      sceneTotal +
+                      " — " +
+                      t(item.name)
+                    }
+                    className={
+                      "fleet-experience__selector" + (selected === index ? " is-selected" : "")
+                    }
                     onClick={() => chooseScene(index)}
                   >
-                    <span className="fleet-experience__selector-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></span>
+                    <span className="fleet-experience__selector-icon">
+                      <Icon size={18} strokeWidth={1.6} aria-hidden="true" />
+                    </span>
                     <span>{t(item.name)}</span>
-                    <span className="latin" dir="ltr">{item.number}</span>
+                    <span className="latin" dir="ltr">
+                      {item.number}
+                    </span>
                     <span className="fleet-experience__selector-fill" aria-hidden="true" />
                   </button>
                 );
               })}
             </div>
             <div className="fleet-experience__actual-evidence" aria-label={t("معدات موقع الصمان")}>
-              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">AL SOMMAN / 02</span>{t("معدات الموقع")}</span>
+              <span className="fleet-experience__actual-label">
+                <span className="latin" dir="ltr">
+                  AL SOMMAN / 02
+                </span>
+                {t("معدات الموقع")}
+              </span>
               <div className="fleet-experience__actual-grid">
-                {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
+                {supportPhotos.map((item) => (
                   <figure key={item.image}>
-                    <ManagedImage mediaContext="FleetExperience"
+                    <ManagedImage
+                      mediaContext="FleetExperience"
                       className="actual-site-photo"
                       src={item.image}
                       alt={language === "en" ? item.en : item.ar}
                       loading="lazy"
                       decoding="async"
-                      width={1600}
-                      height={900}
+                      width={item.width}
+                      height={item.height}
                     />
                     <figcaption>{language === "en" ? item.en : item.ar}</figcaption>
                   </figure>
@@ -143,16 +205,23 @@ export function FleetExperience() {
             </div>
             <div className="fleet-experience__detail" aria-live="polite" aria-atomic="true">
               <div key={current.id} className="fleet-experience__detail-inner">
-                <span className="fleet-experience__detail-eyebrow latin" dir="ltr">{current.eyebrow}</span>
+                <span className="fleet-experience__detail-eyebrow latin" dir="ltr">
+                  {current.eyebrow}
+                </span>
                 <div className="fleet-experience__count" dir="rtl">
-                  <strong>{current.count.toLocaleString(language === "ar" ? "ar-SA" : "en-US")}</strong><span>{t(current.unit)}</span>
+                  <strong>
+                    {current.count.toLocaleString(language === "ar" ? "ar-SA" : "en-US")}
+                  </strong>
+                  <span>{t(current.unit)}</span>
                 </div>
                 <p>{t(current.description)}</p>
                 <small>{t(current.supporting)}</small>
               </div>
             </div>
             <div className="fleet-experience__console-footer">
-              <span role="status" className="fleet-experience__counter">{t("المشهد")} {selected + 1} {t("من")} {sceneTotal}</span>
+              <span role="status" className="fleet-experience__counter">
+                {t("المشهد")} {selected + 1} {t("من")} {sceneTotal}
+              </span>
               <a href="#site-gallery-title" className="fleet-experience__next">
                 {t("شاهد مرافق الموقع")} <ArrowDownLeft size={17} aria-hidden="true" />
               </a>

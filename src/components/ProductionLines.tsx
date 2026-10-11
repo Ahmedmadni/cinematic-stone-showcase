@@ -1,5 +1,6 @@
 import { useSiteLanguage } from "@/lib/site-language";
 import { sitePhotoLibrary } from "@/data/site-photo-library";
+import { investmentPhoto } from "@/data/investment-offering";
 import { ManagedImage } from "./ManagedImage";
 
 const records = [
@@ -22,9 +23,10 @@ const records = [
 export function ProductionLines() {
   const { language } = useSiteLanguage();
   const en = language === "en";
-  const products = ["photo-021", "photo-011"].map((id) =>
-    sitePhotoLibrary.find((p) => p.id === id)!,
-  );
+  const products = [
+    investmentPhoto("photo-084"),
+    ...["photo-021", "photo-011"].map((id) => sitePhotoLibrary.find((p) => p.id === id)!),
+  ];
   return (
     <section className="production-lines" aria-labelledby="production-lines-title">
       <h3 id="production-lines-title">
@@ -65,8 +67,8 @@ export function ProductionLines() {
                   : "مخزون البحص أسفل سيور الإنتاج"
               }
               loading="lazy"
-              width={1600}
-              height={900}
+              width={product.width}
+              height={product.height}
             />
             <figcaption>
               {en
