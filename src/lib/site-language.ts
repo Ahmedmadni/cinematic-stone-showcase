@@ -8,6 +8,13 @@ export type SiteLanguage = "ar" | "en";
  * Source originals and all brand imagery stay intact.
  */
 const english: Record<string, string> = {
+  "الطاقة الاسمية للخطين": "Combined nominal line capacity",
+  "طن / ساعة": "t/h",
+  "سارية بحسب نسخة العرض المقدم": "Active in the supplied presentation",
+  "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة. يضع جدول العرض نسبة تقارب 60% أمام هذه الرخصة، خلافًا لتوضيح المالك بشأن المحجر ٢، ويلزم توثيق المطابقة.": "Current validity and updated ministry records must be verified. The presentation table assigns approximately 60% utilization to this licence, contrary to the owner's clarification about Quarry 2; the mapping must be documented.",
+  "منتهية بحسب نسخة العرض المقدم": "Expired in the supplied presentation",
+  "ورد الترخيص منتهيًا في ملف العرض، بينما أوضح المالك أن هذا هو محجر الاستخراج المستغل بنسبة 60%. يُطلب مستند التجديد وبيان رسمي يطابق الرخصة بالموقع ونسبة الاستغلال.": "The presentation lists the licence as expired, while the owner identifies this as the extraction quarry utilized at 60%. Request the renewal document and an official statement matching the licence to the site and utilization figure.",
+  "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك، والمحجر غير مستغل. الصورة المصاحبة تعرض منطقة مسيجة غير مستغلة، ولا تثبت حدود الرخصة. تُطلب وثائق التجديد والملكية ومطابقة الموقع عند التعاقد.": "The licence names Bir Zeit, an Al Ostool subsidiary according to the owner, and the quarry is unexploited. The accompanying image shows an undeveloped fenced area and does not establish licence boundaries. Request renewal, ownership and site-matching documents before contracting.",
   "يعرض هذا الفصل المحجر والتكسير ومعدات التحميل.": "This chapter follows the quarry, crushing plant and loading equipment.",
   "مجمع كسارات الصمان": "Al Somman crushing complex",
   "مجمع كسارات الصمان · شركة الأسطول الآلي": "Al Somman crushing complex · Al Ostool Alaali",

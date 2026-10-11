@@ -256,14 +256,14 @@ try {
     await openWithRetry(desktopPage, baseURL);
     const archive = desktopPage.locator(".site-photo-archive");
     assert.equal(await archive.getAttribute("data-archive-open"), "false");
-    assert.equal(await archive.locator("img").count(), 0, "the 77-photo library must not mount hidden images before opt-in");
+    assert.equal(await archive.locator("img").count(), 0, "the 94-photo library must not mount hidden images before opt-in");
     await archive.scrollIntoViewIfNeeded();
-    await archive.getByRole("button", { name: "Browse all 77 photographs" }).click();
+    await archive.getByRole("button", { name: "Browse all 94 photographs" }).click();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
     await archive.getByRole("button", { name: /Equipment/ }).click();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
     await archive.getByRole("button", { name: /^Quarry/ }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 2);
+    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 4);
     const tile = archive.locator(".site-photo-archive__photo").first();
     await tile.click();
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
@@ -277,9 +277,9 @@ try {
     assert.ok(await tile.evaluate(element => document.activeElement === element), "closing archive image restores focus to its tile");
     await archive.getByRole("button", { name: /All photographs/ }).click();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
-    for (let expected = 16; expected <= 80; expected += 8) {
+    for (let expected = 16; expected <= 96; expected += 8) {
       await archive.getByRole("button", { name: "Show more photographs" }).click();
-      assert.equal(await archive.locator(".site-photo-archive__photo").count(), Math.min(expected, 77));
+      assert.equal(await archive.locator(".site-photo-archive__photo").count(), Math.min(expected, 94));
     }
     assert.equal(await archive.getByRole("button", { name: "Show more photographs" }).count(), 0);
     await desktopPage.screenshot({ path: output + "/actual-site-library.png", animations: "disabled" });
@@ -984,7 +984,7 @@ try {
   await caseRun("mobile Arabic photo archive and supplied scans fit the viewport", async () => {
     const archive = mobilePage.locator(".site-photo-archive");
     await archive.scrollIntoViewIfNeeded();
-    await archive.getByRole("button", { name: "تصفح الصور الـ77" }).tap();
+    await archive.getByRole("button", { name: "تصفح الصور الـ٩٤" }).tap();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
     await archive.getByRole("button", { name: /المرافق/ }).tap();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);

@@ -1,0 +1,138 @@
+{
+  "received_on": "2026-10-11",
+  "offering": {
+    "file": "Alostool-Samman-Investment-Offering-AR-EN-FINAL-v2.pdf",
+    "sha256": "bde88c892cfc75d2c23c1d239220df3cf6e7f3dee5cd37e32c4e91ef463df87b",
+    "pages": 16,
+    "published_to_site": false,
+    "usage": "Text and numeric facts were transcribed into the bilingual web presentation with explicit source and due-diligence caveats."
+  },
+  "source_archive": {
+    "file": "WhatsApp Unknown 2026-10-11 at 5.16.44 PM.zip",
+    "sha256": "4848830c569fc9c2500a37aaca76185e2debe962738c693299811b618a2d7fbb",
+    "entries": 6
+  },
+  "transformation": "EXIF orientation normalization and WebP encoding only. No generative content, compositing or subject alteration was applied.",
+  "photos": [
+    {
+      "id": "photo-078",
+      "category": "facilities",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.30 AM.jpeg",
+      "source_sha256": "f683c441f8a1b99834150df66e6b1e5e7db7136abb15704f07b74e6f7a9ad023",
+      "web": "src/assets/official/investment-2026-10-11/photo-078-site-access-admin.webp"
+    },
+    {
+      "id": "photo-079",
+      "category": "facilities",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.31 AM.jpeg",
+      "source_sha256": "edefd4691b43b714866f0140d8acd9ebbdc635242af27b3762624fb0a237903b",
+      "web": "src/assets/official/investment-2026-10-11/photo-079-main-gate-production-yard.webp"
+    },
+    {
+      "id": "photo-080",
+      "category": "facilities",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.31 AM (1).jpeg",
+      "source_sha256": "fb5bffe64b8a3bf30153e5526593ea86188c2255f309e05b33a52f6313b46929",
+      "web": "src/assets/official/investment-2026-10-11/photo-080-gate-quarry-side.webp"
+    },
+    {
+      "id": "photo-081",
+      "category": "facilities",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.32 AM.jpeg",
+      "source_sha256": "d5e58437b5a3419a6ab73df503f7adde57e86ba571017efe0de3ff8014f7d8d7",
+      "web": "src/assets/official/investment-2026-10-11/photo-081-site-perimeter-entrance.webp"
+    },
+    {
+      "id": "photo-082",
+      "category": "production",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.32 AM (1).jpeg",
+      "source_sha256": "c85edc8217d4d7c8be6f690a5bbd728e0c5ef9e0fd7c00e235ec135424b80617",
+      "web": "src/assets/official/investment-2026-10-11/photo-082-internal-road-crushers.webp"
+    },
+    {
+      "id": "photo-083",
+      "category": "facilities",
+      "source": "ZIP/WhatsApp Image 2026-10-11 at 11.23.33 AM.jpeg",
+      "source_sha256": "fb496f679908536a832635d133879dd74e27a57dc88c1e7e7d9c4be04aa62817",
+      "web": "src/assets/official/investment-2026-10-11/photo-083-service-area-water-feed.webp"
+    },
+    {
+      "id": "photo-084",
+      "category": "production",
+      "source": "WhatsApp Image 2026-10-11 at 11.35.16 AM.jpeg",
+      "source_sha256": "7fce33eea1534965988102d9b2b01144237f7124a558104b5e133d5844f0e323",
+      "web": "src/assets/official/investment-2026-10-11/photo-084-aggregate-stockpiles.webp"
+    },
+    {
+      "id": "photo-085",
+      "category": "equipment",
+      "source": "WhatsApp Image 2026-10-11 at 11.28.35 AM(1).jpeg",
+      "source_sha256": "88d06f1eb197dcf8ec005c5723f8c6a8f533124aa9c052c3917901339028f6e2",
+      "web": "src/assets/official/investment-2026-10-11/photo-085-diesel-tanker.webp"
+    },
+    {
+      "id": "photo-086",
+      "category": "equipment",
+      "source": "WhatsApp Image 2026-10-11 at 11.28.35 AM.jpeg",
+      "source_sha256": "00345ef84df58ed386c8b6d46701ce6bcc0e5dcdeb459382cc799df93be11c26",
+      "web": "src/assets/official/investment-2026-10-11/photo-086-lubrication-truck-rear.webp"
+    },
+    {
+      "id": "photo-087",
+      "category": "equipment",
+      "source": "WhatsApp Image 2026-10-11 at 11.28.34 AM.jpeg",
+      "source_sha256": "cbb6e47f372203f51c91886b7fbbae2c8f6e49fa8548fbc55a8dba0727911f38",
+      "web": "src/assets/official/investment-2026-10-11/photo-087-lubrication-truck-front.webp"
+    },
+    {
+      "id": "photo-088",
+      "category": "facilities",
+      "source": "WhatsApp Image 2026-10-11 at 11.24.52 AM.jpeg",
+      "source_sha256": "f5780de79ea87cce1513a986bfaa8ca68fb7b4100087efc0edd9d61143a43454",
+      "web": "src/assets/official/investment-2026-10-11/photo-088-cat-generators-pair.webp"
+    },
+    {
+      "id": "photo-089",
+      "category": "facilities",
+      "source": "WhatsApp Image 2026-10-11 at 11.24.50 AM.jpeg",
+      "source_sha256": "01f06daeadc55f0a1593895f85f4fc3f41f6635dda39b03f5dd43739e4b5b1e4",
+      "web": "src/assets/official/investment-2026-10-11/photo-089-cat-generator-detail.webp"
+    },
+    {
+      "id": "photo-090",
+      "category": "facilities",
+      "source": "WhatsApp Image 2026-10-11 at 11.25.54 AM.jpeg",
+      "source_sha256": "de689bcae89718f9136d839d086ab91c45c2274d0aa82f0d52b46fb0b79b348b",
+      "web": "src/assets/official/investment-2026-10-11/photo-090-diesel-station.webp"
+    },
+    {
+      "id": "photo-091",
+      "category": "equipment",
+      "source": "WhatsApp Image 2026-10-11 at 11.30.35 AM(1).jpeg",
+      "source_sha256": "7d71a1b085c6afb323f118caf1bf319a7936a273dbe0018423fc7605e566da80",
+      "web": "src/assets/official/investment-2026-10-11/photo-091-welding-generator-side.webp"
+    },
+    {
+      "id": "photo-092",
+      "category": "equipment",
+      "source": "WhatsApp Image 2026-10-11 at 11.30.35 AM.jpeg",
+      "source_sha256": "a843761fcf200d7f680e2d0e94ca2ece7bfa7cc061e97d80776a37126c197535",
+      "web": "src/assets/official/investment-2026-10-11/photo-092-welding-generator-front.webp"
+    },
+    {
+      "id": "photo-093",
+      "category": "quarry",
+      "source": "WhatsApp Image 2026-10-11 at 11.41.11 AM.jpeg",
+      "source_sha256": "bdbe4328754a7c3f41ebbad14d13ddd7a658365e1adc6a9ab68db9d6ae93a01e",
+      "web": "src/assets/official/investment-2026-10-11/photo-093-fenced-undeveloped-area-gate.webp"
+    },
+    {
+      "id": "photo-094",
+      "category": "quarry",
+      "source": "WhatsApp Image 2026-10-11 at 11.41.12 AM.jpeg",
+      "source_sha256": "364ef3055998ed21da12b61149875bbbde5eed14fea99010562317da8c77a7a5",
+      "web": "src/assets/official/investment-2026-10-11/photo-094-fenced-undeveloped-area-wide.webp"
+    }
+  ]
+}
+

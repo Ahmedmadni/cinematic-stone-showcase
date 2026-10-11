@@ -1,6 +1,6 @@
 /**
  * Public-facing, document-derived metadata only.
- * Source: "عرض استثماري - كسارة الصمان (1).docx", p. 9 and pp. 6–8.
+ * Source: "Alostool-Samman-Investment-Offering-AR-EN-FINAL-v2.pdf", pp. 6–8.
  * Supplied scans are linked separately. ISO identifiers below are transcribed
  * from those scans; neither scan nor summary verifies present validity.
  */

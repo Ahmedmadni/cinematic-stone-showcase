@@ -6,8 +6,16 @@ import { AtmosphereLayers } from "@/components/cinematic/AtmosphereLayers";
 import { fleetSceneTarget } from "@/lib/cinematic-progress";
 import { fleetFacts } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
+import { investmentPhoto } from "@/data/investment-offering";
 
-const images = [officialMedia.equipment.lineup.image, officialMedia.equipment.front.image, officialMedia.facilities.weighbridge.image, officialMedia.facilities.workshop.image] as const;
+const generatorPhoto = investmentPhoto("photo-088");
+const sceneImages = [
+  { image: officialMedia.equipment.lineup.image, width: 1600, height: 900 },
+  { image: officialMedia.equipment.front.image, width: 1600, height: 1152 },
+  { image: officialMedia.facilities.weighbridge.image, width: 1600, height: 900 },
+  generatorPhoto,
+] as const;
+const supportPhotos = ["photo-085", "photo-086", "photo-090", "photo-091"].map(investmentPhoto);
 const icons = [Pickaxe, Truck, Gauge, Zap] as const;
 const sceneTotal = fleetFacts.length;
 
@@ -75,19 +83,18 @@ export function FleetExperience() {
             {fleetFacts.map((item, index) => (
               <ManagedImage mediaContext="FleetExperience"
                 key={item.id}
-                src={images[index]}
-                alt={index === selected ? (index === 3 ? (language === 'en' ? 'Maintenance workshop; generator detail is unavailable' : 'ورشة الصيانة؛ لا تتوفر لقطة تفصيلية للمولدات') : t(item.name)) : ""}
+                src={sceneImages[index]!.image}
+                alt={index === selected ? t(item.name) : ""}
                 aria-hidden={index !== selected}
                 className={"fleet-experience__image fleet-experience__image--" + index + (index === selected ? " is-active" : index === selected - 1 ? " is-underlay" : "")}
                 loading="lazy"
                 decoding="async"
-                width={1536}
-                height={1024}
+                width={sceneImages[index]!.width}
+                height={sceneImages[index]!.height}
               />
             ))}
             <div className="fleet-experience__shade" aria-hidden="true" />
             <AtmosphereLayers variant="fleet" />
-            <span className="fleet-experience__photo-note">{language === 'en' ? 'The power chapter shows the support workshop; a generator detail is unavailable.' : 'يعرض فصل الطاقة ورشة الخدمات؛ لا تتوفر لقطة تفصيلية للمولدات.'}</span>
             <div className="fleet-experience__headline">
               <span className="latin" dir="ltr">{current.eyebrow} / {current.number}</span>
               <strong key={current.id}>{t(current.name)}</strong>
@@ -123,9 +130,9 @@ export function FleetExperience() {
               })}
             </div>
             <div className="fleet-experience__actual-evidence" aria-label={t("معدات موقع الصمان")}>
-              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">AL SOMMAN / 02</span>{t("معدات الموقع")}</span>
+              <span className="fleet-experience__actual-label"><span className="latin" dir="ltr">AL SOMMAN / 04</span>{t("معدات الموقع")}</span>
               <div className="fleet-experience__actual-grid">
-                {[officialMedia.equipment.loader, officialMedia.equipment.lineup].map((item) => (
+                {supportPhotos.map((item) => (
                   <figure key={item.image}>
                     <ManagedImage mediaContext="FleetExperience"
                       className="actual-site-photo"
@@ -133,8 +140,8 @@ export function FleetExperience() {
                       alt={language === "en" ? item.en : item.ar}
                       loading="lazy"
                       decoding="async"
-                      width={1600}
-                      height={900}
+                      width={item.width}
+                      height={item.height}
                     />
                     <figcaption>{language === "en" ? item.en : item.ar}</figcaption>
                   </figure>

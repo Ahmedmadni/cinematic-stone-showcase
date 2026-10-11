@@ -1,4 +1,5 @@
 import photo1 from "@/assets/official/archive/photo-001.webp";
+import { investmentOfferingMedia } from "@/data/investment-offering";
 import thumb1 from "@/assets/official/thumbnails/photo-001.webp";
 import photo2 from "@/assets/official/archive/photo-002.webp";
 import thumb2 from "@/assets/official/thumbnails/photo-002.webp";
@@ -238,4 +239,5 @@ export const sitePhotoLibrary: readonly SitePhoto[] = [
   { id: "photo-075", category: "facilities", image: photo75, thumbnail: thumb75, en: "Main site entrance and access road", ar: "مدخل الموقع وطريق الدخول", width: 1600, height: 900 },
   { id: "photo-076", category: "facilities", image: photo76, thumbnail: thumb76, en: "Crusher site entrance", ar: "مدخل موقع الكسارة", width: 1600, height: 900 },
   { id: "photo-077", category: "quarry", image: photo77, thumbnail: thumb77, en: "Quarry benches and internal haul roads", ar: "مصاطب المحجر وطرق النقل الداخلية", width: 1600, height: 900 },
+  ...investmentOfferingMedia,
 ];

@@ -1,6 +1,6 @@
 /**
  * Editorial facts taken from the supplied investment presentation.
- * Source: "عرض استثماري - كسارة الصمان (1).docx" pp. 6, 10, 15–17.
+ * Source: "Alostool-Samman-Investment-Offering-AR-EN-FINAL-v2.pdf", pp. 6, 9–14.
  * Historic document statuses are NOT a live official licence lookup.
  */
 export const quarrySites = [
@@ -12,30 +12,34 @@ export const quarrySites = [
     permitHolder: "شركة الأسطول الآلي",
     operationAr: "المحجر ١ يضم الكسارة والمرافق التشغيلية.",
     operationEn: "Quarry 1 houses the crushing plant and operational facilities.",
-    documentStatus: "سارية بحسب نسخة العرض",
-    note: "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة قبل أي تعاقد.",
+    documentStatus: "سارية بحسب نسخة العرض المقدم",
+    note: "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة. يضع جدول العرض نسبة تقارب 60% أمام هذه الرخصة، خلافًا لتوضيح المالك بشأن المحجر ٢، ويلزم توثيق المطابقة.",
   },
   {
     id: "ostool-2",
     name: "محجر الأسطول ٢",
     area: 246300,
     license: "14377125",
-    operationAr: "المحجر ٢ هو محجر الاستخراج والتكسير الجاري؛ نسبة الاستغلال 60% بحسب المالك، وليست نسبة احتياطي جيولوجي مثبت.",
-    operationEn: "Quarry 2 is the active extraction quarry, with 60% utilization reported by the owner; this is not a certified geological reserve estimate.",
+    operationAr:
+      "المحجر ٢ هو محجر الاستخراج والتكسير الجاري؛ نسبة الاستغلال 60% بحسب المالك، وليست نسبة احتياطي جيولوجي مثبت.",
+    operationEn:
+      "Quarry 2 is the active extraction quarry, with 60% utilization reported by the owner; this is not a certified geological reserve estimate.",
     permitHolder: "شركة الأسطول الآلي",
-    documentStatus: "منتهية بحسب نسخة العرض",
-    note: "ورد الترخيص منتهيًا في ملف العرض؛ يُطلب مستند التجديد وحالة الترخيص الحالية.",
+    documentStatus: "منتهية بحسب نسخة العرض المقدم",
+    note: "ورد الترخيص منتهيًا في ملف العرض، بينما أوضح المالك أن هذا هو محجر الاستخراج المستغل بنسبة 60%. يُطلب مستند التجديد وبيان رسمي يطابق الرخصة بالموقع ونسبة الاستغلال.",
   },
   {
     id: "birzeit",
     name: "محجر بير زيت",
     area: 249082,
     license: "1437731",
-    operationAr: "المحجر ٣ غير مستغل. بير زيت شركة تابعة للأسطول الآلي، والمحجر مملوك بالكامل للأسطول الآلي بحسب توضيح المالك.",
-    operationEn: "Quarry 3 is unexploited. Bir Zeit is an Al Ostool Alaali subsidiary and the quarry is wholly owned by Al Ostool Alaali, according to the owner.",
+    operationAr:
+      "المحجر ٣ غير مستغل. بير زيت شركة تابعة للأسطول الآلي، والمحجر مملوك بالكامل للأسطول الآلي بحسب توضيح المالك.",
+    operationEn:
+      "Quarry 3 is unexploited. Bir Zeit is an Al Ostool Alaali subsidiary and the quarry is wholly owned by Al Ostool Alaali, according to the owner.",
     permitHolder: "شركة بير زيت للخدمات البترولية",
-    documentStatus: "منتهية بحسب نسخة العرض",
-    note: "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.",
+    documentStatus: "منتهية بحسب نسخة العرض المقدم",
+    note: "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك، والمحجر غير مستغل. الصورة المصاحبة تعرض منطقة مسيجة غير مستغلة، ولا تثبت حدود الرخصة. تُطلب وثائق التجديد والملكية ومطابقة الموقع عند التعاقد.",
   },
 ] as const;
 

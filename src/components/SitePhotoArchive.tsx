@@ -14,7 +14,7 @@ const categories = [
 ] as const;
 const PAGE_SIZE = 8;
 
-/** Full source library is available on demand; no hidden 77-image DOM. */
+/** Full source library is available on demand; no hidden full-library DOM. */
 export function SitePhotoArchive() {
   const { language } = useSiteLanguage();
   const en = language === "en";
@@ -32,12 +32,12 @@ export function SitePhotoArchive() {
   return (
     <div className="site-photo-archive" data-archive-open={open}>
       <div className="site-photo-archive__header">
-        <div><span className="latin" dir="ltr">AL SOMMAN / 77 PHOTOGRAPHS</span>
+        <div><span className="latin" dir="ltr">AL SOMMAN / {sitePhotoLibrary.length} PHOTOGRAPHS</span>
           <h3>{en ? "Al Somman photo archive." : "أرشيف صور الصمان."}</h3>
           <p>{en ? "Browse the supplied photographs of production, equipment, support facilities and quarry benches." : "استعرض الصور المرفقة للإنتاج والمعدات والمرافق ومصاطب المحجر."}</p>
         </div>
         <button className="site-photo-archive__toggle" type="button" aria-expanded={open} aria-controls="site-photo-library" onClick={() => setOpen(value => !value)}>
-          <Images size={20} aria-hidden="true" />{open ? (en ? "Close photo library" : "إغلاق معرض الصور") : (en ? "Browse all 77 photographs" : "تصفح الصور الـ77")}
+          <Images size={20} aria-hidden="true" />{open ? (en ? "Close photo library" : "إغلاق معرض الصور") : (en ? `Browse all ${sitePhotoLibrary.length} photographs` : `تصفح الصور الـ${sitePhotoLibrary.length.toLocaleString("ar-SA")}`)}
           {open ? <ArrowUpLeft size={18} aria-hidden="true" /> : <ArrowDownLeft size={18} aria-hidden="true" />}
         </button>
       </div>

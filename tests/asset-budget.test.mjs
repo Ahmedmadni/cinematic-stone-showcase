@@ -83,3 +83,35 @@ test("all 77 supplied photographs match their verified derivative hashes and del
   }
   assert.ok(total <= 13 * 1024 * 1024, "77-photo web set exceeds 13 MiB");
 });
+
+test("the 17 investment-offering photographs and thumbnails are complete and delivery-safe", async () => {
+  const manifest = JSON.parse(
+    await readFile(
+      new URL("../docs/investment-offering-source-manifest-2026-10-11.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  assert.equal(manifest.photos.length, 17);
+  assert.equal(new Set(manifest.photos.map((photo) => photo.id)).size, 17);
+  assert.equal(new Set(manifest.photos.map((photo) => photo.web)).size, 17);
+
+  let fullTotal = 0;
+  let thumbnailTotal = 0;
+  for (const photo of manifest.photos) {
+    assert.match(photo.source_sha256, /^[a-f0-9]{64}$/);
+    const full = new URL("../" + photo.web, import.meta.url);
+    const thumbnail = new URL(
+      "../src/assets/official/thumbnails/investment-2026-10-11/" + photo.id + ".webp",
+      import.meta.url,
+    );
+    const fullBytes = (await stat(full)).size;
+    const thumbnailBytes = (await stat(thumbnail)).size;
+    assert.ok(fullBytes <= 160 * 1024, photo.id + ": full photo exceeds 160 KiB");
+    assert.ok(thumbnailBytes <= 40 * 1024, photo.id + ": thumbnail exceeds 40 KiB");
+    fullTotal += fullBytes;
+    thumbnailTotal += thumbnailBytes;
+  }
+
+  assert.ok(fullTotal <= 2 * 1024 * 1024, "investment photo set exceeds 2 MiB");
+  assert.ok(thumbnailTotal <= 512 * 1024, "investment thumbnail set exceeds 512 KiB");
+});

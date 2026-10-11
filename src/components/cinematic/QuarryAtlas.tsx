@@ -4,11 +4,12 @@ import { useState } from "react";
 import { ArrowUpLeft, FileCheck2, MapPin, Mountain } from "lucide-react";
 import { quarrySites, totalQuarryArea } from "@/data/experience-data";
 import { officialMedia } from "@/data/official-media";
+import { investmentPhoto } from "@/data/investment-offering";
 
 const images = [
-  officialMedia.hero[0].image,
-  officialMedia.hero[2].image,
-  officialMedia.hero[1].image,
+  investmentPhoto("photo-079"),
+  { image: officialMedia.hero[2].image, width: 1600, height: 900 },
+  investmentPhoto("photo-093"),
 ] as const;
 
 /** Three quarry records paired with supplied Al Somman photographs. */
@@ -47,7 +48,7 @@ export function QuarryAtlas() {
               aria-label={t("عرض ملف") + " " + t(entry.name)}
               className={"quarry-cards__site" + (selected === index ? " is-selected" : "")}
             >
-              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index]} alt="" loading="lazy" decoding="async" width={1600} height={900} />
+              <ManagedImage mediaContext="QuarryAtlas" className="actual-site-photo" data-media-origin="actual-site" src={images[index]!.image} alt="" loading="lazy" decoding="async" width={images[index]!.width} height={images[index]!.height} />
               <span className="quarry-cards__shade" aria-hidden="true" />
               <span className="quarry-cards__site-index latin" dir="ltr">0{index + 1}</span>
               <span className="quarry-cards__site-label">
