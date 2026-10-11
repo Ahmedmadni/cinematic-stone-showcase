@@ -148,4 +148,3 @@ export function useManagedVideo(original: SiteVideo, context: string): SiteVideo
     en: resolved.override.title_en || resolved.asset.en,
   };
 }
-
