@@ -5,11 +5,17 @@ import { lovable } from "@/integrations/lovable/index";
 import { mediaCatalog, mediaContexts, type CatalogAsset } from "@/data/media-catalog";
 import {
   allowedMediaTypes,
+  HIDDEN_MEDIA_ID,
   refreshMediaManagement,
   useMediaManagement,
   validateMediaFile,
 } from "@/lib/media-management";
-import { SITE_MEDIA_BUCKET, siteMediaSections, type SiteMediaSection } from "@/lib/site-media";
+import {
+  fetchSiteMedia,
+  SITE_MEDIA_BUCKET,
+  siteMediaSections,
+  type SiteMediaSection,
+} from "@/lib/site-media";
 import { createVideoPoster, optimizeImageForUpload } from "@/lib/media-upload";
 import { UploadedMediaManager } from "./UploadedMediaManager";
 import { MediaAuditLog } from "./MediaAuditLog";
@@ -34,6 +40,7 @@ export function MediaStudio() {
   const [x, setX] = useState(50);
   const [y, setY] = useState(50);
   const [files, setFiles] = useState<File[]>([]);
+  const [isDraggingFiles, setDraggingFiles] = useState(false);
   const [section, setSection] = useState<SiteMediaSection>("production");
   const catalog = useMemo(() => [...mediaCatalog, ...state.uploads], [state.uploads]);
   useEffect(() => {
@@ -101,35 +108,44 @@ export function MediaStudio() {
     setSelected(asset);
     setContext(scope);
     const saved = state.overrides.find((o) => o.target_key === `${scope}:${asset.id}`);
-    setReplacement(saved?.replacement_id ?? asset.id);
+    setReplacement(
+      saved?.replacement_id && saved.replacement_id !== HIDDEN_MEDIA_ID
+        ? saved.replacement_id
+        : asset.id,
+    );
     setAr(saved?.title_ar ?? asset.ar);
     setEn(saved?.title_en ?? asset.en);
     setFit(saved?.fit ?? "contain");
     setX(saved?.focal_x ?? 50);
     setY(saved?.focal_y ?? 50);
   }
-  async function save(reset = false) {
+  async function save(action: "save" | "reset" | "hide" = "save") {
     if (!selected || !isAdmin || busy) return;
     setBusy(true);
     setStatus("");
     try {
       const target_key = `${context}:${selected.id}`;
-      const result = reset
-        ? await supabase.from("media_overrides").delete().eq("target_key", target_key)
-        : await supabase.from("media_overrides").upsert({
-            target_key,
-            replacement_id: replacement,
-            title_ar: ar.trim(),
-            title_en: en.trim(),
-            fit,
-            focal_x: x,
-            focal_y: y,
-            updated_at: new Date().toISOString(),
-          });
+      const result =
+        action === "reset"
+          ? await supabase.from("media_overrides").delete().eq("target_key", target_key)
+          : await supabase.from("media_overrides").upsert({
+              target_key,
+              replacement_id: action === "hide" ? HIDDEN_MEDIA_ID : replacement,
+              title_ar: ar.trim(),
+              title_en: en.trim(),
+              fit,
+              focal_x: x,
+              focal_y: y,
+              updated_at: new Date().toISOString(),
+            });
       if (result.error) throw result.error;
       await refreshMediaManagement(true);
       setStatus(
-        reset ? "تمت استعادة الأصل لهذا النطاق." : "حُفظ التخصيص. افتح معاينة الموقع للتحقق منه.",
+        action === "reset"
+          ? "تمت استعادة الأصل لهذا النطاق."
+          : action === "hide"
+            ? "أُخفيت الصورة من هذا النطاق ويمكن استعادتها في أي وقت."
+            : "حُفظ التخصيص. افتح معاينة الموقع للتحقق منه.",
       );
     } catch {
       setStatus("لم يُحفظ التغيير. تحقق من الاتصال وصلاحية الإدارة وتطبيق ترحيل الوسائط.");
@@ -143,6 +159,12 @@ export function MediaStudio() {
     const errors: string[] = [];
     let done = 0;
     try {
+      const existing = await fetchSiteMedia(true);
+      let nextSortOrder =
+        Math.max(
+          0,
+          ...existing.filter((item) => item.section === section).map((item) => item.sort_order),
+        ) + 10;
       for (const file of files) {
         const invalid = validateMediaFile(file);
         if (invalid) {
@@ -191,6 +213,7 @@ export function MediaStudio() {
           poster_path: posterPath,
           title_ar: file.name.replace(/\.[^.]+$/, ""),
           title_en: file.name.replace(/\.[^.]+$/, ""),
+          sort_order: nextSortOrder,
         });
         if (inserted.error) {
           const cleanup = await supabase.storage
@@ -199,7 +222,10 @@ export function MediaStudio() {
           errors.push(
             `${file.name}: تعذّر حفظ السجل.${cleanup.error ? ` يلزم تنظيف ${path} من التخزين.` : " أُلغي رفع الملف."}`,
           );
-        } else done++;
+        } else {
+          done++;
+          nextSortOrder += 10;
+        }
       }
       await refreshMediaManagement(true);
       setFiles([]);
@@ -243,6 +269,7 @@ export function MediaStudio() {
           </p>
         </div>
         <div className="admin-header__actions">
+          {isAdmin && <a href="#media-upload">+ إضافة صور أو فيديو</a>}
           <a href="/" target="_blank" rel="noreferrer">
             معاينة الموقع ↗
           </a>
@@ -260,7 +287,7 @@ export function MediaStudio() {
       </header>
       <section className="media-studio__stats">
         <div>
-          <strong>77</strong>
+          <strong>{mediaCatalog.filter((asset) => asset.id.startsWith("photo-")).length}</strong>
           <span>صورة في مكتبة الموقع</span>
         </div>
         <div>
@@ -326,39 +353,83 @@ export function MediaStudio() {
       <p className="admin-status" role="status" aria-live="polite">
         {status}
       </p>
-      {isAdmin && <UploadedMediaManager />}
-      {isAdmin && <MediaAuditLog />}
       {isAdmin && (
-        <section className="admin-card">
-          <h2>رفع وسائط الموقع</h2>
+        <section className="admin-card media-upload" id="media-upload">
+          <span className="media-studio__eyebrow">ADD MEDIA</span>
+          <h2>إضافة صور أو فيديو</h2>
           <p>
             تُحوّل صور JPEG وPNG تلقائيًا إلى WebP، ويُنشأ غلاف للفيديو متى سمح المتصفح بذلك. يدعم
             الفيديو MP4 وWebM، وحد الملف 50 ميجابايت.
           </p>
-          <label>
-            القسم
-            <select
-              value={section}
-              onChange={(e) => setSection(e.target.value as SiteMediaSection)}
+          <div className="media-upload__layout">
+            <label
+              className={`media-upload__dropzone${isDraggingFiles ? " is-dragging" : ""}`}
+              onDragEnter={(event) => {
+                event.preventDefault();
+                setDraggingFiles(true);
+              }}
+              onDragOver={(event) => event.preventDefault()}
+              onDragLeave={() => setDraggingFiles(false)}
+              onDrop={(event) => {
+                event.preventDefault();
+                setDraggingFiles(false);
+                setFiles(Array.from(event.dataTransfer.files));
+              }}
             >
-              {siteMediaSections.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.ar}
-                </option>
-              ))}
-            </select>
-          </label>
-          <input
-            type="file"
-            multiple
-            accept="image/webp,image/jpeg,image/png,video/mp4,video/webm"
-            onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
-          />
-          <button className="admin-primary" disabled={busy || !files.length} onClick={upload}>
-            {busy ? "جارٍ التنفيذ…" : `رفع ${files.length || ""} ملفات`}
-          </button>
+              <input
+                className="sr-only"
+                type="file"
+                multiple
+                accept="image/webp,image/jpeg,image/png,video/mp4,video/webm"
+                onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
+              />
+              <strong>اسحب الملفات هنا</strong>
+              <span>أو اضغط لاختيارها من الجهاز</span>
+              <small>WebP · JPEG · PNG · MP4 · WebM</small>
+            </label>
+            <div className="media-upload__settings">
+              <label>
+                مكان الظهور
+                <select
+                  value={section}
+                  onChange={(e) => setSection(e.target.value as SiteMediaSection)}
+                >
+                  {siteMediaSections.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.ar}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {files.length > 0 && (
+                <ul className="media-upload__queue">
+                  {files.map((file) => (
+                    <li key={`${file.name}-${file.size}`}>
+                      <span>{file.name}</span>
+                      <small>{(file.size / 1024 / 1024).toFixed(1)} MB</small>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div>
+                <button className="admin-primary" disabled={busy || !files.length} onClick={upload}>
+                  {busy
+                    ? "جارٍ التنفيذ…"
+                    : files.length
+                      ? `رفع ${files.length} ملفات`
+                      : "اختر ملفات أولًا"}
+                </button>
+                {files.length > 0 && (
+                  <button disabled={busy} onClick={() => setFiles([])}>
+                    مسح الاختيار
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
       )}
+      {isAdmin && <UploadedMediaManager />}
       <div className="media-studio__workspace">
         <section className="admin-card">
           <div className="media-studio__filters">
@@ -402,9 +473,14 @@ export function MediaStudio() {
                   {asset.id} · {asset.kind === "video" ? "فيديو" : "صورة"}
                 </small>
                 <strong>{asset.ar || asset.id}</strong>
-                {state.overrides.some((o) => o.target_key.endsWith(`:${asset.id}`)) && (
+                {state.overrides.some(
+                  (o) =>
+                    o.target_key.endsWith(`:${asset.id}`) && o.replacement_id === HIDDEN_MEDIA_ID,
+                ) ? (
+                  <span>○ مخفي في موضع</span>
+                ) : state.overrides.some((o) => o.target_key.endsWith(`:${asset.id}`)) ? (
                   <span>● مخصص</span>
-                )}
+                ) : null}
               </button>
             ))}
           </div>
@@ -433,11 +509,28 @@ export function MediaStudio() {
                   poster={preview.thumbnail || undefined}
                 />
               ) : (
-                <img
-                  src={preview.url}
-                  alt={ar}
-                  style={{ objectFit: fit, objectPosition: `${x}% ${y}%` }}
-                />
+                <>
+                  <button
+                    type="button"
+                    className="media-studio__focus-preview"
+                    aria-label="انقر داخل الصورة لاختيار موضع التركيز"
+                    onClick={(event) => {
+                      const bounds = event.currentTarget.getBoundingClientRect();
+                      setX(Math.round(((event.clientX - bounds.left) / bounds.width) * 100));
+                      setY(Math.round(((event.clientY - bounds.top) / bounds.height) * 100));
+                    }}
+                  >
+                    <img
+                      src={preview.url}
+                      alt={ar}
+                      style={{ objectFit: fit, objectPosition: `${x}% ${y}%` }}
+                    />
+                    <span aria-hidden="true" style={{ left: `${x}%`, top: `${y}%` }} />
+                  </button>
+                  <p className="admin-muted">
+                    انقر على أهم نقطة في الصورة لضبط موضعها داخل الإطار.
+                  </p>
+                </>
               )}
               <label>
                 نطاق التغيير
@@ -517,12 +610,47 @@ export function MediaStudio() {
                       onChange={(e) => setY(Number(e.target.value))}
                     />
                   </label>
+                  <div className="media-studio__focus-presets" aria-label="مواضع جاهزة">
+                    <button
+                      onClick={() => {
+                        setX(50);
+                        setY(25);
+                      }}
+                    >
+                      أعلى
+                    </button>
+                    <button
+                      onClick={() => {
+                        setX(50);
+                        setY(50);
+                      }}
+                    >
+                      المنتصف
+                    </button>
+                    <button
+                      onClick={() => {
+                        setX(50);
+                        setY(75);
+                      }}
+                    >
+                      أسفل
+                    </button>
+                  </div>
                 </>
               )}
               <button className="admin-primary" disabled={!isAdmin || busy} onClick={() => save()}>
                 حفظ التخصيص
               </button>
-              <button disabled={!isAdmin || busy} onClick={() => save(true)}>
+              {selected.kind === "image" && (
+                <button
+                  className="admin-danger"
+                  disabled={!isAdmin || busy}
+                  onClick={() => save("hide")}
+                >
+                  إخفاء الصورة من هذا الموضع
+                </button>
+              )}
+              <button disabled={!isAdmin || busy} onClick={() => save("reset")}>
                 استعادة الأصل في هذا النطاق
               </button>
             </>
@@ -531,6 +659,7 @@ export function MediaStudio() {
           )}
         </aside>
       </div>
+      {isAdmin && <MediaAuditLog />}
     </main>
   );
 }

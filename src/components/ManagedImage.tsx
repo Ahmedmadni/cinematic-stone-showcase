@@ -15,6 +15,7 @@ export function ManagedImage({
   const { language } = useSiteLanguage();
   const [failed, setFailed] = useState<string | null>(null);
   const replacement = resolved?.asset.url;
+  if (resolved?.hidden) return null;
   const url = resolved?.override && replacement && failed !== replacement ? replacement : src;
   const override = resolved?.override;
   const label = override && (language === "ar" ? override.title_ar : override.title_en);

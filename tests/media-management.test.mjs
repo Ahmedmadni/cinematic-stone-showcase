@@ -2,7 +2,34 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { validateMediaFile, selectMediaOverride } from "../src/lib/media-rules.ts";
+import { normalizeMediaOrder, placeMediaItem } from "../src/lib/media-order.ts";
 import { quarrySites } from "../src/data/experience-data.ts";
+
+const orderedFixture = [
+  { id: "a", section: "hero", sort_order: 20, created_at: "2026-01-01" },
+  { id: "b", section: "hero", sort_order: 10, created_at: "2026-01-02" },
+  { id: "c", section: "fleet", sort_order: 10, created_at: "2026-01-03" },
+];
+
+test("media ordering supports direct positions and cross-section moves", () => {
+  const normalized = normalizeMediaOrder(orderedFixture, ["hero", "fleet"]);
+  assert.deepEqual(
+    normalized
+      .filter((item) => item.section === "hero")
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((item) => item.id),
+    ["b", "a"],
+  );
+  const moved = placeMediaItem(normalized, "a", "fleet", 0, ["hero", "fleet"]);
+  assert.deepEqual(
+    moved
+      .filter((item) => item.section === "fleet")
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map((item) => item.id),
+    ["a", "c"],
+  );
+  assert.equal(moved.find((item) => item.id === "a")?.section, "fleet");
+});
 
 test("upload validation accepts web formats and exactly 50 MiB", () => {
   for (const type of ["image/webp", "image/jpeg", "image/png", "video/mp4", "video/webm"])
@@ -80,6 +107,22 @@ test("upload pipeline creates WebP images and optional video posters", () => {
   assert.match(upload, /createVideoPoster/);
   assert.match(studio, /poster_path: posterPath/);
   assert.match(studio, /optimizeImageForUpload/);
+  assert.match(studio, /media-upload__dropzone/);
+  assert.match(studio, /sort_order: nextSortOrder/);
+  assert.match(studio, /media-studio__focus-preview/);
+  assert.match(studio, /HIDDEN_MEDIA_ID/);
+});
+
+test("admin media organizer exposes accessible ordering, undo, edit and confirmed delete", () => {
+  const manager = readFileSync(
+    new URL("../src/components/UploadedMediaManager.tsx", import.meta.url),
+    "utf8",
+  );
+  assert.match(manager, /placeMediaItem/);
+  assert.match(manager, /تغييرات غير محفوظة/);
+  assert.match(manager, /الموضع/);
+  assert.match(manager, /تأكيد الحذف/);
+  assert.doesNotMatch(manager, /\bconfirm\(/);
 });
 test("all supplied photos and six videos are catalogued from canonical sources", () => {
   const catalog = readFileSync(new URL("../src/data/media-catalog.ts", import.meta.url), "utf8");

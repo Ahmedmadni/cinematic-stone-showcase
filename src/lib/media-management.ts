@@ -6,6 +6,8 @@ import type { SiteVideo } from "@/data/official-video";
 import { selectMediaOverride } from "./media-rules";
 export { allowedMediaTypes, validateMediaFile } from "./media-rules";
 
+export const HIDDEN_MEDIA_ID = "__hidden__";
+
 export type MediaOverride = {
   target_key: string;
   replacement_id: string;
@@ -107,6 +109,7 @@ export function useMediaManagement() {
 export function resolveMedia(asset: CatalogAsset | undefined, context: string, state: Snapshot) {
   if (!asset) return undefined;
   const override = selectMediaOverride(state.overrides, context, asset.id);
+  const hidden = override?.replacement_id === HIDDEN_MEDIA_ID;
   const replacement =
     override &&
     [...mediaCatalog, ...state.uploads].find(
@@ -118,7 +121,7 @@ export function resolveMedia(asset: CatalogAsset | undefined, context: string, s
           : a.origin !== "decorative" &&
             (a.origin !== "supplementary" || asset.origin === "supplementary")),
     );
-  return { asset: replacement ?? asset, override };
+  return { asset: replacement ?? asset, override, hidden };
 }
 export function useManagedAsset(url: string | undefined, context: string) {
   const state = useMediaManagement();
