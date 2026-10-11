@@ -263,7 +263,7 @@ try {
     await archive.getByRole("button", { name: /Equipment/ }).click();
     assert.equal(await archive.locator(".site-photo-archive__photo").count(), 8);
     await archive.getByRole("button", { name: /^Quarry/ }).click();
-    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 2);
+    assert.equal(await archive.locator(".site-photo-archive__photo").count(), 4);
     const tile = archive.locator(".site-photo-archive__photo").first();
     await tile.click();
     const dialog = desktopPage.locator("dialog.gallery-lightbox--native");
