@@ -8,15 +8,15 @@ export type SiteLanguage = "ar" | "en";
  * Source originals and all brand imagery stay intact.
  */
 const english: Record<string, string> = {
-  "يعرض هذا الفصل المحجر والتكسير ومعدات التحميل.":
-    "This chapter follows the quarry, crushing plant and loading equipment.",
+  "الطاقة الاسمية للخطين": "Combined nominal line capacity",
+  "طن / ساعة": "t/h",
+  "يعرض هذا الفصل المحجر والتكسير ومعدات التحميل.": "This chapter follows the quarry, crushing plant and loading equipment.",
   "مجمع كسارات الصمان": "Al Somman crushing complex",
   "مجمع كسارات الصمان · شركة الأسطول الآلي": "Al Somman crushing complex · Al Ostool Alaali",
   "خطوط التكسير والسيور — مجمع كسارات الصمان": "Crushing lines and conveyors — Al Somman",
   "خط التكسير في كسارة الصمان": "Crushing line at Al Somman",
   "سيور وخطوط الإنتاج في الصمان": "Conveyors and production lines at Al Somman",
-  "المكاتب والورشة والموازين والسكن والمعدات وطرق الدخول ضمن موقع الصمان.":
-    "Offices, workshop, weighbridge, housing, equipment and access roads across Al Somman.",
+  "المكاتب والورشة والموازين والسكن والمعدات وطرق الدخول ضمن موقع الصمان.": "Offices, workshop, weighbridge, housing, equipment and access roads across Al Somman.",
   "معدات ثقيلة داخل الموقع": "Heavy equipment on site",
   "معدات الاستخراج والحفر داخل موقع الصمان.": "Extraction and excavation equipment at Al Somman.",
   "معدات التحميل والحفر العاملة داخل الموقع.": "Loading and excavation equipment across the site.",
@@ -24,20 +24,15 @@ const english: Record<string, string> = {
   "ميزان الشاحنات وخزانات المياه والوقود.": "Truck weighbridge, water tanks and fuel tanks.",
   "مكاتب الإدارة بالموقع": "Site administration offices",
   "ورشة الصيانة بالموقع": "Site maintenance workshop",
-  "مكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.":
-    "Administration offices, workshop and maintenance facilities at Al Somman.",
-  "مدخل الكسارة وطرق الدخول والساحات الداخلية.":
-    "Crusher entrance, access roads and internal yards.",
+  "مكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.": "Administration offices, workshop and maintenance facilities at Al Somman.",
+  "مدخل الكسارة وطرق الدخول والساحات الداخلية.": "Crusher entrance, access roads and internal yards.",
   "سكن العاملين بالموقع": "Site staff accommodation",
-  "سكن العاملين والسكن الإضافي والمصلى والاستراحة.":
-    "Staff accommodation, additional housing, prayer room and rest area.",
+  "سكن العاملين والسكن الإضافي والمصلى والاستراحة.": "Staff accommodation, additional housing, prayer room and rest area.",
   "محجر وكسارة الصمان": "Al Somman quarry and crushing plant",
-  "الصور تعرض بيئة الصمان، ولا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.":
-    "The images show the Al Somman setting; they do not define licence boundaries or link a specific frame to a licensed quarry.",
+  "الصور تعرض بيئة الصمان، ولا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.": "The images show the Al Somman setting; they do not define licence boundaries or link a specific frame to a licensed quarry.",
   "معدات موقع الصمان": "Al Somman equipment",
   "معدات الموقع": "Site equipment",
-  "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.":
-    "The permit names Bir Zeit, an Al Ostool subsidiary according to the owner. The historic presentation lists it as expired; request current renewal and ownership documents before contracting.",
+  "الترخيص باسم بير زيت، التابعة للأسطول الآلي بحسب المالك. ورد منتهيًا في نسخة العرض؛ تُطلب وثائق التجديد والملكية الحالية عند التعاقد.": "The permit names Bir Zeit, an Al Ostool subsidiary according to the owner. The historic presentation lists it as expired; request current renewal and ownership documents before contracting.",
   "محجر الصمان": "Al Somman Quarry",
   "شركة الأسطول الآلي": "Al Ostool Alaali Company",
   "شركة الأسطول الآلي للمقاولات": "Al Ostool Alaali Contracting",
@@ -49,180 +44,138 @@ const english: Record<string, string> = {
   "شعار شركة الأسطول الآلي": "Al Ostool Alaali official logo",
   "صورة تجريبية · منظر عام لمحجر الصمان": "Illustrative image · Al Somman quarry overview",
   "أصل صناعي في قلب الصمان": "An industrial asset in Al Somman",
-  محجر: "Al Somman",
-  الصمان: "Quarry",
+  "محجر": "Al Somman",
+  "الصمان": "Quarry",
   "قوّةٌ من الأرض.": "Built on the strength of the land.",
-  "فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.":
-    "An investment opportunity in an integrated building-materials operation, from quarry extraction to finished aggregate.",
+  "فرصة استثمارية في منظومة متكاملة لاستخراج وإنتاج مواد البناء، من عمق المحجر إلى المنتج النهائي.": "An investment opportunity in an integrated building-materials operation, from quarry extraction to finished aggregate.",
   "استكشف الفرصة": "Explore the opportunity",
-  الفرصة: "The opportunity",
+  "الفرصة": "The opportunity",
   "ليست مجرد كسارة.": "More than a crushing plant.",
   "إنها منظومة إنتاج.": "An integrated production system.",
-  "في منطقة الصمان، يتكامل الاستخراج والتكسير والفرز والتحميل ضمن أصل تشغيلي واحد لإنتاج البحص بمختلف أحجامه، بما يخدم مشاريع الطرق والإنشاءات.":
-    "In Al Somman, extraction, crushing, screening and loading work together to supply different grades of aggregate for roads and construction projects.",
-  "ثلاثة محاجر وخطا كسارات، تدعمهما معدات ثقيلة ومرافق تشغيلية على أرض الموقع.":
-    "Three quarry sites and two crushing lines, supported by heavy equipment and operational facilities.",
+  "في منطقة الصمان، يتكامل الاستخراج والتكسير والفرز والتحميل ضمن أصل تشغيلي واحد لإنتاج البحص بمختلف أحجامه، بما يخدم مشاريع الطرق والإنشاءات.": "In Al Somman, extraction, crushing, screening and loading work together to supply different grades of aggregate for roads and construction projects.",
+  "ثلاثة محاجر وخطا كسارات، تدعمهما معدات ثقيلة ومرافق تشغيلية على أرض الموقع.": "Three quarry sites and two crushing lines, supported by heavy equipment and operational facilities.",
   "إجمالي مساحات المحاجر": "Combined quarry areas",
-  "الطاقة الاسمية للخطين": "Combined nominal line capacity",
-  "طن / ساعة": "t/h",
+  "طاقة إنتاجية تصل إلى": "Planned capacity up to",
   "ضمن مجمع كسارات الصمان": "Within Al Somman complex",
-  محاجر: "quarries",
+  "محاجر": "quarries",
   "القدرة التشغيلية": "Production capacity",
   "من الحجر الخام": "From raw limestone",
   "إلى قيمة تُبنى.": "To construction-ready value.",
-  "خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.":
-    "Two crushing and screening lines, with connected processes, control rooms, conveyors and material-sizing screens.",
-  "صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان":
-    "Illustrative image · Crushing and screening lines",
-  "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر":
-    "Illustrative quarry crusher and screening line",
-  "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر":
-    "Illustrative conveyors and screening equipment",
+  "خطا إنتاج للكسارات والفرز، بمراحل تشغيلية مترابطة وغرف تحكم وسيور ناقلة وغرابيل لتصنيف المواد.": "Two crushing and screening lines, with connected processes, control rooms, conveyors and material-sizing screens.",
+  "صورة تجريبية · خطا الكسارات والفرز — مجمع كسارات الصمان": "Illustrative image · Crushing and screening lines",
+  "صورة تجريبية توضيحية لخط تكسير وفرز الأحجار في محجر": "Illustrative quarry crusher and screening line",
+  "صورة تجريبية توضيحية لسيور الكسارات والفرز في محجر": "Illustrative conveyors and screening equipment",
   "خطا الكسارات والفرز — مجمع كسارات الصمان": "Crushing and screening lines · Al Somman",
   "صورة بديلة للتحديث": "Illustrative image",
   "خطان للإنتاج": "Two production lines",
-  "كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.":
-    "Fixed, cone and jaw crushers, with screening and conveying equipment. Supporting infrastructure includes a tunnel and retaining wall for continued material feed.",
+  "كسارات ثابتة وكون وجاو، مع معدات فرز ونقل للمواد. وتدعم خطوط الإنتاج بنية تشمل نفقاً وجداراً استنادياً واستمرارية التغذية بالحجر.": "Fixed, cone and jaw crushers, with screening and conveying equipment. Supporting infrastructure includes a tunnel and retaining wall for continued material feed.",
   "مشاهد من المنظومة": "Explore the facilities",
   "ما وراء خطوط الإنتاج.": "Beyond the production lines.",
   "موقعٌ متكامل.": "An integrated site.",
-  "معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.":
-    "Equipment, facilities, access roads and staff accommodation support day-to-day operations. These illustrations will be replaced with approved site photos when available.",
+  "معدات ومرافق وطرق وسكن تدعم سير العمل اليومي. المشاهد التالية توضيحية، وتُستبدل بصور الموقع الفعلية عند توفرها.": "Equipment, facilities, access roads and staff accommodation support day-to-day operations. These illustrations will be replaced with approved site photos when available.",
   "تُستبدل بصورة:": "Replace with actual photo of:",
   "الموقع والمحاجر": "Site and quarries",
   "الصمان،": "Al Somman,",
   "حيث تبدأ الحكاية.": "Where the story begins.",
-  "مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.":
-    "Al Somman quarry complex in Saudi Arabia's Eastern Province, Al Ahsa, near the Riyadh–Dammam road.",
-  "المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.":
-    "Quarry figures come from the supplied presentation. Permit holders and current licence validity require independent due diligence.",
+  "مجمع كسارات الصمان في المنطقة الشرقية، محافظة الأحساء، بالقرب من طريق الرياض–الدمام.": "Al Somman quarry complex in Saudi Arabia's Eastern Province, Al Ahsa, near the Riyadh–Dammam road.",
+  "المساحات وبيانات المحاجر وفق المستند المقدم. يخضع وضع الرخص وسريانها للتحقق ضمن إجراءات الفحص النافي للجهالة.": "Quarry figures come from the supplied presentation. Permit holders and current licence validity require independent due diligence.",
   "اسأل عن المشروع": "Ask about the project",
   "لديك سؤال؟": "Have a question?",
   "اسأل مباشرة.": "Ask our quarry specialist.",
-  "اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.":
-    "Ask about Al Somman quarries, crushers, equipment and site details. Answers are limited to documented project facts.",
+  "اطرح أسئلتك عن المحاجر والكسارات والمعدات والموقع، وتحصل على إجابة فورية مبنية على معلومات المشروع المعتمدة.": "Ask about Al Somman quarries, crushers, equipment and site details. Answers are limited to documented project facts.",
   "فتح مساعد الصمان": "Open Al Somman assistant",
   "أغلق المساعد": "Close assistant",
   "اسأل مساعد الصمان": "Ask Al Somman assistant",
   "الخطوة التالية": "Next steps",
-  لنبدأ: "Let's start",
+  "لنبدأ": "Let's start",
   "الحديث.": "a conversation.",
-  "مهتم بفرصة محجر الصمان؟ اترك بياناتك، ثم اختر التواصل مع مسؤول الاستثمار عبر البريد الإلكتروني أو واتساب.":
-    "Interested in Al Somman quarry? Leave your contact details and choose email or WhatsApp to contact the investment team.",
+  "مهتم بفرصة محجر الصمان؟ اترك بياناتك، ثم اختر التواصل مع مسؤول الاستثمار عبر البريد الإلكتروني أو واتساب.": "Interested in Al Somman quarry? Leave your contact details and choose email or WhatsApp to contact the investment team.",
   "تم حفظ بيانات اهتمامك": "Your interest details have been saved",
   "اختر طريقة التواصل.": "Choose how to get in touch.",
-  "رسالتك جاهزة ببياناتك. اختر البريد الإلكتروني أو واتساب، ثم اضغط إرسال في التطبيق الذي يُفتح.":
-    "Your message is ready. Choose email or WhatsApp, review the details, and send it yourself.",
+  "رسالتك جاهزة ببياناتك. اختر البريد الإلكتروني أو واتساب، ثم اضغط إرسال في التطبيق الذي يُفتح.": "Your message is ready. Choose email or WhatsApp, review the details, and send it yourself.",
   "التواصل عبر البريد الإلكتروني": "Contact by email",
   "التواصل عبر واتساب": "Contact via WhatsApp",
-  "لن تُرسل الرسالة تلقائياً؛ يمكنك مراجعتها قبل الإرسال.":
-    "No message will be sent automatically. Review it before sending.",
+  "لن تُرسل الرسالة تلقائياً؛ يمكنك مراجعتها قبل الإرسال.": "No message will be sent automatically. Review it before sending.",
   "سجّل اهتمامك": "Register your interest",
   "الاسم الكامل": "Full name",
   "البريد الإلكتروني": "Email address",
   "رقم الهاتف": "Phone number",
   "الجهة / الشركة": "Company / organization",
-  رسالتك: "Your message",
-  اختياري: "Optional",
+  "رسالتك": "Your message",
+  "اختياري": "Optional",
   "اسم الجهة": "Organization name",
   "ما الذي تود معرفته عن الفرصة؟": "What would you like to know about this opportunity?",
   "الموقع الإلكتروني": "Website",
   "جارٍ حفظ البيانات...": "Saving your details...",
   "احفظ بياناتك واختر طريقة التواصل": "Save details and choose a contact channel",
-  "تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.":
-    "Your details are used only to follow up on this opportunity. No email or WhatsApp message is sent automatically.",
+  "تُحفظ بياناتك للتواصل بشأن هذه الفرصة فقط. لن يُرسل بريد أو واتساب تلقائياً.": "Your details are used only to follow up on this opportunity. No email or WhatsApp message is sent automatically.",
 
-  "أوافق على حفظ بيانات هذا النموذج حتى يتمكن فريق الاستثمار من مراجعة اهتمامي والتواصل معي بشأن محجر الصمان.":
-    "I agree to the storage of my form details so the investment team can review my interest and contact me about Al Somman quarry.",
-  "الاسم والبريد الإلكتروني مطلوبان، ورقم الهاتف والشركة والرسالة اختيارية. لن تُرسل رسائل بريد أو واتساب تلقائيًا.":
-    "Name and email are required; phone, company and message are optional. No email or WhatsApp message is sent automatically.",
-  "للاستفسار عن البيانات التي قدمتها أو طلب تعديلها أو حذفها، راسل":
-    "To ask about, correct or request deletion of details you supplied, email",
-  "يلزم الموافقة على استخدام البيانات قبل إرسال الطلب.":
-    "Please confirm how your details will be used before submitting.",
+  "أوافق على حفظ بيانات هذا النموذج حتى يتمكن فريق الاستثمار من مراجعة اهتمامي والتواصل معي بشأن محجر الصمان.": "I agree to the storage of my form details so the investment team can review my interest and contact me about Al Somman quarry.",
+  "الاسم والبريد الإلكتروني مطلوبان، ورقم الهاتف والشركة والرسالة اختيارية. لن تُرسل رسائل بريد أو واتساب تلقائيًا.": "Name and email are required; phone, company and message are optional. No email or WhatsApp message is sent automatically.",
+  "للاستفسار عن البيانات التي قدمتها أو طلب تعديلها أو حذفها، راسل": "To ask about, correct or request deletion of details you supplied, email",
+  "يلزم الموافقة على استخدام البيانات قبل إرسال الطلب.": "Please confirm how your details will be used before submitting.",
 
   "© شركة الأسطول الآلي": "© Al Ostool Alaali Company",
-  "الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.":
-    "All imagery is illustrative, not actual photographs of the quarry or its equipment.",
+  "الصور المعروضة تجريبية وليست صوراً فعلية للموقع أو المعدات.": "All imagery is illustrative, not actual photographs of the quarry or its equipment.",
   "العودة للأعلى ↑": "Back to top ↑",
-  "تعذّر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.":
-    "Your request could not be saved. Please contact us directly by email.",
+  "تعذّر إرسال طلبك الآن. يمكنك مراسلتنا مباشرة عبر البريد الإلكتروني.": "Your request could not be saved. Please contact us directly by email.",
   "الفصل الثاني": "Chapter two",
   "تبدأ الرحلة من عمق الأرض.": "The journey begins beneath the surface.",
   "إلى قلب": "Into the heart of",
   "الإنتاج.": "production.",
-  "حيث يتحول الحجر الخام إلى بحص عبر خطوط التكسير والفرز.":
-    "Where raw limestone becomes aggregate through crushing and screening.",
+  "حيث يتحول الحجر الخام إلى بحص عبر خطوط التكسير والفرز.": "Where raw limestone becomes aggregate through crushing and screening.",
   "انتقل مباشرة إلى تفاصيل الإنتاج": "Skip to production details",
   "مشاهد توضيحية وليست تصويرًا للموقع الفعلي": "Illustrative scenes — not actual site photography",
   "مراحل دورة الحجر الخام": "Raw stone production stages",
-  "كيف يتحول الحجر الخام إلى بحص جاهز للتحميل؟":
-    "How does raw limestone become dispatch-ready aggregate?",
+  "كيف يتحول الحجر الخام إلى بحص جاهز للتحميل؟": "How does raw limestone become dispatch-ready aggregate?",
   "من الصخر الخام": "From raw rock",
   "إلى المنتج.": "To finished aggregate.",
-  "ثلاث مراحل تشغيلية مترابطة ضمن منظومة الكسارات والفرز والتحميل.":
-    "Three connected stages across extraction, crushing and loading.",
+  "ثلاث مراحل تشغيلية مترابطة ضمن منظومة الكسارات والفرز والتحميل.": "Three connected stages across extraction, crushing and loading.",
   "مرّر للانتقال بين المراحل أو اختر مرحلة مباشرة": "Scroll through stages or select one",
   "اختر مرحلة الإنتاج": "Select a production stage",
-  "الصور توضيحية لمراحل الإنتاج وليست لقطات موثقة للموقع.":
-    "These photos illustrate production stages, not verified site imagery.",
-  "ملخص توضيحي من العرض الاستثماري؛ لا يمثل مخطط تشغيل هندسيًا أو مراقبة تشغيل مباشرة.":
-    "Illustrative process summary based on the presentation; not an engineering drawing or live operational data.",
-  "تجاوز مشاهد رحلة الحجر والانتقال إلى قسم المعدات":
-    "Skip material stages to the equipment section",
+  "الصور توضيحية لمراحل الإنتاج وليست لقطات موثقة للموقع.": "These photos illustrate production stages, not verified site imagery.",
+  "ملخص توضيحي من العرض الاستثماري؛ لا يمثل مخطط تشغيل هندسيًا أو مراقبة تشغيل مباشرة.": "Illustrative process summary based on the presentation; not an engineering drawing or live operational data.",
+  "تجاوز مشاهد رحلة الحجر والانتقال إلى قسم المعدات": "Skip material stages to the equipment section",
   "إلى المعدات": "View equipment",
   "اكتشف المعدات التي تشغّل المنظومة": "Discover the equipment",
   "استخراج الحجر الخام": "Raw stone extraction",
-  "الحفارات تُجهّز وتستخرج المادة الخام وتدعم استمرارية التغذية لخطي الإنتاج.":
-    "Excavators prepare and extract limestone, supporting feed to both production lines.",
-  الاستخراج: "Extraction",
+  "الحفارات تُجهّز وتستخرج المادة الخام وتدعم استمرارية التغذية لخطي الإنتاج.": "Excavators prepare and extract limestone, supporting feed to both production lines.",
+  "الاستخراج": "Extraction",
   "التكسير والفرز": "Crushing and screening",
-  "تنتقل المواد عبر الكسارات والغرابيل والسيور، ثم تُصنّف بحسب المقاسات.":
-    "Materials pass through crushers, screens and conveyors before grading by size.",
+  "تنتقل المواد عبر الكسارات والغرابيل والسيور، ثم تُصنّف بحسب المقاسات.": "Materials pass through crushers, screens and conveyors before grading by size.",
   "التحميل والوزن": "Loading and weighing",
-  "تُستخدم الشيولات للتحميل، مع موازين الشاحنات للمساعدة في ضبط الكميات.":
-    "Loaders handle materials, while truck scales support quantity control.",
+  "تُستخدم الشيولات للتحميل، مع موازين الشاحنات للمساعدة في ضبط الكميات.": "Loaders handle materials, while truck scales support quantity control.",
   "التجهيز للتحميل": "Ready for dispatch",
   "الاستخراج والتجهيز": "Extraction and preparation",
   "التحميل وضبط الكميات": "Loading and quantity control",
   "الأصول والمعدات": "Equipment and assets",
   "أربعة مشاهد.": "Four chapters.",
   "قوة واحدة.": "One operation.",
-  "حرّك الصفحة لاكتشاف معدات المحجر واحدة تلو الأخرى؛ أو اختر أي فئة للانتقال مباشرة إلى مشهدها.":
-    "Scroll to explore each equipment category, or select a chapter directly.",
+  "حرّك الصفحة لاكتشاف معدات المحجر واحدة تلو الأخرى؛ أو اختر أي فئة للانتقال مباشرة إلى مشهدها.": "Scroll to explore each equipment category, or select a chapter directly.",
   "مرّر لاكتشاف المشهد التالي": "Scroll to the next scene",
   "مشاهد توضيحية لفئات المعدات": "Illustrative equipment scenes",
-  "صور توضيحية — تُستبدل بتصوير المعدات الفعلية":
-    "Illustrative photos — awaiting approved equipment photography",
+  "صور توضيحية — تُستبدل بتصوير المعدات الفعلية": "Illustrative photos — awaiting approved equipment photography",
   "فئات معدات المحجر": "Quarry equipment categories",
   "شاهد مرافق الموقع": "Explore site facilities",
-  الحفارات: "Excavators",
-  الشيولات: "Wheel loaders",
+  "الحفارات": "Excavators",
+  "الشيولات": "Wheel loaders",
   "موازين الشاحنات": "Truck weighbridges",
   "مولدات الكهرباء": "Power generators",
-  حفارًا: "excavators",
-  شيولات: "loaders",
-  ميزان: "weighbridges",
-  مولدات: "generators",
-  "معدات حفر واستخراج وتحميل الحجر الخام لدعم تغذية خطوط الكسارات.":
-    "Excavation and raw-stone handling equipment that supports crusher feed.",
-  "بحسب قائمة المعدات: 10 حفارات XCMG، وحفاران كاتربلر، وحفاران فولفو.":
-    "Equipment list: 10 XCMG, 2 Caterpillar and 2 Volvo excavators.",
-  "تحميل المنتج وتحريك المواد داخل الموقع وتغذية الهوبر.":
-    "Loading materials, moving stock and feeding the crusher hopper.",
-  "تضم القائمة شيولات كاتربلر وهيتاشي وكاواساكي وXCMG.":
-    "The list includes Caterpillar, Hitachi, Kawasaki and XCMG loaders.",
-  "تستخدم لوزن الشاحنات الداخلة والخارجة وضبط كميات المواد.":
-    "Weighing inbound and outbound trucks to control material quantities.",
-  "ميزانا شاحنات بالمواصفات المذكورة في العرض: 3 × 18 متر.":
-    "Two truck weighbridges, specified in the presentation as 3 × 18 metres.",
-  "مرافق مساندة لتوفير الطاقة الكهربائية للكسارات والخدمات.":
-    "Backup facilities supplying power to crushers and site services.",
-  "ثلاثة مولدات كهربائية بحسب ملخص الأصول المرفق.":
-    "Three generators according to the attached asset summary.",
-  المشهد: "Scene",
-  من: "of",
-  المرحلة: "Stage",
+  "حفارًا": "excavators",
+  "شيولات": "loaders",
+  "ميزان": "weighbridges",
+  "مولدات": "generators",
+  "معدات حفر واستخراج وتحميل الحجر الخام لدعم تغذية خطوط الكسارات.": "Excavation and raw-stone handling equipment that supports crusher feed.",
+  "بحسب قائمة المعدات: 10 حفارات XCMG، وحفاران كاتربلر، وحفاران فولفو.": "Equipment list: 10 XCMG, 2 Caterpillar and 2 Volvo excavators.",
+  "تحميل المنتج وتحريك المواد داخل الموقع وتغذية الهوبر.": "Loading materials, moving stock and feeding the crusher hopper.",
+  "تضم القائمة شيولات كاتربلر وهيتاشي وكاواساكي وXCMG.": "The list includes Caterpillar, Hitachi, Kawasaki and XCMG loaders.",
+  "تستخدم لوزن الشاحنات الداخلة والخارجة وضبط كميات المواد.": "Weighing inbound and outbound trucks to control material quantities.",
+  "ميزانا شاحنات بالمواصفات المذكورة في العرض: 3 × 18 متر.": "Two truck weighbridges, specified in the presentation as 3 × 18 metres.",
+  "مرافق مساندة لتوفير الطاقة الكهربائية للكسارات والخدمات.": "Backup facilities supplying power to crushers and site services.",
+  "ثلاثة مولدات كهربائية بحسب ملخص الأصول المرفق.": "Three generators according to the attached asset summary.",
+  "المشهد": "Scene",
+  "من": "of",
+  "المرحلة": "Stage",
   "تصوير توضيحي لمرحلة": "Illustrative image of stage",
   "وليس صورة من الموقع": "not a real site photo",
   "مشهد توضيحي لفئة": "Illustrative image of",
@@ -231,8 +184,7 @@ const english: Record<string, string> = {
   "المحاجر الثلاثة وملفات تراخيصها": "Three quarries and licence records",
   "ثلاثة محاجر.": "Three quarries.",
   "ملفات واضحة.": "Documented records.",
-  "اختر محجرًا لتظهر مساحته ورقم رخصته والمرخص له، كما وردت في العرض الاستثماري.":
-    "Select a quarry to view its documented area, licence number and permit holder.",
+  "اختر محجرًا لتظهر مساحته ورقم رخصته والمرخص له، كما وردت في العرض الاستثماري.": "Select a quarry to view its documented area, licence number and permit holder.",
   "إجمالي مساحات المحاجر المذكورة": "Combined areas in the presentation",
   "متر مربع": "square metres",
   "اختيار أحد المحاجر": "Select a quarry",
@@ -241,35 +193,27 @@ const english: Record<string, string> = {
   "المرخص له": "Permit holder",
   "الحالة الواردة بالمستند": "Status recorded in the document",
   "طلب مستندات الترخيص الحديثة": "Request current licence documents",
-  "الصور الجوية توضيحية فقط، ولا تمثل صورًا أو حدودًا أو ترتيبًا جغرافيًا موثقًا لكل محجر.":
-    "Aerial images are illustrative, not verified photos, boundaries or geographical layout of the individual quarries.",
+  "الصور الجوية توضيحية فقط، ولا تمثل صورًا أو حدودًا أو ترتيبًا جغرافيًا موثقًا لكل محجر.": "Aerial images are illustrative, not verified photos, boundaries or geographical layout of the individual quarries.",
   "مراجعة الموقع الاسترشادي في Google Maps": "View reference pin in Google Maps",
   "محجر الأسطول ١": "Al Ostool Quarry 1",
   "محجر الأسطول ٢": "Al Ostool Quarry 2",
   "محجر بير زيت": "Bir Zeit Quarry",
   "سارية بحسب نسخة العرض": "Listed as valid in the historical presentation",
   "منتهية بحسب نسخة العرض": "Listed as expired in the historical presentation",
-  "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة قبل أي تعاقد.":
-    "Confirm current validity and ministry records before any agreement.",
-  "ورد الترخيص منتهيًا في ملف العرض؛ يُطلب مستند التجديد وحالة الترخيص الحالية.":
-    "The document lists this permit as expired. Obtain renewal evidence and verify its present status.",
-  "الترخيص باسم شركة أخرى وورد منتهيًا؛ يجب مراجعة الملكية وحق النقل والتجديد.":
-    "This licence names another company and was recorded as expired. Verify ownership, transfer rights and renewal.",
+  "يجب التأكد من استمرار السريان وتحديث بيانات الترخيص من الوزارة قبل أي تعاقد.": "Confirm current validity and ministry records before any agreement.",
+  "ورد الترخيص منتهيًا في ملف العرض؛ يُطلب مستند التجديد وحالة الترخيص الحالية.": "The document lists this permit as expired. Obtain renewal evidence and verify its present status.",
+  "الترخيص باسم شركة أخرى وورد منتهيًا؛ يجب مراجعة الملكية وحق النقل والتجديد.": "This licence names another company and was recorded as expired. Verify ownership, transfer rights and renewal.",
   "الجاهزية والمستندات": "Documentation and review",
-  المعلومة: "Evidence",
+  "المعلومة": "Evidence",
   "قبل القرار.": "before decisions.",
-  "استعرض ملخص الوثائق والاعتمادات المذكورة في العرض الاستثماري، وحدد ما يحتاج تحققًا قبل دراسة الفرصة.":
-    "Review documentary references from the investment presentation and identify items needing verification.",
-  "موظفًا وعاملًا بحسب العرض، بين التشغيل والإدارة والصيانة.":
-    "personnel recorded in operations, administration and maintenance.",
-  "عرض معلوماتي — لا يحل محل المستندات الأصلية":
-    "Information only — original documents must be verified",
+  "استعرض ملخص الوثائق والاعتمادات المذكورة في العرض الاستثماري، وحدد ما يحتاج تحققًا قبل دراسة الفرصة.": "Review documentary references from the investment presentation and identify items needing verification.",
+  "موظفًا وعاملًا بحسب العرض، بين التشغيل والإدارة والصيانة.": "personnel recorded in operations, administration and maintenance.",
+  "عرض معلوماتي — لا يحل محل المستندات الأصلية": "Information only — original documents must be verified",
   "اختر نوع البيانات المراد استعراضها": "Select a document category",
   "شهادات الإدارة": "Management system certificates",
   "ملفات التراخيص": "Permit files",
   "الفحص النافي للجهالة": "Due diligence",
-  "الملفات الأصلية والبيانات المالية التفصيلية غير منشورة على الموقع. طلبها يخضع لموافقة الجهة المسؤولة.":
-    "Original documents and detailed financial records are not public. Disclosure requires authorization.",
+  "الملفات الأصلية والبيانات المالية التفصيلية غير منشورة على الموقع. طلبها يخضع لموافقة الجهة المسؤولة.": "Original documents and detailed financial records are not public. Disclosure requires authorization.",
   "بيانات شهادات أنظمة الإدارة": "Management system certificate information",
   "ملخص بيانات الشهادات": "Certificate data summary",
   "اختر شهادة ISO": "Choose an ISO standard",
@@ -290,52 +234,35 @@ const english: Record<string, string> = {
   "طلب مستندات ومعلومات إضافية": "Request supporting documents",
   "من الاستكشاف": "From exploration",
   "إلى التواصل.": "to engagement.",
-  "خطوات واضحة للتعرف على المشروع، ومراجعة البيانات، وطلب التواصل مع الفريق المختص دون إتاحة معلومات مالية غير معتمدة للنشر.":
-    "Clear steps to explore the site, review documented facts and contact the team without disclosing nonpublic financial details.",
-  "البيانات الواردة في العرض تقديرية ومقدمة لأغراض التعريف الأولي؛ لا تشكل عرضًا ملزمًا أو ضمانًا للعوائد الاستثمارية.":
-    "Presentation figures are preliminary and informational. They are not binding offers or guarantees of investment returns.",
+  "خطوات واضحة للتعرف على المشروع، ومراجعة البيانات، وطلب التواصل مع الفريق المختص دون إتاحة معلومات مالية غير معتمدة للنشر.": "Clear steps to explore the site, review documented facts and contact the team without disclosing nonpublic financial details.",
+  "البيانات الواردة في العرض تقديرية ومقدمة لأغراض التعريف الأولي؛ لا تشكل عرضًا ملزمًا أو ضمانًا للعوائد الاستثمارية.": "Presentation figures are preliminary and informational. They are not binding offers or guarantees of investment returns.",
   "استكشف الموقع": "Explore the site",
-  "تعرف على منظومة الإنتاج والمعدات والمرافق والمناطق.":
-    "Discover production lines, equipment and site facilities.",
+  "تعرف على منظومة الإنتاج والمعدات والمرافق والمناطق.": "Discover production lines, equipment and site facilities.",
   "راجع المستندات": "Review the records",
-  "استعرض البيانات المرجعية وحدد الوثائق التي تحتاج التحقق.":
-    "Read the reference information and identify documents needing verification.",
-  "اترك بياناتك ثم اختر وسيلة التواصل المناسبة بنفسك.":
-    "Leave your details and select your preferred contact method.",
+  "استعرض البيانات المرجعية وحدد الوثائق التي تحتاج التحقق.": "Read the reference information and identify documents needing verification.",
+  "اترك بياناتك ثم اختر وسيلة التواصل المناسبة بنفسك.": "Leave your details and select your preferred contact method.",
   "إدارة الجودة": "Quality management",
   "الإدارة البيئية": "Environmental management",
   "الصحة والسلامة المهنية": "Occupational health and safety",
-  "شهادة إدارة الجودة المشار إليها في العرض الاستثماري.":
-    "Quality management certificate referenced in the presentation.",
-  "شهادة الإدارة البيئية المشار إليها في العرض الاستثماري.":
-    "Environmental management certificate referenced in the presentation.",
-  "شهادة الصحة والسلامة المهنية المشار إليها في العرض الاستثماري.":
-    "Occupational safety certificate referenced in the presentation.",
-  "هذه البيانات من نسخة العرض الاستثماري، وليست نسخًا أصلية للشهادات أو تحققًا من استمرار سريانها أو نتائج المراجعات الدورية. يلزم طلب النسخ والتحقق لدى جهة المنح.":
-    "The data comes from the historical presentation; it is neither an original certificate nor current validity confirmation. Request originals and verify with the issuing body.",
-  "حالة كل رخصة مأخوذة من المستند التاريخي؛ يلزم الاستعلام الرسمي عن التجديد، والمرخص له، وحقوق النقل والتشغيل قبل أي اتفاق.":
-    "Licence status comes from historical documents. Check renewals, current holders and transfer/operating rights through official channels before any agreement.",
-  "قائمة إرشادية لما يمكن طلبه أثناء الفحص النافي للجهالة، ولا تفيد بأن جميع الوثائق جاهزة أو معتمدة للإفصاح.":
-    "Indicative due-diligence checklist only; it does not imply that every document is available or approved for disclosure.",
+  "شهادة إدارة الجودة المشار إليها في العرض الاستثماري.": "Quality management certificate referenced in the presentation.",
+  "شهادة الإدارة البيئية المشار إليها في العرض الاستثماري.": "Environmental management certificate referenced in the presentation.",
+  "شهادة الصحة والسلامة المهنية المشار إليها في العرض الاستثماري.": "Occupational safety certificate referenced in the presentation.",
+  "هذه البيانات من نسخة العرض الاستثماري، وليست نسخًا أصلية للشهادات أو تحققًا من استمرار سريانها أو نتائج المراجعات الدورية. يلزم طلب النسخ والتحقق لدى جهة المنح.": "The data comes from the historical presentation; it is neither an original certificate nor current validity confirmation. Request originals and verify with the issuing body.",
+  "حالة كل رخصة مأخوذة من المستند التاريخي؛ يلزم الاستعلام الرسمي عن التجديد، والمرخص له، وحقوق النقل والتشغيل قبل أي اتفاق.": "Licence status comes from historical documents. Check renewals, current holders and transfer/operating rights through official channels before any agreement.",
+  "قائمة إرشادية لما يمكن طلبه أثناء الفحص النافي للجهالة، ولا تفيد بأن جميع الوثائق جاهزة أو معتمدة للإفصاح.": "Indicative due-diligence checklist only; it does not imply that every document is available or approved for disclosure.",
   "التراخيص والحقوق": "Licences and rights",
-  "نسخ حديثة من الرخص والتجديدات والملاك أو المرخص لهم وصلاحية التصرف والتشغيل.":
-    "Current permits, renewals, ownership/permit holders and rights to operate or transfer.",
+  "نسخ حديثة من الرخص والتجديدات والملاك أو المرخص لهم وصلاحية التصرف والتشغيل.": "Current permits, renewals, ownership/permit holders and rights to operate or transfer.",
   "معاينة التشغيل": "Operational inspection",
-  "معاينة الموقع وحالة خطوط الكسارات والنفق والجدار الاستنادي وتقرير فحص فني ميداني.":
-    "Site review, crusher/tunnel/retaining-wall condition and an on-site engineering inspection.",
+  "معاينة الموقع وحالة خطوط الكسارات والنفق والجدار الاستنادي وتقرير فحص فني ميداني.": "Site review, crusher/tunnel/retaining-wall condition and an on-site engineering inspection.",
   "سجل المعدات": "Equipment register",
-  "قائمة المعدات بأرقامها التسلسلية وحالتها ومرفقات الملكية أو التمويل والقيود المحتملة.":
-    "Equipment list, serial numbers, condition, ownership/financing records and possible encumbrances.",
+  "قائمة المعدات بأرقامها التسلسلية وحالتها ومرفقات الملكية أو التمويل والقيود المحتملة.": "Equipment list, serial numbers, condition, ownership/financing records and possible encumbrances.",
   "الاعتمادات والشهادات": "Accreditations and certificates",
-  "النسخ الأصلية لشهادات ISO وسجلات مراجعات المتابعة والتحقق من الجهة المانحة.":
-    "Original ISO certificates, surveillance records and issuing-body verification.",
+  "النسخ الأصلية لشهادات ISO وسجلات مراجعات المتابعة والتحقق من الجهة المانحة.": "Original ISO certificates, surveillance records and issuing-body verification.",
   "البيانات المالية": "Financial documents",
-  "المعلومات المالية وتقارير الأصول التي تعتمد الشركة مشاركتها بعد مراجعة الصلاحيات والسرية.":
-    "Financial statements and asset records only when approved for disclosure.",
+  "المعلومات المالية وتقارير الأصول التي تعتمد الشركة مشاركتها بعد مراجعة الصلاحيات والسرية.": "Financial statements and asset records only when approved for disclosure.",
   "مساعد الصمان": "Al Somman assistant",
   "يجيب من معلومات المشروع المعتمدة فقط": "Quarry questions only · documented information",
-  "اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل":
-    "Choose a topic or ask your own quarry question",
+  "اختر أحد الأسئلة الشائعة أو اكتب سؤالك بالأسفل": "Choose a topic or ask your own quarry question",
   "الأسئلة المقترحة": "Suggested quarry questions",
   "كم عدد المحاجر ومساحاتها؟": "How many quarry sites are documented, and what are their areas?",
   "ما المعدات المتوفرة في الموقع؟": "What equipment is listed for the quarry?",
@@ -344,10 +271,9 @@ const english: Record<string, string> = {
   "جارٍ إعداد الإجابة…": "Preparing an answer…",
   "اكتب سؤالك عن المحجر أو الكسارة…": "Ask about Al Somman quarry or the crushing plant…",
   "سؤالك عن المشروع": "Your quarry question",
-  إيقاف: "Stop",
+  "إيقاف": "Stop",
   "إرسال السؤال": "Send question",
-  "إجابات آلية للاسترشاد. التفاصيل المالية تُناقش مباشرة مع مسؤول الاستثمار.":
-    "AI answers are informational only. Financial questions go directly to the investment team.",
+  "إجابات آلية للاسترشاد. التفاصيل المالية تُناقش مباشرة مع مسؤول الاستثمار.": "AI answers are informational only. Financial questions go directly to the investment team.",
   "تعذّرت الإجابة الآن.": "Unable to answer right now.",
   "تعذّر إكمال الإجابة.": "Unable to complete the response.",
   "استكشف الموقع من الأعلى": "Explore the site from above",
@@ -356,98 +282,76 @@ const english: Record<string, string> = {
   "إظهار الخريطة": "Show map",
   "إخفاء الخريطة": "Hide map",
   "منظور مجسّم تصوري": "Illustrative 3D-style aerial",
-  تخيّلي: "Concept only",
-  الموقع: "Site",
+  "تخيّلي": "Concept only",
+  "الموقع": "Site",
   "خريطة Google Maps": "Google Maps",
   "استكشف محيط المحجر فعليًا": "Explore the surrounding area",
   "استكشف محيط المحجر": "Explore the surrounding area",
   "الخريطة التفاعلية وعرض موقع محجر الصمان": "Interactive map and Al Somman site view",
   "في عرض الموقع": "in the site view",
-  "مدرجات الاستخراج ومسارات حركة المعدات الثقيلة.":
-    "Extraction benches and heavy-equipment routes.",
-  "خطوط التكسير والسيور ومراحل فرز مواد الإنتاج.":
-    "Crushing lines, conveyors and material-screening stages.",
-  "المكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.":
-    "Offices, truck routes and supporting site services.",
+  "مدرجات الاستخراج ومسارات حركة المعدات الثقيلة.": "Extraction benches and heavy-equipment routes.",
+  "خطوط التكسير والسيور ومراحل فرز مواد الإنتاج.": "Crushing lines, conveyors and material-screening stages.",
+  "المكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.": "Offices, truck routes and supporting site services.",
   "ثلاثة محاجر ضمن منظومة الصمان التشغيلية.": "Three quarries within the Al Somman operation.",
-  "اضغط لتحميل خريطة Google التفاعلية بوضع القمر الصناعي. سيتصل متصفحك بخوادم Google.":
-    "Load Google's interactive satellite map. Your browser will connect to Google's servers.",
+  "اضغط لتحميل خريطة Google التفاعلية بوضع القمر الصناعي. سيتصل متصفحك بخوادم Google.": "Load Google's interactive satellite map. Your browser will connect to Google's servers.",
   "تحميل Google Maps": "Load Google Maps",
   "أو افتح الموقع مباشرة في خرائط Google": "Or open the location in Google Maps",
-  "مركز تقريبي محسوب من أركان الرخصة الواردة في المستند":
-    "Approximate centre derived from permit corners in the document",
+  "مركز تقريبي محسوب من أركان الرخصة الواردة في المستند": "Approximate centre derived from permit corners in the document",
   "مناطق الاستخراج": "Extraction zone (illustrative)",
   "مساحات الحجر الخام": "Raw stone zone",
-  "تمثيل بصري لمدرجات الاستخراج ومسارات المعدات الثقيلة، وليس حدًا مساحيًا موثقًا.":
-    "Conceptual benches and equipment routes, not surveyed boundaries.",
+  "تمثيل بصري لمدرجات الاستخراج ومسارات المعدات الثقيلة، وليس حدًا مساحيًا موثقًا.": "Conceptual benches and equipment routes, not surveyed boundaries.",
   "الكسارات والفرز": "Crushing and screening",
   "منظومة الإنتاج": "Production system",
-  "تصور تخطيطي لموقعي خطوط التكسير والسيور والفرز؛ لا يعكس توزيع المعدات الفعلي.":
-    "Indicative crusher, conveyor and screening layout; not actual equipment placement.",
+  "تصور تخطيطي لموقعي خطوط التكسير والسيور والفرز؛ لا يعكس توزيع المعدات الفعلي.": "Indicative crusher, conveyor and screening layout; not actual equipment placement.",
   "المرافق والخدمات": "Site facilities",
   "البنية التشغيلية": "Operational infrastructure",
-  "تمثيل تقريبي للمكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.":
-    "Conceptual offices, truck routes and support facilities.",
-  "تصور بصري مستوحى من طبيعة محاجر الحجر الجيري؛ ليس صورة Google Earth أو تصويرًا موثقًا لموقع الشركة.":
-    "A limestone quarry concept, not a Google Earth capture or verified site photograph.",
+  "تمثيل تقريبي للمكاتب ومسارات الشاحنات والخدمات الداعمة بالموقع.": "Conceptual offices, truck routes and support facilities.",
+  "تصور بصري مستوحى من طبيعة محاجر الحجر الجيري؛ ليس صورة Google Earth أو تصويرًا موثقًا لموقع الشركة.": "A limestone quarry concept, not a Google Earth capture or verified site photograph.",
   "استفسر عن صور الموقع الحقيقية": "Ask for actual site photographs",
-  "إحداثيات المركز استرشادية مستمدة من أربع نقاط مذكورة بالعرض الاستثماري. لا تمثل حدود المحاجر الثلاثة أو موقع المعدات بدقة، ولا تغني عن التحقق المساحي والرخص الأصلية. قد تختلف إمكانية تحميل Google Maps حسب إعدادات المتصفح والشبكة.":
-    "The reference centre is based on four corners in the presentation. It is not a surveyed boundary for all three quarries or the equipment positions. Confirm against original permits. Google Maps availability varies by network and browser.",
+  "إحداثيات المركز استرشادية مستمدة من أربع نقاط مذكورة بالعرض الاستثماري. لا تمثل حدود المحاجر الثلاثة أو موقع المعدات بدقة، ولا تغني عن التحقق المساحي والرخص الأصلية. قد تختلف إمكانية تحميل Google Maps حسب إعدادات المتصفح والشبكة.": "The reference centre is based on four corners in the presentation. It is not a surveyed boundary for all three quarries or the equipment positions. Confirm against original permits. Google Maps availability varies by network and browser.",
   "— الأصول والمعدات": "— EQUIPMENT & ASSETS",
-  "الخريطة التفاعلية والمنظور التصوري لمحجر الصمان":
-    "Interactive satellite map and illustrative quarry aerial",
-  "فتح موقع المحجر الاسترشادي في خرائط Google بنافذة جديدة":
-    "Open the reference quarry location in Google Maps",
-  "Google Maps — مركز استرشادي لإحداثيات رخصة محجر الصمان":
-    "Google Maps — approximate permit reference centre",
-  "رسم تصوري علوي لكسارات ومحجر صخري":
-    "Conceptual aerial illustration of a quarry and crushing lines",
+  "الخريطة التفاعلية والمنظور التصوري لمحجر الصمان": "Interactive satellite map and illustrative quarry aerial",
+  "فتح موقع المحجر الاسترشادي في خرائط Google بنافذة جديدة": "Open the reference quarry location in Google Maps",
+  "Google Maps — مركز استرشادي لإحداثيات رخصة محجر الصمان": "Google Maps — approximate permit reference centre",
+  "رسم تصوري علوي لكسارات ومحجر صخري": "Conceptual aerial illustration of a quarry and crushing lines",
   "٣٠": "30",
-  "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي":
-    "Al Somman Quarry and Crushing Plant | Al Ostool Alaali",
+  "محجر وكسارة الصمان | فرصة استثمارية — شركة الأسطول الآلي": "Al Somman Quarry and Crushing Plant | Al Ostool Alaali",
   "محجر وكسارة الصمان | شركة الأسطول الآلي": "Al Somman Quarry and Crushing Plant | Al Ostool",
   "مشهد حفارات الاستخراج": "Excavator extraction scene",
   "حفارات عند واجهة المحجر": "Excavators at the quarry face",
   "حفارات الاستخراج": "Quarry excavators",
-  "معدات الحفر واستخراج الحجر الخام وتغذية الكسارات في المحاجر الثلاثة.":
-    "Excavators extract limestone and support the crushing lines across the documented quarry sites.",
+  "معدات الحفر واستخراج الحجر الخام وتغذية الكسارات في المحاجر الثلاثة.": "Excavators extract limestone and support the crushing lines across the documented quarry sites.",
   "حفارات محاجر الصمان": "Al Somman excavation equipment",
   "شيولات نقل المواد": "Loaders moving material",
   "شيول تحميل الشاحنات": "Loader filling a haul truck",
   "الشيولات والتحميل": "Loaders and handling",
-  "شيولات لتحريك المواد وتحميل المنتج وتغذية الهوبر ضمن دورة التشغيل.":
-    "Loaders move material, load finished aggregate and feed the crusher hopper.",
+  "شيولات لتحريك المواد وتحميل المنتج وتغذية الهوبر ضمن دورة التشغيل.": "Loaders move material, load finished aggregate and feed the crusher hopper.",
   "شيولات التحميل بالموقع": "On-site loading equipment",
   "مرافق الموازين والمولدات": "Weighbridges and generators",
   "ميزان الشاحنات والمولدات": "Truck scales and power generators",
   "المولدات والموازين": "Power and weighbridges",
-  "مولدات لدعم التشغيل وموازين شاحنات ضمن المرافق المساندة للإنتاج.":
-    "Generators and truck scales support production and material dispatch.",
+  "مولدات لدعم التشغيل وموازين شاحنات ضمن المرافق المساندة للإنتاج.": "Generators and truck scales support production and material dispatch.",
   "مولدات الكهرباء وموازين الشاحنات": "Generators and truck weighbridges",
   "مكاتب ومنطقة الصيانة": "Office and maintenance yard",
   "الورشة ومكاتب الإدارة": "Workshops and offices",
   "المكاتب ومنطقة الصيانة": "Administration and maintenance",
-  "مكاتب الإدارة وغرف المتابعة، مع مشهد توضيحي لمنطقة صيانة المعدات.":
-    "Administrative offices, monitoring rooms and an illustrative equipment service area.",
+  "مكاتب الإدارة وغرف المتابعة، مع مشهد توضيحي لمنطقة صيانة المعدات.": "Administrative offices, monitoring rooms and an illustrative equipment service area.",
   "مكاتب الإدارة والورشة إن توفرت صورتها": "Actual offices and workshop when photographed",
   "الطرق الداخلية": "Internal roads",
   "طرق نقل المواد والساحات": "Aggregate haul roads and yards",
   "الطرق والساحات": "Roads and yards",
-  "تمهيدات الطرق والساحات التي تربط مناطق الاستخراج والخدمات داخل الموقع.":
-    "Site access roads and yards connect extraction and support facilities.",
+  "تمهيدات الطرق والساحات التي تربط مناطق الاستخراج والخدمات داخل الموقع.": "Site access roads and yards connect extraction and support facilities.",
   "الطرق والساحات الداخلية": "Internal transport roads and yards",
   "السكن والمرافق الترفيهية": "Staff accommodation and recreation",
   "سكن العمال والملعب": "Staff housing and recreation field",
-  "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.":
-    "Staff accommodation and recreation amenities referenced in the presentation.",
+  "سكن العمال والملعب الترفيهي للموظفين ضمن المرافق المذكورة في العرض.": "Staff accommodation and recreation amenities referenced in the presentation.",
   "سكن العمال والملعب الترفيهي": "Staff housing and recreation facilities",
-  استعرض: "View",
+  "استعرض": "View",
   "في المشهد التصوري": "in the conceptual view",
   "عرض ملف": "View file",
-  افتح: "Open",
-  مشهد: "Scene",
-  "مساعد الصمان — يجيب من معلومات المشروع المعتمدة فقط":
-    "Al Somman assistant — quarry questions only",
+  "افتح": "Open",
+  "مشهد": "Scene",
+  "مساعد الصمان — يجيب من معلومات المشروع المعتمدة فقط": "Al Somman assistant — quarry questions only",
 
   "إغلاق الصورة": "Close image",
   "الصورة السابقة": "Previous image",
@@ -459,71 +363,54 @@ const english: Record<string, string> = {
 
   // Supplied photography and document scan integration.
   "معدات ثقيلة فعلية داخل الموقع": "Actual heavy equipment at the site",
-  "مشاهد تحريرية احترافية لفئة الحفارات مدعومة بتصوير فعلي لمعدات الموقع.":
-    "Professional supplementary excavator visuals supported by actual photographs of site equipment.",
+  "مشاهد تحريرية احترافية لفئة الحفارات مدعومة بتصوير فعلي لمعدات الموقع.": "Professional supplementary excavator visuals supported by actual photographs of site equipment.",
   "معدات الاستخراج في الصمان": "Al Somman extraction equipment",
   "شيول وحفار داخل موقع الصمان": "Loader and excavator at Al Somman",
   "واجهة معدات التحميل والحفر": "Front view of loading and excavation equipment",
-  "تصوير فعلي لمعدات التحميل والحفر بالموقع مع مشاهد معدات تحريرية مكملة.":
-    "Actual site loading and excavation equipment alongside supplementary editorial visuals.",
+  "تصوير فعلي لمعدات التحميل والحفر بالموقع مع مشاهد معدات تحريرية مكملة.": "Actual site loading and excavation equipment alongside supplementary editorial visuals.",
   "ميزان الشاحنات الفعلي بالموقع": "Actual site truck weighbridge",
   "خزانات المياه بالموقع": "Site water tanks",
   "خزانات الوقود بالموقع": "Site fuel tanks",
   "مشهد تحريري للموازين والمولدات": "Supplementary weighbridge and generator visual",
   "مشهد مرافق تشغيلي مكمل": "Supplementary support-facility visual",
-  "تصوير فعلي لميزان الشاحنات مع مشاهد تحريرية مكملة للمرافق التشغيلية.":
-    "Actual truck weighbridge and support facilities alongside supplementary editorial visuals.",
+  "تصوير فعلي لميزان الشاحنات مع مشاهد تحريرية مكملة للمرافق التشغيلية.": "Actual truck weighbridge and support facilities alongside supplementary editorial visuals.",
   "الموازين والمرافق التشغيلية": "Weighbridges and operational facilities",
   "المكاتب الفعلية بالموقع": "Actual site offices",
   "الورشة الفعلية بالموقع": "Actual site maintenance workshop",
-  "تصوير فعلي لمكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.":
-    "Actual photographs of offices, workshop and maintenance facilities at Al Somman.",
+  "تصوير فعلي لمكاتب الإدارة والورشة ومرافق الصيانة في موقع الصمان.": "Actual photographs of offices, workshop and maintenance facilities at Al Somman.",
   "المكاتب والورشة": "Offices and workshop",
   "مدخل الموقع وطريق الدخول": "Site entrance and access road",
   "مدخل الكسارة والساحات": "Crusher entrance and yards",
-  "تصوير فعلي لمدخل الكسارة وطرق الدخول والساحات الداخلية.":
-    "Actual photographs of the crusher entrance, access roads and internal yards.",
+  "تصوير فعلي لمدخل الكسارة وطرق الدخول والساحات الداخلية.": "Actual photographs of the crusher entrance, access roads and internal yards.",
   "سكن العمال الفعلي بالموقع": "Actual site staff accommodation",
   "السكن الإضافي للعاملين": "Additional staff housing",
   "المصلى والاستراحة بالموقع": "Site prayer room and rest area",
   "سكن العمال والمرافق": "Staff housing and facilities",
-  "تصوير فعلي لسكن العمال والسكن الإضافي والمصلى والاستراحة.":
-    "Actual photographs of staff housing, additional accommodation, prayer room and rest area.",
+  "تصوير فعلي لسكن العمال والسكن الإضافي والمصلى والاستراحة.": "Actual photographs of staff housing, additional accommodation, prayer room and rest area.",
   "سكن العمال بالموقع": "On-site staff accommodation",
-  "تصوير فعلي من موقع الصمان، مع مشاهد معدات تحريرية مكملة ومميزة بوضوح.":
-    "Actual Al Somman site photography, with clearly identified supplementary equipment visuals.",
-  "تصوير فعلي · خطوط التكسير والسيور — مجمع كسارات الصمان":
-    "Actual site photography \u00b7 crushing lines and conveyors \u2014 Al Somman",
+  "تصوير فعلي من موقع الصمان، مع مشاهد معدات تحريرية مكملة ومميزة بوضوح.": "Actual Al Somman site photography, with clearly identified supplementary equipment visuals.",
+  "تصوير فعلي · خطوط التكسير والسيور — مجمع كسارات الصمان": "Actual site photography \u00b7 crushing lines and conveyors \u2014 Al Somman",
   "تصوير فعلي لخط التكسير في كسارة الصمان": "Actual photograph of an Al Somman crushing line",
-  "تصوير فعلي لسيور وخطوط الإنتاج في الصمان":
-    "Actual photograph of conveyors and production lines at Al Somman",
-  "خطوط الكسارات والفرز — مجمع كسارات الصمان":
-    "Crushing and screening lines \u2014 Al Somman complex",
+  "تصوير فعلي لسيور وخطوط الإنتاج في الصمان": "Actual photograph of conveyors and production lines at Al Somman",
+  "خطوط الكسارات والفرز — مجمع كسارات الصمان": "Crushing and screening lines \u2014 Al Somman complex",
   "تصوير فعلي من الموقع": "Actual site photography",
-  "تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول، مع إبقاء بعض مشاهد المعدات الاحترافية كمادة تحريرية مكملة.":
-    "Actual site offices, workshop, weighbridge, housing, equipment and access roads, with selected professional equipment scenes retained as supplementary editorial visuals.",
-  "يستخدم العرض تصويرًا فعليًا من موقع الصمان إلى جانب مشاهد معدات تحريرية مكملة عند الإشارة إليها.":
-    "This presentation uses actual Al Somman site photography alongside identified supplementary equipment visuals.",
+  "تصوير فعلي للمكاتب والورشة والموازين والسكن والمعدات وطرق الدخول، مع إبقاء بعض مشاهد المعدات الاحترافية كمادة تحريرية مكملة.": "Actual site offices, workshop, weighbridge, housing, equipment and access roads, with selected professional equipment scenes retained as supplementary editorial visuals.",
+  "يستخدم العرض تصويرًا فعليًا من موقع الصمان إلى جانب مشاهد معدات تحريرية مكملة عند الإشارة إليها.": "This presentation uses actual Al Somman site photography alongside identified supplementary equipment visuals.",
   "تصوير فعلي من الموقع:": "Actual site photograph:",
   "مشهد توضيحي مكمل:": "Supplementary editorial visual:",
   "تصوير فعلي من موقع الصمان": "Actual Al Somman site photography",
   "مشهد توضيحي مكمل": "Supplementary editorial visual",
-  "مشاهد المعدات الرئيسية محفوظة كتصوير تحريري مكمل؛ الصور الفعلية للموقع موضحة أدناه.":
-    "Main equipment scenes are retained as supplementary editorial visuals; actual site photographs appear below.",
+  "مشاهد المعدات الرئيسية محفوظة كتصوير تحريري مكمل؛ الصور الفعلية للموقع موضحة أدناه.": "Main equipment scenes are retained as supplementary editorial visuals; actual site photographs appear below.",
   "تصوير فعلي لمعدات موقع الصمان": "Actual photographs of Al Somman site equipment",
   "تصوير فعلي للمعدات": "Actual equipment photography",
-  "يعرض هذا الفصل تصويرًا فعليًا من موقع الصمان، مع إبقاء مشهد معدات توضيحي مكمل لمرحلة الاستخراج.":
-    "This chapter uses actual Al Somman site photography alongside a supplementary extraction-equipment visual.",
+  "يعرض هذا الفصل تصويرًا فعليًا من موقع الصمان، مع إبقاء مشهد معدات توضيحي مكمل لمرحلة الاستخراج.": "This chapter uses actual Al Somman site photography alongside a supplementary extraction-equipment visual.",
   "تصوير فعلي من موقع الصمان لمرحلة": "Actual Al Somman site photograph for",
   "مشهد معدات توضيحي مكمل لمرحلة": "Supplementary equipment visual for",
-  "الصور من موقع الصمان الفعلي، لكنها لا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.":
-    "These are actual Al Somman site photographs. They do not define permit boundaries or assign a photograph to a particular licensed quarry.",
-  "تصوير فعلي من موقع محجر وكسارة الصمان":
-    "Actual photograph of Al Somman quarry and crushing plant",
-  "يعرض الموقع نسخ المستندات المرفقة للاطلاع؛ البيانات المالية التفصيلية وطلبات التحقق تخضع لموافقة الجهة المسؤولة.":
-    "Supplied document copies are available for inspection. Detailed financial information and verification requests remain subject to company approval.",
-  "تُعرض نسخ الشهادات المرفقة وبياناتها المرجعية؛ وهي ليست نسخًا أصلية معتمدة، ولا يمثل عرضها تحققًا من استمرار السريان أو نتائج مراجعات المتابعة. يلزم التحقق لدى جهة المنح.":
-    "Supplied certificate scans and reference details are displayed; these are not certified originals. Their display does not verify continuing validity or surveillance reviews; confirm those with the issuing body.",
+  "الصور من موقع الصمان الفعلي، لكنها لا تحدد حدود كل رخصة أو تربط لقطة بعينها بمحجر مرخص محدد.": "These are actual Al Somman site photographs. They do not define permit boundaries or assign a photograph to a particular licensed quarry.",
+  "تصوير فعلي من موقع محجر وكسارة الصمان": "Actual photograph of Al Somman quarry and crushing plant",
+  "يعرض الموقع نسخ المستندات المرفقة للاطلاع؛ البيانات المالية التفصيلية وطلبات التحقق تخضع لموافقة الجهة المسؤولة.": "Supplied document copies are available for inspection. Detailed financial information and verification requests remain subject to company approval.",
+  "تُعرض نسخ الشهادات المرفقة وبياناتها المرجعية؛ وهي ليست نسخًا أصلية معتمدة، ولا يمثل عرضها تحققًا من استمرار السريان أو نتائج مراجعات المتابعة. يلزم التحقق لدى جهة المنح.": "Supplied certificate scans and reference details are displayed; these are not certified originals. Their display does not verify continuing validity or surveillance reviews; confirm those with the issuing body.",
+
 } as const;
 
 type LanguageContextValue = {
@@ -531,8 +418,7 @@ type LanguageContextValue = {
   t: (text: string) => string;
 };
 export const SiteLanguageContext = createContext<LanguageContextValue>({
-  language: "en",
-  t: (s) => translateSite(s, "en"),
+  language: "en", t: (s) => translateSite(s, "en"),
 });
 
 export function translateSite(text: string, language: SiteLanguage): string {
@@ -547,5 +433,5 @@ export function useSiteLanguage() {
 /** Convert presentation Arabic-Indic digits only in English UI, never licence IDs. */
 export function localizeDisplayNumber(value: string, language: SiteLanguage) {
   if (language === "ar") return value;
-  return value.replace(/[٠-٩]/g, (digit) => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))).replace(/٬/g, ",");
+  return value.replace(/[٠-٩]/g, digit => String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))).replace(/٬/g, ",");
 }
