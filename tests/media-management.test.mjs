@@ -176,4 +176,3 @@ test("generated concepts are restricted to equipment and public media stays uncl
     /صور وفيديوهات فعلية|تصوير فعلي من موقع الصمان|ACTUAL SITE \+ CURATED EDITORIAL/,
   );
 });
-
